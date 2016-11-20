@@ -16,6 +16,9 @@ GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 BLUE = (0,0,255)
 GREY = (150,150,150)
+YELLOW = (255, 255, 0)
+PURPLE = (255, 0, 255)
+
 
 done = False
 
@@ -27,7 +30,13 @@ gScreen = pygame.display.set_mode(size)
 clock = pygame.time.Clock()
 
 pygame.display.set_caption("TBB: To Be Renamed")
-
+sciencepic = pygame.image.load("Assets/science.png")
+progresspic = pygame.image.load("Assets/progress.png")
+failurepic = pygame.image.load("Assets/failure.png")
+mathspic = pygame.image.load("Assets/maths.png")
+engiespic = pygame.image.load("Assets/engies.png")
+campainerspic = pygame.image.load("Assets/campainers.png")
+moneypic = pygame.image.load("Assets/money.png")
 
 def bubble_sort(items):
 	""" Implementation of bubble sort """
@@ -121,10 +130,21 @@ class Player(object):
 		
 player = Player(100, 0, 100, 1, 2, 1, 1)
 
+class button(object):
+	def __init__(self, image, hoverimg):
+		self.image = image
+		self.hoverimg = hoverimg
+	def buildNew(self):
+		newButton = button(pygame.image.load(self.image), pygame.image.load(self.hoverimg))
+		return newButton
+responseButton = button("Assets/button.png", "Assets/button_hover.png").buildNew()
+		
+
 possiblequestions = [coffee, coffeee]	
 questions = [coffee, coffeee]
 newday = True	
 mouse_down = False
+
 while not done:
 
 	for event in pygame.event.get(): 
@@ -168,19 +188,43 @@ while not done:
 	y = 0
 	for i in theQuestion.results:
 		
-		pygame.draw.rect(gScreen, GREY, [50, 450 + y * 50, 600, 25])
+		gScreen.blit(responseButton.image, [50, 450 + y * 50])
+		
 		gScreen.blit(font.render(i.desc,True,BLACK), [60, 455 + y * 50])
 		
 		y+= 1
 	
 	
-	gScreen.blit(font.render(str(player.money),True,BLACK), [155 - 38, 50])
-	gScreen.blit(font.render(str(player.progress),True,BLACK), [233 - 38, 50])
-	gScreen.blit(font.render(str(player.failChance),True,BLACK), [311 - 38, 50])
-	gScreen.blit(font.render(str(player.scientists),True,BLACK), [388 - 38, 50])
-	gScreen.blit(font.render(str(player.engineers),True,BLACK), [466 -38, 50])
-	gScreen.blit(font.render(str(player.maths),True,BLACK), [544 - 38, 50])
-	gScreen.blit(font.render(str(player.campaigners),True,BLACK), [622 - 38, 50])
+	gScreen.blit(font.render(str(player.money),True,BLACK), [155 - 38, 60])
+	pygame.draw.rect(gScreen, YELLOW, [155 - 38, 60, 50, (player.money * -1) / 20])
+	gScreen.blit(moneypic, [155 - 38, 10])
+	
+	pygame.draw.rect(gScreen, GREEN, [233 - 38, 60, 50, (player.progress * -1) / 2])
+	gScreen.blit(progresspic, [233 - 38, 10])
+	
+	pygame.draw.rect(gScreen, RED, [311 - 38, 60, 50, (player.failChance * -1) / 2])
+	gScreen.blit(failurepic, [311 - 38, 10])
+	
+	pygame.draw.rect(gScreen, BLUE, [388 - 38, 60, 50, (player.scientists * -1)])
+	gScreen.blit(sciencepic, [388 - 38, 10])
+	
+	pygame.draw.rect(gScreen, GREY, [466 -38, 60, 50, (player.engineers * -1)])
+	gScreen.blit(engiespic, [466 -38, 10])
+	
+	pygame.draw.rect(gScreen, PURPLE, [544 - 38, 60, 50, (player.maths * -1)])
+	gScreen.blit(mathspic, [544 - 38, 10])
+	
+	pygame.draw.rect(gScreen, WHITE, [622 - 38, 60, 50, (player.campaigners * -1)])
+	gScreen.blit(campainerspic, [622 - 38, 10])
+	
+	
+	
+	gScreen.blit(font.render(str(player.progress),True,BLACK), [233 - 38, 60])
+	gScreen.blit(font.render(str(player.failChance),True,BLACK), [311 - 38, 60])
+	gScreen.blit(font.render(str(player.scientists),True,BLACK), [388 - 38, 60])
+	gScreen.blit(font.render(str(player.engineers),True,BLACK), [466 -38, 60])
+	gScreen.blit(font.render(str(player.maths),True,BLACK), [544 - 38, 60])
+	gScreen.blit(font.render(str(player.campaigners),True,BLACK), [622 - 38, 60])
 	
 	pygame.display.update()
 	clock.tick(60)
