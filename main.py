@@ -42,55 +42,45 @@ def hitDetect(p1, p2, p3, p4):
 		return True
 		
 class Result(object):
-	def __init__(self, desc, id, mon, prog, fail, sci, eng, mat, cam, pop):
+	#doings is list of operations, operations is a tuple of the operation and the number
+	def __init__(self, desc, result, doings):
 		self.desc = desc
-		self.id = id
-		self.money = mon
-		self.progress = prog
-		self.failChance = fail
-		self.scientists = sci
-		self.engineers = eng
-		self.maths = mat
-		self.campaigners = cam
-		self.people = pop
+		self.result = result
+		self.op = doings
 	
-	def decide(self, player):
-		if id == "":
-			player.progress += self.progress
-			player.failChance += self.failChance
-			player.scientists += self.scientists
-			player.engineers += self.engineers
-			player.maths += self.maths
-			player.campaigners += self.campaigners
-		if "addprog" in id:
-			player.progress += self.progress
-		if "addmoney" in id:
-			player.money += self.money
-		if "multmoney" in id:
-			player.money *= self.money
-		if "addfail" in id:
-			player.failChance += self.failChance
-		if "multfail" in id:
-			player.failChance *= self.failChance
-		if "addsci" in id:
-			player.scientists += self.scientists
-		if "addeng" in id:
-			player.engineers += self.engineers
-		if "addmat" in id:
-			player.maths += self.maths
-		if "addcam" in id:
-			player.campaigners += self.campaigners
-		if "addpop" in id:
-			for i in range(self.pop):
-				rand = random.randint(1, 4)
-				if rand == 1:
-					player.scientists += 1
-				if rand == 2:
-					player.engineers += 1
-				if rand == 3:
-					player.maths += 1
-				if rand == 4:
-					player.campaigners += 1
+	def decdoingse(self, player):
+		for i in range(len(self.doings)):
+			o, n = self.doings[i][0], self.doings[i][1]
+			
+			if o == "addprog":
+				player.progress += n
+			if o == "addmoney":
+				player.money += n
+			if o == "multmoney":
+				player.money *= n
+			if o == "addfail":
+				player.failChance += n
+			if o == "multfail":
+				player.failChance *= n
+			if o == "addsci":
+				player.scientists += n
+			if o == "addeng":
+				player.engineers += n
+			if o == "addmat":
+				player.maths += n
+			if o == "addcam":
+				player.campaigners += n
+			if o == "addpop":
+				for i in range(n):
+					rand = random.randint(1, 4)
+					if rand == 1:
+						player.scientists += 1
+					if rand == 2:
+						player.engineers += 1
+					if rand == 3:
+						player.maths += 1
+					if rand == 4:
+						player.campaigners += 1
 
 class Prompt(object):
 	def __init__(self, name, prompt, results, cooldown):
@@ -104,8 +94,8 @@ class Prompt(object):
 		if response == "yes":
 			pass
 
-coffee = Prompt("", "Can we install a coffee machine in the rocket?", [Result("Sure, Why not?", ["addmoney", "addfail", "addeng", "addprog"], -1, 2, 4, 0, 1, 0, 0, 0)], 1)			
-coffeee = Prompt("", "Can we install a coffeee machine in the rocket?", [Result("NO?", ["addmoney", "addfail", "addeng", "addprog"], -1, 2, 4, 0, 1, 0, 0, 0)], 1)			
+coffee = Prompt("", "Can we install a coffee machine in the rocket?", [Result("Sure, Why not?", "You install a coffee machine.", [["addmoney", -1], ["addprog", 2], ["addfail", 4], ["addeng", 1]]), Result("NO?", "After not installing a coffee machine...", [["addfail", -1]])], 1)			
+coffeee = Prompt("", "Can we install a coffeee machine in the rocket?", [Result("NO?", "After not installing a coffee machine...", [["addfail", -1]])], 1)			
 
 class Player(object):
 	def __init__(self, mon, prog, fail, sci, eng, mat, cam):
