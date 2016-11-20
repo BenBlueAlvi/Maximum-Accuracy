@@ -17,7 +17,6 @@ RED = (255, 0, 0)
 BLUE = (0,0,255)
 GREY = (150,150,150)
 
-done = False
 
 
 pygame.init()
@@ -46,9 +45,9 @@ class Result(object):
 	def __init__(self, desc, result, doings):
 		self.desc = desc
 		self.result = result
-		self.op = doings
+		self.doings = doings
 	
-	def decdoingse(self, player):
+	def decide(self, player):
 		for i in range(len(self.doings)):
 			o, n = self.doings[i][0], self.doings[i][1]
 			
@@ -115,67 +114,58 @@ possiblequestions = [coffee, coffeee]
 questions = [coffee, coffeee]
 newday = True	
 mouse_down = False
-while not done:
+done, running = False, True
 
-	for event in pygame.event.get(): 
-		if event.type == pygame.QUIT: 
-			done = True 
-		elif event.type == pygame.MOUSEBUTTONDOWN:
-			mouse_down = True
-				
-		elif event.type == pygame.MOUSEBUTTONUP:
-			mouse_down = False
-	mouse_pos = pygame.mouse.get_pos()
+while running:
+	#Before choosing an answer
+	theQuestion = possiblequestions[random.randint(0, len(questions) - 1)]
 	
-	if newday:
-		#new 
-		newday = False
-		theQuestion = possiblequestions[random.randint(0, len(questions) - 1)]
-		
-		
-	y = 0
-	for i in theQuestion.results:
-		
+	done = False
+	while not done:
 	
-		if hitDetect(mouse_pos, mouse_pos, [50, 450 + y * 50], [650, 525 + y * 50]):
-			if mouse_down:
-				newday = True
+		for event in pygame.event.get(): 
+			if event.type == pygame.QUIT: 
+				done, running = True, False
+			elif event.type == pygame.MOUSEBUTTONDOWN:
+				mouse_down = True
+			elif event.type == pygame.MOUSEBUTTONUP:
 				mouse_down = False
-				possiblequestions.remove(theQuestion)
-				
-				for q in questions:
-					q.daysSince +=1
-					if q.daysSince >= q.cooldown:
-						possiblequestions.append(q)
-	
-		y += 1
-	
-	
-	
-	gScreen.fill(WHITE)
-	gScreen.blit(font.render(theQuestion.prompt, True, BLACK), [200, 100])
-	
-	y = 0
-	for i in theQuestion.results:
+		mouse_pos = pygame.mouse.get_pos()
 		
-		pygame.draw.rect(gScreen, GREY, [50, 450 + y * 50, 600, 25])
-		gScreen.blit(font.render(i.desc,True,BLACK), [60, 455 + y * 50])
 		
-		y+= 1
-	
-	
-	gScreen.blit(font.render(str(player.money),True,BLACK), [155 - 38, 50])
-	gScreen.blit(font.render(str(player.progress),True,BLACK), [233 - 38, 50])
-	gScreen.blit(font.render(str(player.failChance),True,BLACK), [311 - 38, 50])
-	gScreen.blit(font.render(str(player.scientists),True,BLACK), [388 - 38, 50])
-	gScreen.blit(font.render(str(player.engineers),True,BLACK), [466 -38, 50])
-	gScreen.blit(font.render(str(player.maths),True,BLACK), [544 - 38, 50])
-	gScreen.blit(font.render(str(player.campaigners),True,BLACK), [622 - 38, 50])
-	
-	pygame.display.update()
-	clock.tick(60)
+		if mouse_down:
+			for i in range(len(theQuestion.results)):
+				if hitDetect(mouse_pos, mouse_pos, [50, 450 + i * 50], [650, 525 + i * 50]):
+					mouse_down = False
+					theQuestion.results[i].decide(player)
+					possiblequestions.remove(theQuestion)
+					for q in questions:
+						q.daysSince +=1
+						if q.daysSince >= q.cooldown:
+							possiblequestions.append(q)
+		
+		gScreen.fill(WHITE)
+		gScreen.blit(font.render(theQuestion.prompt, True, BLACK), [200, 100])
+		
+		y = 0
+		for i in theQuestion.results:
+			pygame.draw.rect(gScreen, GREY, [50, 450 + y * 50, 600, 25])
+			gScreen.blit(font.render(i.desc,True,BLACK), [60, 455 + y * 50])
+			y+= 1
+		
+		
+		gScreen.blit(font.render(str(player.money),True,BLACK), [155 - 38, 50])
+		gScreen.blit(font.render(str(player.progress),True,BLACK), [233 - 38, 50])
+		gScreen.blit(font.render(str(player.failChance),True,BLACK), [311 - 38, 50])
+		gScreen.blit(font.render(str(player.scientists),True,BLACK), [388 - 38, 50])
+		gScreen.blit(font.render(str(player.engineers),True,BLACK), [466 -38, 50])
+		gScreen.blit(font.render(str(player.maths),True,BLACK), [544 - 38, 50])
+		gScreen.blit(font.render(str(player.campaigners),True,BLACK), [622 - 38, 50])
+		
+		pygame.display.update()
+		clock.tick(60)
 
-
+	#after choosing an answer
 
 	
 	
