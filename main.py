@@ -93,17 +93,19 @@ class Result(object):
 					player.campaigners += 1
 
 class Prompt(object):
-	def __init__(self, name, prompt, results):
+	def __init__(self, name, prompt, results, cooldown):
 		self.name = name
 		self.prompt = prompt
 		self.results = results
+		self.cooldown = cooldown
+		self.daysSince = 0
 	def result(self, response):
 		#varbile changing here:
 		if response == "yes":
 			pass
 
-coffee = Prompt("", "Can we install a coffee machine in the rocket?", [Result("Sure, Why not?", ["addmoney", "addfail", "addeng", "addprog"], -1, 2, 4, 0, 1, 0, 0, 0)])			
-coffeee = Prompt("", "Can we install a coffeee machine in the rocket?", [Result("NO?", ["addmoney", "addfail", "addeng", "addprog"], -1, 2, 4, 0, 1, 0, 0, 0)])			
+coffee = Prompt("", "Can we install a coffee machine in the rocket?", [Result("Sure, Why not?", ["addmoney", "addfail", "addeng", "addprog"], -1, 2, 4, 0, 1, 0, 0, 0)], 1)			
+coffeee = Prompt("", "Can we install a coffeee machine in the rocket?", [Result("NO?", ["addmoney", "addfail", "addeng", "addprog"], -1, 2, 4, 0, 1, 0, 0, 0)], 1)			
 
 class Player(object):
 	def __init__(self, mon, prog, fail, sci, eng, mat, cam):
@@ -115,6 +117,7 @@ class Player(object):
 		self.engineers = eng
 		self.maths = mat
 		self.campaigners = cam
+		
 		
 player = Player(100, 0, 100, 1, 2, 1, 1)
 
@@ -137,7 +140,7 @@ while not done:
 	if newday:
 		#new 
 		newday = False
-		theQuestion = questions[random.randint(0, len(questions) - 1)]
+		theQuestion = possiblequestions[random.randint(0, len(questions) - 1)]
 		
 		
 	y = 0
@@ -148,8 +151,12 @@ while not done:
 			if mouse_down:
 				newday = True
 				mouse_down = False
-				questions.remove(theQuestion)
 				possiblequestions.remove(theQuestion)
+				
+				for q in questions:
+					q.daysSince +=1
+					if q.daysSince >= q.cooldown:
+						possiblequestions.append(q)
 	
 		y += 1
 	
