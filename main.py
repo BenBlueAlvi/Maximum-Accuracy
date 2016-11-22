@@ -42,6 +42,8 @@ engiespic = pygame.image.load("Assets/engies.png")
 campainerspic = pygame.image.load("Assets/campainers.png")
 moneypic = pygame.image.load("Assets/money.png")
 end_of_day_pic = pygame.image.load("Assets/end_of_day.png")
+continuepic = pygame.image.load("Assets/continue.png")
+launchpic = pygame.image.load("Assets/launch.png")
 
 def bubble_sort(items):
 	""" Implementation of bubble sort """
@@ -318,11 +320,37 @@ while running:
 				done, running = True, False
 			elif event.type == pygame.MOUSEBUTTONDOWN:
 				mouse_down = True
-				done = True
+				
 			elif event.type == pygame.MOUSEBUTTONUP:
 				mouse_down = False
 		mouse_pos = pygame.mouse.get_pos()
+
 		#launch button, and continue button.
+		if hitDetect(mouse_pos, mouse_pos, [10,640], [180, 690]) and mouse_down:
+			mouse_down = False
+			successChance = player.progress / player.failChance
+			launchChance = random.randint(0, 100)
+			rand = 100 - launchChance
+			if launchChance <= successChance:
+				
+				print "LAUNCH SUCCESSFUL!"
+			if launchChance > successChance and launchChance <= successChance + (rand * 1 / 3):
+				
+				print "LAUNCH Failure 1!"
+			if launchChance > successChance + (rand * 1 / 3) and launchChance <= successChance + (rand * 2 / 3):
+				
+				print "LAUNCH Failure 2!"
+			if launchChance > successChance + (rand * 2 / 3):
+				
+				print "LAUNCH Failure 3!"
+		
+		if hitDetect(mouse_pos, mouse_pos, [10,580], [180, 630]) and mouse_down:
+			done = True
+				
+		
+		gScreen.blit(continuepic, [10, 580])
+		gScreen.blit(launchpic, [10, 640])
+
 		pygame.display.update()
 		clock.tick(60)
 
