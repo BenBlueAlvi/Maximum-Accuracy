@@ -44,6 +44,7 @@ moneypic = pygame.image.load("Assets/money.png")
 end_of_day_pic = pygame.image.load("Assets/end_of_day.png")
 continuepic = pygame.image.load("Assets/continue.png")
 launchpic = pygame.image.load("Assets/launch.png")
+tippic = pygame.image.load("Assets/tip.png")
 
 def bubble_sort(items):
 	""" Implementation of bubble sort """
@@ -264,6 +265,8 @@ while running:
 			gScreen.blit(font.render(i.desc,True,BLACK), [60, 455 + y * 50])
 		
 			y+= 1
+			
+		
 
 		pygame.draw.rect(gScreen, YELLOW, [155 - 38, 60, 50, (player.money * -1) / 20])
 		gScreen.blit(moneypic, [155 - 38, 10])
@@ -293,6 +296,10 @@ while running:
 		gScreen.blit(font.render(str(player.engineers),True,BLACK), [466 -38, 60])
 		gScreen.blit(font.render(str(player.maths),True,BLACK), [544 - 38, 60])
 		gScreen.blit(font.render(str(player.campaigners),True,BLACK), [622 - 38, 60])
+		
+		if hitDetect(mouse_pos, mouse_pos, [155 - 38, 10], [155 + 50 - 38, 60]):
+			gScreen.blit(tippic, mouse_pos)
+			gScreen.blit(font.render("This is your money. You run out, you get fired.", True, BLACK), mouse_pos)
 		
 		pygame.display.update()
 		clock.tick(60)
