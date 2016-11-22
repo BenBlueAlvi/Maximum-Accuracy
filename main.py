@@ -41,6 +41,7 @@ mathspic = pygame.image.load("Assets/maths.png")
 engiespic = pygame.image.load("Assets/engies.png")
 campainerspic = pygame.image.load("Assets/campainers.png")
 moneypic = pygame.image.load("Assets/money.png")
+end_of_day_pic = pygame.image.load("Assets/end_of_day.png")
 
 def bubble_sort(items):
 	""" Implementation of bubble sort """
@@ -69,14 +70,14 @@ class Result(object):
 			
 			if o == "addprog":
 				if n < 0:
-					self.feedback.append("You lose "+str(-n)+"% progress.")
+					self.feedback.append("The rocket loses progresses by "+str(n) + "%")
 				else:
-					self.feedback.append("You gain "+str(n)+"% additional progress.")
+					self.feedback.append("The rocket progresses by "+str(n) + "%")
 				player.progress += n
 			if o == "addmoney":
 				if n < 0:
 					if player.money + n < 0:
-						self.feedback.append("You don't have enough funds.")
+						self.feedback.append("You realize you don't have enough funds.")
 						break
 					else:
 						player.money += n
@@ -86,33 +87,33 @@ class Result(object):
 					self.feedback.append("You gain $"+str(n)+"K")
 			if o == "addfail":
 				if n < 0:
-					self.feedback.append("Chance of faliure has decreased by "+str(-n)+"%")
+					self.feedback.append("Estamates show that the chance of faliure has decreased by "+str(-n)+"%")
 				else:
-					self.feedback.append("Chance for faliure has increased by "+str(n)+"%")
+					self.feedback.append("Estamates show that the chance for faliure has increased by "+str(n)+"%")
 				player.failChance += n
 			if o == "addsci":
 				if n < 0:
-					self.feedback.append("You lost "+str(n)+" scientists.")
+					self.feedback.append(str(-n)+" scientists have quit.")
 				else:
-					self.feedback.append("You gain "+str(n)+" scientists")
+					self.feedback.append("You hire "+str(n)+" scientists")
 				player.scientists += n
 			if o == "addeng":
 				if n < 0:
-					self.feedback.append("You lost "+str(n)+" engineers.")
+					self.feedback.append(str(-n)+" engineers have quit.")
 				else:
-					self.feedback.append("You gain "+str(n)+" engineers")
+					self.feedback.append("You hire "+str(n)+" engineers")
 				player.engineers += n
 			if o == "addmat":
 				if n < 0:
-					self.feedback.append("You lost "+str(n)+" mathematitions.")
+					self.feedback.append(str(-n)+" mathematitions have quit.")
 				else:
-					self.feedback.append("You gain "+str(n)+" mathematitions")
+					self.feedback.append("You hire "+str(n)+" mathematitions")
 				player.maths += n
 			if o == "addcam":
 				if n < 0:
-					self.feedback.append("You lost "+str(n)+" campaigners.")
+					self.feedback.append(str(-n)+" campaigners have quit.")
 				else:
-					self.feedback.append("You gain "+str(n)+" campaigners")
+					self.feedback.append("You hire "+str(n)+" campaigners")
 				player.campaigners += n
 			if o == "addpop":
 				for i in range(n):
@@ -130,7 +131,7 @@ class Result(object):
 				rand2 = n * ((.2*player.scientists)+1)*player.engineers*0.4
 				if rand < 0:
 					if player.money - rand < 0:
-						self.feedback.append("You don't have enough funds.")
+						self.feedback.append("You realize you don't have enough funds.")
 						break
 					else:
 						self.feedback.append("You spend $"+str(-rand)+"K.")
@@ -139,7 +140,7 @@ class Result(object):
 					self.feedback.append("You gain $"+str(rand)+"K.")
 					player.money += rand
 				
-				self.feedback.append("You gain "+str(rand2)+"% additional progress.")
+				self.feedback.append("The rocket loses progresses by "+str(rand2)+"%")
 				player.progress += rand2
 
 		return self.feedback
@@ -156,15 +157,16 @@ class Prompt(object):
 		if response == "yes":
 			pass
 
-coffee = Prompt("", "Can we install a coffee machine in the rocket?", [Result("Sure, Why not?", "You install a coffee machine.", [["addmoney", -1], ["addprog", 2], ["addfail", 4], ["addeng", 1]]), Result("NO?", "After not installing a coffee machine...", [["addfail", -1]])], 1)			
-coffeee = Prompt("", "Can we install a coffeee machine in the rocket?", [Result("NO?", "After not installing a coffee machine...", [["addfail", -1]])], 1)			
-hire1 = Prompt("", "I would like to suggest we hire new staff.", [Result("Sure, I'll leave it up to you.", "You manage to hire 2 new people.", [["addmoney", -4], ["addpop", 2]]), Result("Let's hire some Campaigners.", "You attempt to hire campaigners.", [["addmoney", -2], ["addcam", 1]]), Result("Let's just focus on working today.", "after convincing your staff to work overtime..", [["overtime", 0.4]])], 2)
+coffee = Prompt("", ["A few engineers approch you and ask:", "Can we install a coffee machine in the rocket?"], [Result("Sure, Why not?", "After installing a coffee machine on the rocket,", [["addmoney", -1], ["addprog", 2], ["addfail", 4], ["addeng", 1]]), Result("NO?", "After not installing a coffee machine...", [["addfail", -1]])], 1)			
+coffeee = Prompt("", ["A few engineers approch you and ask:", "Can we install a coffeee machine in the rocket?"], [Result("NO?", "After not installing a coffee machine on the rocket,", [["addfail", -1]])], 1)			
+hire1 = Prompt("", ["Your advisor from the government approches you:", "I would like to suggest we hire new staff."], [Result("Sure, I'll leave it up to you.", "You manage to hire 2 new people.", [["addmoney", -4], ["addpop", 2]]), Result("Let's hire some Campaigners.", "You attempt to hire campaigners.", [["addmoney", -2], ["addcam", 1]]), Result("Let's just focus on working today.", "after convincing your staff to work overtime..", [["overtime", 0.4]])], 2)
 #hire2 = engineers, scientists
 #hire3 = maths, campaigners
 #bakesale
 #adcampaign
 #toaster
 #hotel = build hotel on moon
+hotel = Prompt("", ["The CEO of a large hotel group has approched you", "and wishes install one of his hotels on the moon.", "He bribes you with quite a bit of money."], [Result("I guess so.", "The engineers begin to load materials to build the hotel on the moon.", [["addfail", -20], ["addmoney", 30]]), Result("No.", "After focusing on building the rocket and not business deals:", [["addprog", 5], ["addpop", 1]])], 1)
 #mtndew
 #sodamachine
 
@@ -192,7 +194,7 @@ responseButton = button("Assets/button.png", "Assets/button_hover.png").buildNew
 
 
 possiblequestions = [coffee, coffeee, hire1]	
-questions = [coffee, coffeee, hire1]
+questions = [coffee, coffeee, hire1, hotel]
 funded = True	
 mouse_down = False
 
@@ -200,7 +202,10 @@ done, running = False, True
 
 while running:
 	#Before choosing an answer
-	theQuestion = possiblequestions[random.randint(0, len(questions) - 1)]
+	if player.money < 4 and not hotel in possiblequestions:
+		possiblequestions.append(hotel)
+		
+	theQuestion = possiblequestions[random.randint(0, len(possiblequestions) - 1)]
 	done, mouse_down = False, False
 	while not done:
 
@@ -227,7 +232,10 @@ while running:
 					done = True
 		
 		gScreen.fill(WHITE)
-		gScreen.blit(font.render(theQuestion.prompt, True, BLACK), [200, 100])
+		for i in range(len(theQuestion.prompt)):
+		
+			gScreen.blit(font.render(theQuestion.prompt[i], True, BLACK), [200, 100 + i * 20])
+			
 		y = 0
 		for i in theQuestion.results:
 			gScreen.blit(responseButton.image, [50, 450 + y * 50])
@@ -301,9 +309,10 @@ while running:
 	done, mouse_down = False, False
 	while not done and running:
 		gScreen.fill(WHITE)
+		gScreen.blit(end_of_day_pic, [190, 90])
 		for i in range(len(feedback)):
 			gScreen.blit(font.render(feedback[i], True, BLACK), [200, 100+(i*20)])
-
+		
 		for event in pygame.event.get(): 
 			if event.type == pygame.QUIT: 
 				done, running = True, False
