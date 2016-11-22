@@ -75,7 +75,7 @@ class Result(object):
 					self.feedback.append("The rocket loses progresses by "+str(n) + "%")
 				else:
 					self.feedback.append("The rocket progresses by "+str(n) + "%")
-				player.progress += n
+				player.progress += player.mult*n
 			if o == "addmoney":
 				if n < 0:
 					if player.money + n < 0:
@@ -130,7 +130,7 @@ class Result(object):
 						player.campaigners += 1
 			if o == "overtime":
 				rand = n * ((2*player.campaigners) - (player.engineers + player.scientists))
-				rand2 = n * ((.2*player.scientists)+1)*player.engineers*0.4
+				rand2 = player.mult * n * ((.2*player.scientists)+1)*player.engineers*0.4
 				if rand < 0:
 					if player.money - rand < 0:
 						self.feedback.append("You realize you don't have enough funds.")
@@ -144,6 +144,23 @@ class Result(object):
 				
 				self.feedback.append("The rocket loses progresses by "+str(rand2)+"%")
 				player.progress += rand2
+			if o == "addmult":
+				if n < 0:
+					if player.mult + n < 0:
+						self.feedback.append("Your plans cannot grow any grander.")
+						break
+					else:
+						self.feedback.append("Your spaceship plans have grown.")
+						player.mult += n
+				else:
+					self.feedback.append("Your spaceship plans have shrunk.")
+					player.mult += n
+			if o == "multprog":
+				if n < 1:
+					self.feedback.append("Your progress has reduced")
+				else:
+					self.feedback.append("Your progress has advanced")
+				player.progress *= n
 
 		return self.feedback
 
@@ -164,13 +181,17 @@ coffeee = Prompt("", ["A few engineers approch you and ask:", "Can we install a 
 hire1 = Prompt("", ["Your advisor from the government approches you:", "I would like to suggest we hire new staff."], [Result("Sure, I'll leave it up to you.", "You manage to hire 2 new people.", [["addmoney", -4], ["addpop", 2]]), Result("Let's hire some Campaigners.", "You attempt to hire campaigners.", [["addmoney", -2], ["addcam", 1]]), Result("Let's just focus on working today.", "after convincing your staff to work overtime..", [["overtime", 0.4]])], 2)
 #hire2 = engineers, scientists
 #hire3 = maths, campaigners
-#bakesale
+#bakesale = Prompt("", ["One of your campaigners suggests:", "We should have a bake sale to raise money."], [Result()])
 #adcampaign
-#toaster
+
+toaster = Prompt("", ["One of those hippies from science department asks:", "Hey, we're low on funds right now. I suggest we turn our chassis into a toaster."], [Result("Sure, we need to save money.", "After switching over your chassis:", [["addmult", 2], ["addfail", 100], ["addmat", -2], ["addprog", 2]]), Result("We don't need to be THAT drastic..", "After reducing the size:", [["addmult", .2], ["addfail", -1], ["addsci", 1]]), Result("No way.", "After denying the toaster plan:", [["addmat", 1], ["addpop", 1]])], 3)
 #hotel = build hotel on moon
-hotel = Prompt("", ["The CEO of a large hotel group has approched you", "and wishes install one of his hotels on the moon.", "He bribes you with quite a bit of money."], [Result("I guess so.", "The engineers begin to load materials to build the hotel on the moon.", [["addfail", -20], ["addmoney", 30]]), Result("No.", "After focusing on building the rocket and not business deals:", [["addprog", 5], ["addpop", 1]])], 1)
+hotel = Prompt("", ["The CEO of a large hotel group has approched you", "and wishes install one of his hotels on the moon.", "He bribes you with quite a bit of money."], [Result("I guess so.", "The engineers begin to load materials to build the hotel on the moon.", [["multprog", .2], ["addmult", -.8], ["addfail", 30], ["addmoney", 30]]), Result("No.", "After focusing on building the rocket and not business deals:", [["addprog", 5], ["addpop", 1]])], 3)
 #mtndew
 #sodamachine
+
+possiblequestions = [coffee, coffeee, hire1, toaster]	
+questions = [coffee, coffeee, hire1, hotel, toaster]
 
 class Player(object):
 	def __init__(self, mon, prog, fail, sci, eng, mat, cam):
@@ -182,6 +203,7 @@ class Player(object):
 		self.engineers = eng
 		self.maths = mat
 		self.campaigners = cam
+		self.mult = 1
 
 player = Player(18, 0, 100, 1, 2, 1, 0)
 
@@ -194,9 +216,6 @@ class button(object):
 		return newButton
 responseButton = button("Assets/button.png", "Assets/button_hover.png").buildNew()
 
-
-possiblequestions = [coffee, coffeee, hire1]	
-questions = [coffee, coffeee, hire1, hotel]
 funded = True	
 mouse_down = False
 
@@ -294,14 +313,14 @@ while running:
 	feedback1.append("Your mathematitions reduce chance of failiure by "+str(2*player.maths)+"%")
 	
 	player.failChance -= 2*player.maths
-	if player.failChance < 0:
-		player.failChance = 0
-	player.progress += ((.2*player.scientists)+1)*player.engineers*0.4
+	if player.failChance < 1:
+		player.failChance = 1
+	player.progress += player.mult * ((.2*player.scientists)+1)*player.engineers*0.4
 	
 	feedback1.append("")
 	feedback1 += feedback
 	feedback1.append("")
-	feedback1.append("You gain "+str(((.2*player.scientists)+1)*player.engineers*0.4)+"% progress on the ship.")
+	feedback1.append("You gain "+str(player.mult * ((.2*player.scientists)+1)*player.engineers*0.4)+"% progress on the ship.")
 	feedback1.append("Current progress: "+str(player.progress)+"%")
 	if player.money <= 0:
 		feedback1.append("You have run out of money. You might want to launch...")
