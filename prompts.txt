@@ -1,0 +1,1 @@
+Prompt(James,how many coltons are there,["Result(2,2 coltons,[['addfail', 1]])"])
