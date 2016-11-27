@@ -19,13 +19,6 @@ GREY = (150,150,150)
 YELLOW = (255, 255, 0)
 PURPLE = (255, 0, 255)
 
-#This is your money. You run out, you get fired.
-#Rocket progress. Higher progress means better launch.
-#Fail chance increases the chance of explosions.
-#Mathematitians decrease the chance of failiure of launch.
-#Scientists increase the efficiency of your engineers.
-#Engineers spend money to buy resources and work on the rocket.
-#Campaigners spend their time advertising and gaining more money.
 
 pygame.init()
 font = pygame.font.SysFont('Calibri', 15, True, False)
@@ -327,9 +320,39 @@ while running:
 		gScreen.blit(font.render(str(player.campaigners),True,BLACK), [622 - 38, 60])
 		
 		if hitDetect(mouse_pos, mouse_pos, [155 - 38, 10], [155 + 50 - 38, 60]):
-			gScreen.blit(tippic, mouse_pos)
-			gScreen.blit(font.render("This is your money. You run out, you get fired.", True, BLACK), mouse_pos)
+			gScreen.blit(tippic, [mouse_pos[0], mouse_pos[1] + 20])
+			gScreen.blit(font.render("This is your money. You run out, you get fired.", True, BLACK), [mouse_pos[0] + 10, mouse_pos[1] + 22])
+		elif hitDetect(mouse_pos, mouse_pos, [233 - 38, 10], [233 + 50 - 38, 60]):
+			gScreen.blit(tippic, [mouse_pos[0], mouse_pos[1] + 20])
+			gScreen.blit(font.render("Rocket progress. Higher progress means better launch.", True, BLACK), [mouse_pos[0] + 10, mouse_pos[1] + 22])	
+		elif hitDetect(mouse_pos, mouse_pos, [311 - 38, 10], [311 + 50 - 38, 60]):
+			gScreen.blit(tippic, [mouse_pos[0], mouse_pos[1] + 20])
+			gScreen.blit(font.render("Fail chance increases the chance of explosions.", True, BLACK), [mouse_pos[0] + 10, mouse_pos[1] + 22])
+		elif hitDetect(mouse_pos, mouse_pos, [388 - 38, 10], [388 + 50 - 38, 60]):
+			gScreen.blit(tippic, [mouse_pos[0]- 250, mouse_pos[1] + 20])
+			gScreen.blit(font.render("Scientists increase the efficiency of your engineers.", True, BLACK), [mouse_pos[0] + 10 - 250, mouse_pos[1] + 22])
+		elif hitDetect(mouse_pos, mouse_pos, [466 - 38, 10], [466 + 50 - 38, 60]):
+			gScreen.blit(tippic, [mouse_pos[0] - 450, mouse_pos[1] + 20])
+			gScreen.blit(font.render("Engineers spend money to buy resources and work on the rocket.", True, BLACK), [mouse_pos[0] + 10 - 450, mouse_pos[1] + 22])
+		elif hitDetect(mouse_pos, mouse_pos, [544 - 38, 10], [544 + 50 - 38, 60]):
+			gScreen.blit(tippic, [mouse_pos[0] - 450, mouse_pos[1] + 20])
+			gScreen.blit(font.render("Mathematitians decrease the chance of failiure of launch.", True, BLACK), [mouse_pos[0] + 10 - 450, mouse_pos[1] + 22])
+		elif hitDetect(mouse_pos, mouse_pos, [622 - 38, 10], [622 + 50 - 38, 60]):
+			gScreen.blit(tippic, [mouse_pos[0] - 450, mouse_pos[1] + 20])
+			gScreen.blit(font.render("Campaigners spend their time advertising and gaining more money.", True, BLACK), [mouse_pos[0] + 10 - 450, mouse_pos[1] + 22])
 		
+			
+			
+			#This is your money. You run out, you get fired.
+			#Rocket progress. Higher progress means better launch.
+			#Fail chance increases the chance of explosions.
+			#Mathematitians decrease the chance of failiure of launch.
+			#Scientists increase the efficiency of your engineers.
+			#Engineers spend money to buy resources and work on the rocket.
+			#Campaigners spend their time advertising and gaining more money.     <----- Longest tooltip
+
+			
+			
 		pygame.display.update()
 		clock.tick(60)
 
