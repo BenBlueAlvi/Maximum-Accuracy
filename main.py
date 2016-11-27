@@ -71,6 +71,8 @@ class Result(object):
 		for i in range(len(self.doings)):
 			o, n = self.doings[i][0], self.doings[i][1]
 			
+			if o == "addflav":
+				self.feedback.append(n)
 			if o == "addprog":
 				if n < 0:
 					self.feedback.append("The rocket loses progresses by "+str(n) + "%")
@@ -96,25 +98,25 @@ class Result(object):
 				player.failChance += n
 			if o == "addsci":
 				if n < 0:
-					self.feedback.append(str(-n)+" scientists have quit.")
+					self.feedback.append("You have lost "+str(-n)+" scientists.")
 				else:
 					self.feedback.append("You hire "+str(n)+" scientists")
 				player.scientists += n
 			if o == "addeng":
 				if n < 0:
-					self.feedback.append(str(-n)+" engineers have quit.")
+					self.feedback.append("You have lost "+str(-n)+" engineers.")
 				else:
 					self.feedback.append("You hire "+str(n)+" engineers")
 				player.engineers += n
 			if o == "addmat":
 				if n < 0:
-					self.feedback.append(str(-n)+" mathematitions have quit.")
+					self.feedback.append("You have lost "+str(-n)+" mathematitions.")
 				else:
 					self.feedback.append("You hire "+str(n)+" mathematitions")
 				player.maths += n
 			if o == "addcam":
 				if n < 0:
-					self.feedback.append(str(-n)+" campaigners have quit.")
+					self.feedback.append("You have lost "+str(-n)+" campaigners.")
 				else:
 					self.feedback.append("You hire "+str(n)+" campaigners")
 				player.campaigners += n
@@ -130,7 +132,7 @@ class Result(object):
 					if rand == 4:
 						player.campaigners += 1
 			if o == "overtime":
-				rand = n * ((2*player.campaigners) - (player.engineers + player.scientists))
+				rand = n * ((2*player.campaigners) - (player.engineers * player.cost))
 				rand2 = player.mult * n * ((.2*player.scientists)+1)*player.engineers*0.4
 				if rand < 0:
 					if player.money - rand < 0:
@@ -143,7 +145,7 @@ class Result(object):
 					self.feedback.append("You gain $"+str(rand)+"K.")
 					player.money += rand
 				
-				self.feedback.append("The rocket loses progresses by "+str(rand2)+"%")
+				self.feedback.append("The rocket progresses by "+str(rand2)+"%")
 				player.progress += rand2
 			if o == "addmult":
 				if n < 0:
@@ -162,7 +164,24 @@ class Result(object):
 				else:
 					self.feedback.append("Your progress has advanced")
 				player.progress *= n
-
+			if o == "addcost":
+				if n < 0:
+					if player.cost + n < 0:
+						self.feedback.append("The cost cannot be reduced further.")
+						break
+					else:
+						self.feedback.append("The cost has reduced.")
+						player.cost += n
+				else:
+					self.feedback.append("The cost has increased.")
+					player.cost += n
+			if o == "multcost":
+				if n < 1:
+					self.feedback.append("Your costs have reduced")
+				else:
+					self.feedback.append("Your costs have inrceased")
+				player.progress *= n
+				
 		return self.feedback
 
 class Prompt(object):
@@ -177,22 +196,27 @@ class Prompt(object):
 		if response == "yes":
 			pass
 
-coffee = Prompt("", ["A few engineers approch you and ask:", "Can we install a coffee machine in the rocket?"], [Result("Sure, Why not?", "After installing a coffee machine on the rocket,", [["addmoney", -1], ["addprog", 2], ["addfail", 4], ["addeng", 1]]), Result("NO?", "After not installing a coffee machine...", [["addfail", -1]])], 1)			
-coffeee = Prompt("", ["A few engineers approch you and ask:", "Can we install a coffeee machine in the rocket?"], [Result("NO?", "After not installing a coffee machine on the rocket,", [["addfail", -1]])], 1)			
-hire1 = Prompt("", ["Your advisor from the government approches you:", "I would like to suggest we hire new staff."], [Result("Sure, I'll leave it up to you.", "You manage to hire 2 new people.", [["addmoney", -4], ["addpop", 2]]), Result("Let's hire some Campaigners.", "You attempt to hire campaigners.", [["addmoney", -2], ["addcam", 1]]), Result("Let's just focus on working today.", "after convincing your staff to work overtime..", [["overtime", 0.4]])], 2)
+#Staff management
+hire1 = Prompt("", ["Your advisor from the government approches you:", "I would like to suggest we hire new staff."], [Result("Sure, I'll leave it up to you.", "You manage to hire 2 new people.", [["addmoney", -4], ["addpop", 2]]), Result("Let's hire some Campaigners.", "You attempt to hire campaigners.", [["addmoney", -2], ["addcam", 1]]), Result("Let's just focus on working today.", "after convincing your staff to work overtime..", [["overtime", 0.2]])], 2)
 #hire2 = engineers, scientists
 #hire3 = maths, campaigners
+#fire1 = sci, eng, mat
+
+#Money and materials
 #bakesale = Prompt("", ["One of your campaigners suggests:", "We should have a bake sale to raise money."], [Result()])
 #adcampaign
+materials = Prompt("", ["One of your scientists approaches you:", "We need to discuss our materials."], [Result("How about all carbon fiber?", "After using hi-tech materials:", [["addfail", -4], ["addcost", 2]]), Result("Why not normal materials, like steel?", "After deciding to use standard materials:", [["addflav", "Engineers are attracted to the ease of their jobs."], ["addeng", 1]]), Result("Lets think cheap. Duct-tape cheap.", "After deciding to use low-cost materials:", [["addcost", -.5], ["addmult", .1], ["addfail", 20], ["addmat", -2]])], 3)
+#fuel = nuclear, car, rocket
 
+#Bad ideas
+coffee = Prompt("", ["A few engineers approch you and ask:", "Can we install a coffee machine in the rocket?"], [Result("Sure, Why not?", "After installing a coffee machine on the rocket,", [["addmoney", -1], ["addprog", 2], ["addfail", 4], ["addeng", 1]]), Result("NO?", "After not installing a coffee machine...", [["addfail", -1]])], 1)			
 toaster = Prompt("", ["One of those hippies from science department asks:", "Hey, we're low on funds right now. I suggest we turn our chassis into a toaster."], [Result("Sure, we need to save money.", "After switching over your chassis:", [["addmult", 2], ["addfail", 100], ["addmat", -2], ["addprog", 2]]), Result("We don't need to be THAT drastic..", "After reducing the size:", [["addmult", .2], ["addfail", -1], ["addsci", 1]]), Result("No way.", "After denying the toaster plan:", [["addmat", 1], ["addpop", 1]])], 3)
-#hotel = build hotel on moon
 hotel = Prompt("", ["The CEO of a large hotel group has approched you", "and wishes install one of his hotels on the moon.", "He bribes you with quite a bit of money."], [Result("I guess so.", "The engineers begin to load materials to build the hotel on the moon.", [["multprog", .2], ["addmult", -.8], ["addfail", 30], ["addmoney", 30]]), Result("No.", "After focusing on building the rocket and not business deals:", [["addprog", 5], ["addpop", 1]])], 3)
 #mtndew
 #sodamachine
 
-possiblequestions = [coffee, coffeee, hire1, toaster]	
-questions = [coffee, coffeee, hire1, hotel, toaster]
+possiblequestions = [coffee, hire1, toaster]	
+questions = [coffee, hire1, hotel, toaster, materials]
 
 class Player(object):
 	def __init__(self, mon, prog, fail, sci, eng, mat, cam):
@@ -202,9 +226,14 @@ class Player(object):
 		self.fails = 0
 		self.scientists = sci
 		self.engineers = eng
+		self.cost = 1
 		self.maths = mat
 		self.campaigners = cam
 		self.mult = 1
+		#previous
+		self.preMon = mon
+		self.preProg = prog
+		self.preFail = fail
 
 player = Player(18, 0, 100, 1, 2, 1, 0)
 
@@ -305,6 +334,11 @@ while running:
 		clock.tick(60)
 
 	#after choosing an answer
+	player.failChance -= 2*player.maths
+	if player.failChance < 1:
+		player.failChance = 1
+	player.progress += player.mult * ((.2*player.scientists)+1)*player.engineers*0.4
+	player.money += ((2 * player.campaigners) - (player.engineers + player.maths + player.scientists + player.cost*player.engineers))
 	feedback1 = []
 	feedback1.append("After a full day of work...")
 	if player.campaigners > 0:
@@ -314,21 +348,20 @@ while running:
 		#6 is default reduced per turn with 1 sci & math, and 2 eng
 		player.money += 8
 		feedback1.append("You gain 8K in government funding.")
-	player.money += ((2 * player.campaigners) - (2*player.engineers + player.maths + player.scientists))
 	feedback1.append("You pay your employees "+str(player.maths+player.scientists+player.engineers)+"K")
-	feedback1.append("Your engineers spend "+str(player.engineers)+"K")
+	feedback1.append("Your engineers spend "+str(player.engineers*player.cost)+"K")
 	feedback1.append("Your mathematitions reduce chance of failiure by "+str(2*player.maths)+"%")
 	
-	player.failChance -= 2*player.maths
-	if player.failChance < 1:
-		player.failChance = 1
-	player.progress += player.mult * ((.2*player.scientists)+1)*player.engineers*0.4
 	
 	feedback1.append("")
 	feedback1 += feedback
 	feedback1.append("")
-	feedback1.append("You gain "+str(player.mult * ((.2*player.scientists)+1)*player.engineers*0.4)+"% progress on the ship.")
-	feedback1.append("Current progress: "+str(player.progress)+"%")
+	feedback1.append("Net progress: "+str(player.progress - player.preProg)+"%")
+	feedback1.append("Net money: "+str(player.money - player.preMon)+"K")
+	feedback1.append("Net fail chance: "+str(player.failChance - player.preFail)+"%")
+	#feedback1.append("Current progress: "+str(player.progress)+"%")
+	player.preMon, player.preProg, player.preFail = player.money, player.progress, player.failChance
+	
 	if player.money <= 0:
 		feedback1.append("You have run out of money. You might want to launch...")
 
@@ -357,19 +390,23 @@ while running:
 			successChance = player.progress / player.failChance
 			launchChance = random.randint(0, 100)
 			rand = 100 - launchChance
+			
 			if launchChance <= successChance:
-				
 				print "LAUNCH SUCCESSFUL!"
+				
 			if launchChance > successChance and launchChance <= successChance + (rand * 1 / 3):
-				
 				print "LAUNCH Failure 1!"
+				
 			if launchChance > successChance + (rand * 1 / 3) and launchChance <= successChance + (rand * 2 / 3):
-				
 				print "LAUNCH Failure 2!"
-			if launchChance > successChance + (rand * 2 / 3):
 				
+			if launchChance > successChance + (rand * 2 / 3):
 				print "LAUNCH Failure 3!"
-		
+				
+			player.fails += 1
+			player.progress, player.cost, player.mult = 0, 1, 1
+			
+			done = True
 		if hitDetect(mouse_pos, mouse_pos, [10,580], [180, 630]) and mouse_down:
 			done = True
 				
