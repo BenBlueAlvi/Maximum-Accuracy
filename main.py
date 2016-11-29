@@ -27,17 +27,26 @@ gScreen = pygame.display.set_mode(size)
 clock = pygame.time.Clock()
 
 pygame.display.set_caption("Maximum Accuracy")
-sciencepic = pygame.image.load("Assets/science.png")
-progresspic = pygame.image.load("Assets/progress.png")
-failurepic = pygame.image.load("Assets/failure.png")
-mathspic = pygame.image.load("Assets/maths.png")
-engiespic = pygame.image.load("Assets/engies.png")
-campainerspic = pygame.image.load("Assets/campainers.png")
-moneypic = pygame.image.load("Assets/money.png")
-end_of_day_pic = pygame.image.load("Assets/end_of_day.png")
-continuepic = pygame.image.load("Assets/continue.png")
-launchpic = pygame.image.load("Assets/launch.png")
-tippic = pygame.image.load("Assets/tip.png")
+
+def getImg(path, name):
+	full = "Assets/"
+	for i in path:
+		full += i+"/"
+	full += name+".png"
+	print "Loading: "+full
+	return pygame.image.load(full)
+
+sciencepic = getImg([], "science")
+progresspic = getImg([], "progress")
+failurepic = getImg([], "failure")
+mathspic = getImg([], "maths")
+engiespic = getImg([], "engies")
+campainerspic =  getImg([], "campainers")
+moneypic = getImg([], "money")
+end_of_day_pic = getImg(["backgrounds"], "end_of_day")
+continuepic = getImg(["buttons"], "continue")
+launchpic = getImg(["buttons"], "launch")
+tippic = getImg([], "tip")
 
 def bubble_sort(items):
 	""" Implementation of bubble sort """
@@ -270,6 +279,15 @@ class Player(object):
 		self.preFail = fail
 
 player = Player(18, 0, 100, 1, 2, 1, 0)
+
+class Achive(object):
+	def __init__(self, Id, name, desc, img):
+		self.id = Id
+		self.name = name
+		self.desc = desc
+		self.img = img
+
+#Atoast = Achive("toaster", "It could run on a toaster", "Succesfully launch a spaceship with a toaster chassis", )
 
 class button(object):
 	def __init__(self, image, hoverimg):
