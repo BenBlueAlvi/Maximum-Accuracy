@@ -66,36 +66,43 @@ def bubble_sort(items):
 	return items
 	
 def wraptext(text, fullline):
-    Denting = True
-    count = fullline
+	Denting = True
+	count = fullline
 	size = pygame.font.size(text)
-    outtext = ""
-    while Denting:
-        if len(text) > fullline:
-            thistext = text[:count]
-            #is it indentable
-            if " " in thistext:
-                for i in range(len(thistext)):
-                    #find first space
-                    if thistext[len(thistext)-(i+1)] == " ":
-                        if i > (fullline/4):
-                            count += fullline #to prevent largly empty lines. USE SKIPS TO COUNTER
-                        #split text, add indent, update count
-                        else:
-                            outtext = outtext+thistext[:len(thistext)-(i+1)]+"\n"
-                            text = text[len(thistext)-(i):]
-                            count = fullline
-                            break
-            #unindentable, skip to next
-            else:
-                count += fullline
-        else:
-            #exit denting, add remaining to outtext, return
-            Denting = False
-            outtext = outtext+text+"\n"
-        #time.sleep(1)
-    return outtext
-    
+	outtext = []
+	while Denting:
+		if pygame.font.size(text)[0] > fullline:
+			#Search for ammount of charachters that can fit in set fullline size
+			thistext = ""
+			for i in range(900):
+				if pygame.font.size(thistext + text[i])[0] > fullline:
+					count = len(thistext)
+				else:
+					thistext += text[i]
+			thistext = text[:count]
+			#is it indentable
+			if " " in thistext:
+				for i in range(len(thistext)):
+					#find first space
+					if thistext[len(thistext)-(i+1)] == " ":
+						if i > (fullline/4):
+							count += fullline #to prevent largly empty lines. USE SKIPS TO COUNTER
+						#split text, add indent, update count
+						else:
+							outtext.append(thistext[:len(thistext)-(i+1)])
+							text = text[len(thistext)-(i):]
+							count = fullline
+							break
+			#unindentable, skip to next
+			else:
+				count += fullline
+		else:
+			#exit denting, add remaining to outtext, return
+			Denting = False
+			outtext = outtext+text+"\n"
+		#time.sleep(1)
+	return outtext
+	
 
 	
 	
@@ -490,7 +497,7 @@ while running:
 			#Mathematitians decrease the chance of failiure of launch.
 			#Scientists increase the efficiency of your engineers.
 			#Engineers spend money to buy resources and work on the rocket.
-			#Campaigners spend their time advertising and gaining more money.     <----- Longest tooltip
+			#Campaigners spend their time advertising and gaining more money.	 <----- Longest tooltip
 
 			
 			
