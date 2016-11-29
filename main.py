@@ -223,22 +223,19 @@ class Prompt(object):
 		self.results = results
 		self.cooldown = cooldown
 		self.daysSince = 0
-	def result(self, response):
-		#varbile changing here:
-		if response == "yes":
-			pass
+	
 
 #Staff management
 hire1 = Prompt("", ["Your advisor from the government approches you:", "I would like to suggest we hire new staff."], [Result("Sure, I'll leave it up to you.", "You manage to hire 2 new people.", [["addmoney", -4], ["addpop", 2]]), Result("Let's hire some Campaigners.", "You attempt to hire campaigners.", [["addmoney", -2], ["addcam", 1]]), Result("Let's just focus on working today.", "after convincing your staff to work overtime..", [["overtime", 0.2]])], 2)
 #hire2 = engineers, scientists
 #hire3 = maths, campaigners
 #fire1 = sci, eng, mat
-
+fire1 = Prompt("", ["That one advisor from the government approches you:", "We have hired too many people and we are losing money", "somebody needs to get fired."], [Result("But we are getting so much done.", "After not firing anyone...", [["addfail", 2]]), Result("I'll leave it up to you.", "After that government advisor fires some people...", [["subpop", 3], ["addfail", -2]]),Result("Fire some of those engineers.", "After firing some engineers...", [["addeng", -2], ["addfail", -1]])], 6)
 #Money and materials
-bakesale = Prompt("", ["One of your campaigners suggests:", "We should have a bake sale to raise money."], [Result("Sure, but only if I can have some too.", "After having a bakesale", [["addmoney", 2], ["addflav", "The bake sale premotes working in the areospace industy"], ["addpop", 1]]), Result("No, I hate baked goods", "After not having a bake sale..", [["addflav", "Some people were really looking forward to that bake sale."],["subpop", -1]])], 3)
+bakesale = Prompt("", ["One of your campaigners suggests:", "We should have a bake sale to raise money."], [Result("Sure, but only if I can have some too.", "After having a bakesale", [["addmoney", 2], ["addflav", "The bake sale premotes working in the areospace industy"], ["addpop", 1]]), Result("No, I hate baked goods", "After not having a bake sale..", [["addflav", "Some people were really looking forward to that bake sale."],["subpop", 1]])], 3)
 adcampaign = Prompt("", ["One of your mathmatitions suggests", "an add campaign to hire people."], [Result("Yeah, we need the staff", "After creating an amazing ad campaign...", [["addpop", 4], ["addmoney", -4]]), Result("No, we don't have enough money.", "After not creating an amazing ad campaign...", [["addflav", "Nothing changes"]])], 5)
 materials = Prompt("", ["One of your scientists approaches you:", "We need to discuss our materials."], [Result("How about all carbon fiber?", "After using hi-tech materials:", [["addfail", -4], ["addcost", 2]]), Result("Why not normal materials, like steel?", "After deciding to use standard materials:", [["addflav", "Engineers are attracted to the ease of their jobs."], ["addeng", 1]]), Result("Lets think cheap. Duct-tape cheap.", "After deciding to use low-cost materials:", [["addcost", -.5], ["addmult", .1], ["addfail", 20], ["addflav", "Some of your mathmatitions can't handle the absurdity of this project."], ["addmat", -2]])], 99)
-fuels = Prompt("", ["An engineer approaches you:", "So, uh.. What should we use for fuel?"], [Result("Nuclear would be the most effeicent", "After deciding to place a nuclear reactor within the rocket", [["addfail", -10], ["addmoney", -10]]), Result("Rocket fuel, duh.", "After using standard rocket fuel..", [["addfail", -5], ["addmoney", -7]]), Result("Car fuel, we are low on funds", "After deciding to use car fuel...", [["addflav", "Some people belive you aren't taking this job seriously"], ["subpop", -2],["addfail", -2], ["addmoney", -4]])], 99)
+fuels = Prompt("", ["An engineer approaches you:", "So, uh.. What should we use for fuel?"], [Result("Nuclear would be the most effeicent", "After deciding to place a nuclear reactor within the rocket", [["addfail", -10], ["addmoney", -10]]), Result("Rocket fuel, duh.", "After using standard rocket fuel..", [["addfail", -5], ["addmoney", -7]]), Result("Car fuel, we are low on funds", "After deciding to use car fuel...", [["addflav", "Some people belive you aren't taking this job seriously"], ["subpop", 2],["addfail", -2], ["addmoney", -4]])], 99)
 
 
 #Bad ideas
@@ -248,7 +245,10 @@ hotel = Prompt("", ["The CEO of a large hotel group has approched you", "and wis
 #mtndew
 #sodamachine
 
-possiblequestions = [coffee, hire1, materials, fuels, adcampaign]	
+#interesting ideas
+fsc = Prompt("", ["Upon seeing how well the rocket is going", "an advisor from the Futuristic Science Corp.", "wishes to partner with you."], [Result("Together we will do great things.", "After partnering with the FSC...", [["addflav", "The project has drasticly increased in size."], ["addmoney", 20], ["addmult", 0.1]]), Result("I'm sorry, I would prefer to go alone.", "After making the mistake of not partnering with the FSC..", [["addflav"]])], 99)
+
+possiblequestions = [coffee, hire1, materials, fuels, adcampaign, fsc]	
 questions = [coffee, hire1, hotel, toaster, materials, fuels, bakesale]
 
 class Player(object):
@@ -263,6 +263,7 @@ class Player(object):
 		self.maths = mat
 		self.campaigners = cam
 		self.mult = 1
+		self.pop = 0
 		#previous
 		self.preMon = mon
 		self.preProg = prog
@@ -277,6 +278,20 @@ class button(object):
 	def buildNew(self):
 		newButton = button(pygame.image.load(self.image), pygame.image.load(self.hoverimg))
 		return newButton
+		
+def addQuestion(possiblequestions, parm, comp, limit, question):
+	if comp == "greater":
+		if parm > limit and not question in possiblequestions:
+			possiblequestions.append(question)
+		elif parm < limit and question in possiblequestions:
+			possiblequestions.remove(question)
+	elif comp == "lesser":
+		if parm < limit and not question in possiblequestions:
+			possiblequestions.append(question)
+		elif parm > limit and question in possiblequestions:
+			possiblequestions.remove(question)
+	
+	
 responseButton = button("Assets/button.png", "Assets/button_hover.png").buildNew()
 
 funded = True	
@@ -285,14 +300,17 @@ mouse_down = False
 done, running = False, True
 
 while running:
-	#Before choosing an answer
-	if player.money < 6 and not hotel in possiblequestions:
-		possiblequestions.append(hotel)
-	if player.money < 4 and not toaster in possiblequestions:
-		possiblequestions.append(toaster)
-	if player.money < 8 and not bakesale in possiblequestions:
-		possiblequestions.append(bakesale)
+	player.pop = player.scientists + player.maths + player.campaigners + player.engineers
 	
+	#Before choosing an answer
+	
+	addQuestion(possiblequestions, player.money, "lesser", 6, hotel)
+	
+	addQuestion(possiblequestions, player.money, "lesser", 4, toaster)
+	
+	addQuestion(possiblequestions, player.money, "lesser", 8, bakesale)
+	
+	addQuestion(possiblequestions, player.pop, "greater", 10, fire1)
 		
 	theQuestion = possiblequestions[random.randint(0, len(possiblequestions) - 1)]
 	done, mouse_down = False, False
@@ -412,6 +430,7 @@ while running:
 		clock.tick(60)
 
 	#after choosing an answer
+	
 	player.failChance -= 2*player.maths
 	if player.failChance < 1:
 		player.failChance = 1
