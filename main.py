@@ -196,10 +196,11 @@ hire1 = Prompt("", ["Your advisor from the government approches you:", "I would 
 #fire1 = sci, eng, mat
 
 #Money and materials
-#bakesale = Prompt("", ["One of your campaigners suggests:", "We should have a bake sale to raise money."], [Result()])
-#adcampaign
-materials = Prompt("", ["One of your scientists approaches you:", "We need to discuss our materials."], [Result("How about all carbon fiber?", "After using hi-tech materials:", [["addfail", -4], ["addcost", 2]]), Result("Why not normal materials, like steel?", "After deciding to use standard materials:", [["addflav", "Engineers are attracted to the ease of their jobs."], ["addeng", 1]]), Result("Lets think cheap. Duct-tape cheap.", "After deciding to use low-cost materials:", [["addcost", -.5], ["addmult", .1], ["addfail", 20], ["addmat", -2]])], 3)
-#fuel = nuclear, car, rocket
+bakesale = Prompt("", ["One of your campaigners suggests:", "We should have a bake sale to raise money."], [Result("Sure, but only if I can have some too.", "After having a bakesale", [["addmoney", 2], ["addflav", "The bake sale premotes working in the areospace industy"], ["addpop", 1]]), Result("No, I hate baked goods", "After not having a bake sale..", [["addflav", "Some people were really looking forward to that bake sale."],["addpop", -1]])], 3)
+adcampaign = Prompt("", ["One of your mathmatitions suggests", "an add campaign to hire people."], [Result("Yeah, we need the staff", "After creating an amazing ad campaign...", [["addpop", 4], ["addmoney", -4]]), Result("No, we don't have enough money.", "After not creating an amazing ad campaign...", [["addflav", "Nothing changes"]])], 5)
+materials = Prompt("", ["One of your scientists approaches you:", "We need to discuss our materials."], [Result("How about all carbon fiber?", "After using hi-tech materials:", [["addfail", -4], ["addcost", 2]]), Result("Why not normal materials, like steel?", "After deciding to use standard materials:", [["addflav", "Engineers are attracted to the ease of their jobs."], ["addeng", 1]]), Result("Lets think cheap. Duct-tape cheap.", "After deciding to use low-cost materials:", [["addcost", -.5], ["addmult", .1], ["addfail", 20], ["addflav", "Some of your mathmatitions can't handle the absurdity of this project."], ["addmat", -2]])], 3)
+fuels = Prompt("", ["An engineer approaches you:", "So, uh.. What should we use for fuel?"], [Result("Nuclear would be the most effeicent", "After deciding to place a nuclear reactor within the rocket", [["addfail", -10], ["addmoney", -10]]), Result("Rocket fuel, duh.", "After using standard rocket fuel..", [["addfail", -5], ["addmoney", -7]]), Result("Car fuel, we are low on funds", "After deciding to use car fuel...", [["addflav", "Some people belive you aren't taking this job seriously"], ["addpop", -2],["addfail", -2], ["addmoney", -4]])], 4)
+
 
 #Bad ideas
 coffee = Prompt("", ["A few engineers approch you and ask:", "Can we install a coffee machine in the rocket?"], [Result("Sure, Why not?", "After installing a coffee machine on the rocket,", [["addmoney", -1], ["addprog", 2], ["addfail", 4], ["addeng", 1]]), Result("NO?", "After not installing a coffee machine...", [["addfail", -1]])], 1)			
@@ -208,8 +209,8 @@ hotel = Prompt("", ["The CEO of a large hotel group has approched you", "and wis
 #mtndew
 #sodamachine
 
-possiblequestions = [coffee, hire1, toaster]	
-questions = [coffee, hire1, hotel, toaster, materials]
+possiblequestions = [coffee, hire1, materials, fuels, adcampaign]	
+questions = [coffee, hire1, hotel, toaster, materials, fuels, bakesale]
 
 class Player(object):
 	def __init__(self, mon, prog, fail, sci, eng, mat, cam):
@@ -246,8 +247,12 @@ done, running = False, True
 
 while running:
 	#Before choosing an answer
-	if player.money < 4 and not hotel in possiblequestions:
+	if player.money < 6 and not hotel in possiblequestions:
 		possiblequestions.append(hotel)
+	if player.money < 4 and not toaster in possiblequestions:
+		possiblequestions.append(toaster)
+	if player.money < 8 and not bakesale in possiblequestions:
+		possiblequestions.append(bakesale)
 		
 	theQuestion = possiblequestions[random.randint(0, len(possiblequestions) - 1)]
 	done, mouse_down = False, False
@@ -262,18 +267,8 @@ while running:
 				mouse_down = False
 		mouse_pos = pygame.mouse.get_pos()
 		
-		if mouse_down:
-			for i in range(len(theQuestion.results)):
-				gScreen.blit(responseButton.image, [50, 450 + i * 50])
-				if hitDetect(mouse_pos, mouse_pos, [50, 450 + i * 50], [650, 475 + i * 50]):
-					mouse_down = False
-					feedback = theQuestion.results[i].decide(player)
-					possiblequestions.remove(theQuestion)
-					for q in questions:
-						q.daysSince +=1
-						if q.daysSince >= q.cooldown:
-							possiblequestions.append(q)
-					done = True
+		
+				
 		
 		gScreen.fill(WHITE)
 		for i in range(len(theQuestion.prompt)):
@@ -282,11 +277,31 @@ while running:
 			
 		y = 0
 		for i in theQuestion.results:
-			gScreen.blit(responseButton.image, [50, 450 + y * 50])
+			displayresult = True
+			for doing in i.doings:
+				if doing[0] == "addmoney" and doing[1] * -1 > player.money:
+					displayresult = False
+			
+			if displayresult:
+				gScreen.blit(responseButton.image, [50, 450 + y * 50])
 		
-			gScreen.blit(font.render(i.desc,True,BLACK), [60, 455 + y * 50])
+				gScreen.blit(font.render(i.desc,True,BLACK), [60, 455 + y * 50])
+				
+				if mouse_down:
+					if hitDetect(mouse_pos, mouse_pos, [50, 450 + y * 50], [650, 475 + y * 50]):
+						mouse_down = False
+						feedback = i.decide(player)
+						possiblequestions.remove(theQuestion)
+						for q in questions:
+							q.daysSince +=1
+							if q.daysSince >= q.cooldown:
+								possiblequestions.append(q)
+						done = True
+						break
+				
+				
 		
-			y+= 1
+				y+= 1
 			
 		
 
