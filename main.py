@@ -50,6 +50,40 @@ def bubble_sort(items):
 				items[j], items[j+1] = items[j+1], items[j] 
 	return items
 	
+def wraptext(text, fullline):
+    Denting = True
+    count = fullline
+	size = pygame.font.size(text)
+    outtext = ""
+    while Denting:
+        if len(text) > fullline:
+            thistext = text[:count]
+            #is it indentable
+            if " " in thistext:
+                for i in range(len(thistext)):
+                    #find first space
+                    if thistext[len(thistext)-(i+1)] == " ":
+                        if i > (fullline/4):
+                            count += fullline #to prevent largly empty lines. USE SKIPS TO COUNTER
+                        #split text, add indent, update count
+                        else:
+                            outtext = outtext+thistext[:len(thistext)-(i+1)]+"\n"
+                            text = text[len(thistext)-(i):]
+                            count = fullline
+                            break
+            #unindentable, skip to next
+            else:
+                count += fullline
+        else:
+            #exit denting, add remaining to outtext, return
+            Denting = False
+            outtext = outtext+text+"\n"
+        #time.sleep(1)
+    return outtext
+    
+
+	
+	
 def hitDetect(p1, p2, p3, p4):
 	if p2[0] > p3[0] and p1[0] < p4[0] and p2[1] > p3[1] and p1[1] < p4[1]:
 		return True
@@ -303,7 +337,7 @@ mouse_down = False
 done, running = False, True
 def textbox(size, text):
 	global capstrip1, capstrip2, vertstrip
-	
+	text = wraptext(text, 248)
 	textbox = pygame.Surface(size)
 	for i in range(size[1]):
 		if i == 0:
