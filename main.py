@@ -38,6 +38,9 @@ end_of_day_pic = pygame.image.load("Assets/end_of_day.png")
 continuepic = pygame.image.load("Assets/continue.png")
 launchpic = pygame.image.load("Assets/launch.png")
 tippic = pygame.image.load("Assets/tip.png")
+capstrip1 = pygame.image.load("Assets/capstrip1.png")
+vertstrip = pygame.image.load("Assets/vertstrip.png")
+capstrip2 = pygame.image.load("Assets/capstrip2.png")
 
 def bubble_sort(items):
 	""" Implementation of bubble sort """
@@ -298,7 +301,22 @@ funded = True
 mouse_down = False
 
 done, running = False, True
-
+def textbox(size, text):
+	global capstrip1, capstrip2, vertstrip
+	
+	textbox = pygame.Surface(size)
+	for i in range(size[1]):
+		if i == 0:
+			textbox.blit(capstrip2, [0, i])
+		elif i == 1:
+			textbox.blit(capstrip1, [0, i])
+		elif i == size[1] - 2:
+			textbox.blit(capstrip1, [0, i])
+		elif i == size[1] - 1:
+			textbox.blit(capstrip2, [0, i])
+		else:
+			textbox.blit(vertstrip, [0, i])
+	return textbox
 while running:
 	player.pop = player.scientists + player.maths + player.campaigners + player.engineers
 	
@@ -326,9 +344,12 @@ while running:
 		mouse_pos = pygame.mouse.get_pos()
 		
 		
-				
+			
 		
 		gScreen.fill(WHITE)
+		
+		gScreen.blit(textbox([250, 50], ""), [0,0])
+		
 		for i in range(len(theQuestion.prompt)):
 		
 			gScreen.blit(font.render(theQuestion.prompt[i], True, BLACK), [200, 100 + i * 20])
