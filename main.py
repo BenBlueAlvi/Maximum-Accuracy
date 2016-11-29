@@ -46,7 +46,7 @@ tippic = getImg("tip")
 capstrip1 = getImg("capstrip1")
 vertstrip = getImg("vertstrip")
 capstrip2 = getImg("capstrip2")
-
+achiveBox = pygame.image.load("Assets/achives/achiveBox.png")
 class button(object):
 	def __init__(self, image, hoverimg):
 		self.image = image
@@ -66,35 +66,35 @@ def bubble_sort(items):
 	return items
 	
 def wraptext(text, fullline):
-    Denting = True
-    count = fullline
-	size = pygame.font.size(text)
-    outtext = ""
-    while Denting:
-        if len(text) > fullline:
-            thistext = text[:count]
-            #is it indentable
-            if " " in thistext:
-                for i in range(len(thistext)):
-                    #find first space
-                    if thistext[len(thistext)-(i+1)] == " ":
-                        if i > (fullline/4):
-                            count += fullline #to prevent largly empty lines. USE SKIPS TO COUNTER
-                        #split text, add indent, update count
-                        else:
-                            outtext = outtext+thistext[:len(thistext)-(i+1)]+"\n"
-                            text = text[len(thistext)-(i):]
-                            count = fullline
-                            break
-            #unindentable, skip to next
-            else:
-                count += fullline
-        else:
-            #exit denting, add remaining to outtext, return
-            Denting = False
-            outtext = outtext+text+"\n"
-        #time.sleep(1)
-    return outtext
+	Denting = True
+	count = fullline
+	#size = pygame.font.size(text)
+	outtext = ""
+	while Denting:
+		if len(text) > fullline:
+			thistext = text[:count]
+			#is it indentable
+			if " " in thistext:
+				for i in range(len(thistext)):
+					#find first space
+					if thistext[len(thistext)-(i+1)] == " ":
+						if i > (fullline/4):
+							count += fullline #to prevent largly empty lines. USE SKIPS TO COUNTER
+						#split text, add indent, update count
+						else:
+							outtext = outtext+thistext[:len(thistext)-(i+1)]+"\n"
+							text = text[len(thistext)-(i):]
+							count = fullline
+							break
+			#unindentable, skip to next
+			else:
+				count += fullline
+		else:
+			#exit denting, add remaining to outtext, return
+			Denting = False
+			outtext = outtext+text+"\n"
+		#time.sleep(1)
+	return outtext
     
 
 	
@@ -325,10 +325,35 @@ player = Player(18, 0, 100, 1, 2, 1, 0)
 
 class Achive(object):
 	def __init__(self, Id, name, desc, img):
+		self.box = achiveBox
 		self.id = Id
 		self.name = name
 		self.desc = desc
 		self.img = img
+		self.timer = 0
+		self.cords = [0,-50]
+		self.yvel = 1
+		self.getd = False
+	def update(self):
+		if self.timer > 0:
+			gScreen.blit(self.box, self.cords)
+			gScreen.blit(self.img, [self.cords[0] +2, self.cords[1] + 2])
+			if self.cords[1] > 0 or self.cords[1] < -50:
+				self.yvel *= -1
+			
+			self.cords[1] += self.yvel / (self.timer + 1 / 50) + 1
+			self.timer -= 1
+	def get(self):
+		if not self.getd:
+			self.timer = 100
+			self.getd = True
+		
+		
+testAchive = Achive("", "Test", "YAY", pygame.image.load("Assets/achives/wip.png"))
+
+allAchives = [testAchive]
+			
+		
 
 #Atoast = Achive("toaster", "It could run on a toaster", "Succesfully launch a spaceship with a toaster chassis", )
 
@@ -493,7 +518,8 @@ while running:
 			#Campaigners spend their time advertising and gaining more money.     <----- Longest tooltip
 
 			
-			
+		for achive in allAchives:
+			achive.update()
 		pygame.display.update()
 		clock.tick(60)
 
@@ -534,6 +560,7 @@ while running:
 
 	done, mouse_down = False, False
 	while not done and running:
+		testAchive.get()
 		gScreen.fill(WHITE)
 		gScreen.blit(end_of_day_pic, [190, 90])
 		for i in range(len(feedback)):
@@ -578,7 +605,10 @@ while running:
 		
 		gScreen.blit(continuepic, [10, 580])
 		gScreen.blit(launchpic, [10, 640])
-
+		
+		for achive in allAchives:
+			achive.update()
+		
 		pygame.display.update()
 		clock.tick(60)
 
