@@ -48,6 +48,16 @@ continuepic = getImg(["buttons"], "continue")
 launchpic = getImg(["buttons"], "launch")
 tippic = getImg([], "tip")
 
+class button(object):
+	def __init__(self, image, hoverimg):
+		self.image = image
+		self.hoverimg = hoverimg
+	def buildNew(self):
+		newButton = button(getImg(["buttons"], self.image), getImg(["buttons"], self.hoverimg))
+		return newButton
+		
+responseButton = button("button", "button_hover").buildNew()
+
 def bubble_sort(items):
 	""" Implementation of bubble sort """
 	for i in range(len(items)):
@@ -289,14 +299,7 @@ class Achive(object):
 
 #Atoast = Achive("toaster", "It could run on a toaster", "Succesfully launch a spaceship with a toaster chassis", )
 
-class button(object):
-	def __init__(self, image, hoverimg):
-		self.image = image
-		self.hoverimg = hoverimg
-	def buildNew(self):
-		newButton = button(pygame.image.load(self.image), pygame.image.load(self.hoverimg))
-		return newButton
-		
+
 def addQuestion(possiblequestions, parm, comp, limit, question):
 	if comp == "greater":
 		if parm > limit and not question in possiblequestions:
@@ -308,9 +311,6 @@ def addQuestion(possiblequestions, parm, comp, limit, question):
 			possiblequestions.append(question)
 		elif parm > limit and question in possiblequestions:
 			possiblequestions.remove(question)
-	
-	
-responseButton = button("Assets/button.png", "Assets/button_hover.png").buildNew()
 
 funded = True	
 mouse_down = False
