@@ -25,35 +25,34 @@ font = pygame.font.SysFont('Calibri', 15, True, False)
 size = (700, 700)
 gScreen = pygame.display.set_mode(size)
 clock = pygame.time.Clock()
-
 pygame.display.set_caption("Maximum Accuracy")
 
-def getImg(path, name):
-	full = "Assets/"
-	for i in path:
-		full += i+"/"
-	full += name+".png"
+def getImg(name):
+	full = "Assets/"+name+".png"
 	print "Loading: "+full
 	return pygame.image.load(full)
-
-sciencepic = getImg([], "science")
-progresspic = getImg([], "progress")
-failurepic = getImg([], "failure")
-mathspic = getImg([], "maths")
-engiespic = getImg([], "engies")
-campainerspic =  getImg([], "campainers")
-moneypic = getImg([], "money")
-end_of_day_pic = getImg(["backgrounds"], "end_of_day")
-continuepic = getImg(["buttons"], "continue")
-launchpic = getImg(["buttons"], "launch")
-tippic = getImg([], "tip")
+	
+sciencepic = getImg("science")
+progresspic = getImg("progress")
+failurepic = getImg("failure")
+mathspic = getImg("maths")
+engiespic = getImg("engies")
+campainerspic = getImg("campainers")
+moneypic = getImg("money")
+end_of_day_pic = getImg("backgrounds/end_of_day")
+continuepic = getImg("buttons/continue")
+launchpic = getImg("buttons/launch")
+tippic = getImg("tip")
+capstrip1 = getImg("capstrip1")
+vertstrip = getImg("vertstrip")
+capstrip2 = getImg("capstrip2")
 
 class button(object):
 	def __init__(self, image, hoverimg):
 		self.image = image
 		self.hoverimg = hoverimg
 	def buildNew(self):
-		newButton = button(getImg(["buttons"], self.image), getImg(["buttons"], self.hoverimg))
+		newButton = button(getImg("buttons/"+self.image), getImg("buttons/"+self.hoverimg))
 		return newButton
 		
 responseButton = button("button", "button_hover").buildNew()
@@ -244,7 +243,6 @@ class Prompt(object):
 		self.daysSince = 0
 	
 
-
 #Staff management
 hire1 = Prompt("", ["Your advisor from the government approches you:", "I would like to suggest we hire new staff."], [Result("Sure, I'll leave it up to you.", "You manage to hire 2 new people.", [["addmoney", -4], ["addpop", 2]]), Result("Let's hire some Campaigners.", "You attempt to hire campaigners.", [["addmoney", -2], ["addcam", 1]]), Result("Let's just focus on working today.", "after convincing your staff to work overtime..", [["overtime", 0.2]])], 2)
 #hire2 = engineers, scientists
@@ -256,6 +254,7 @@ bakesale = Prompt("", ["One of your campaigners suggests:", "We should have a ba
 adcampaign = Prompt("", ["One of your mathmatitions suggests", "an add campaign to hire people."], [Result("Yeah, we need the staff", "After creating an amazing ad campaign...", [["addmoney", -4], ["addpop", 4]]), Result("No, we don't have enough money.", "After not creating an amazing ad campaign...", [["addflav", "Nothing changes"]])], 5)
 materials = Prompt("", ["One of your scientists approaches you:", "We need to discuss our materials."], [Result("How about all carbon fiber?", "After using hi-tech materials:", [["addfail", -4], ["addcost", 2]]), Result("Why not normal materials, like steel?", "After deciding to use standard materials:", [["addflav", "Engineers are attracted to the ease of their jobs."], ["addeng", 1]]), Result("Lets think cheap. Duct-tape cheap.", "After deciding to use low-cost materials:", [["addcost", -.5], ["addmult", .1], ["addfail", 20], ["addflav", "Some of your mathmatitions can't handle the absurdity of this project."], ["addmat", -2]])], 99)
 fuels = Prompt("", ["An engineer approaches you:", "So, uh.. What should we use for fuel?"], [Result("Nuclear would be the most effeicent", "After deciding to place a nuclear reactor within the rocket", [["addfail", -10], ["addmoney", -10]]), Result("Rocket fuel, duh.", "After using standard rocket fuel..", [["addfail", -5], ["addmoney", -7]]), Result("Car fuel, we are low on funds", "After deciding to use car fuel...", [["addflav", "Some people belive you aren't taking this job seriously"], ["subpop", 2],["addfail", -2], ["addmoney", -4]])], 99)
+
 
 #Bad ideas
 coffee = Prompt("", ["A few engineers approch you and ask:", "Can we install a coffee machine in the rocket?"], [Result("Sure, Why not?", "After installing a coffee machine on the rocket,", [["addmoney", -1], ["addprog", 2], ["addfail", 4], ["addeng", 1]]), Result("NO?", "After not installing a coffee machine...", [["addfail", -1]])], 1)			
@@ -299,7 +298,6 @@ class Achive(object):
 
 #Atoast = Achive("toaster", "It could run on a toaster", "Succesfully launch a spaceship with a toaster chassis", )
 
-
 def addQuestion(possiblequestions, parm, comp, limit, question):
 	if comp == "greater":
 		if parm > limit and not question in possiblequestions:
@@ -316,7 +314,22 @@ funded = True
 mouse_down = False
 
 done, running = False, True
-
+def textbox(size, text):
+	global capstrip1, capstrip2, vertstrip
+	
+	textbox = pygame.Surface(size)
+	for i in range(size[1]):
+		if i == 0:
+			textbox.blit(capstrip2, [0, i])
+		elif i == 1:
+			textbox.blit(capstrip1, [0, i])
+		elif i == size[1] - 2:
+			textbox.blit(capstrip1, [0, i])
+		elif i == size[1] - 1:
+			textbox.blit(capstrip2, [0, i])
+		else:
+			textbox.blit(vertstrip, [0, i])
+	return textbox
 while running:
 	player.pop = player.scientists + player.maths + player.campaigners + player.engineers
 	
@@ -344,9 +357,12 @@ while running:
 		mouse_pos = pygame.mouse.get_pos()
 		
 		
-				
+			
 		
 		gScreen.fill(WHITE)
+		
+		gScreen.blit(textbox([250, 50], ""), [0,0])
+		
 		for i in range(len(theQuestion.prompt)):
 		
 			gScreen.blit(font.render(theQuestion.prompt[i], True, BLACK), [200, 100 + i * 20])
