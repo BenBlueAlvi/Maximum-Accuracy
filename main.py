@@ -246,7 +246,7 @@ hotel = Prompt("", ["The CEO of a large hotel group has approched you", "and wis
 #sodamachine
 
 #interesting ideas
-fsc = Prompt("", ["Upon seeing how well the rocket is going", "an advisor from the Futuristic Science Corp.", "wishes to partner with you."], [Result("Together we will do great things.", "After partnering with the FSC...", [["addflav", "The project has drasticly increased in size."], ["addmoney", 20], ["addmult", 0.1]]), Result("I'm sorry, I would prefer to go alone.", "After making the mistake of not partnering with the FSC..", [["addflav"]])], 99)
+fsc = Prompt("", ["Upon seeing how well the rocket is going", "an advisor from the Futuristic Science Corp.", "wishes to partner with you."], [Result("Together we will do great things.", "After partnering with the FSC...", [["addflav", "The project has drasticly increased in size."], ["addmoney", 20], ["addmult", 0.1]]), Result("I'm sorry, I would prefer to go alone.", "After making the mistake of not partnering with the FSC..", [["addflav", "You feel you have made a horrible mistake."]])], 99)
 
 possiblequestions = [coffee, hire1, materials, fuels, adcampaign, fsc]	
 questions = [coffee, hire1, hotel, toaster, materials, fuels, bakesale]
