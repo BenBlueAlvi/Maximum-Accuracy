@@ -114,16 +114,30 @@ class Result(object):
 					self.feedback.append("You hire "+str(n)+" campaigners")
 				player.campaigners += n
 			if o == "addpop":
+				sciHired = 0
+				engHired = 0
+				mathsHired = 0
+				camHired = 0
 				for i in range(n):
 					rand = random.randint(1, 4)
 					if rand == 1:
-						player.scientists += 1
+						sciHired += 1
 					if rand == 2:
-						player.engineers += 1
+						engHired += 1
 					if rand == 3:
-						player.maths += 1
+						mathsHired += 1
 					if rand == 4:
-						player.campaigners += 1
+						camHired += 1
+				
+				self.feedback.append("You hire "+str(sciHired)+" scientists")
+				player.scientists += sciHired
+				self.feedback.append("You hire "+str(engHired)+" engineers")
+				player.engineers += engHired
+				self.feedback.append("You hire "+str(mathsHired)+" mathematitions")
+				player.maths += mathsHired
+				self.feedback.append("You hire "+str(camHired)+" campaigners")
+				player.campaigners += camHired
+				
 			if o == "overtime":
 				rand = n * ((2*player.campaigners) - (player.engineers * player.cost))
 				rand2 = player.mult * n * ((.2*player.scientists)+1)*player.engineers*0.4
