@@ -138,6 +138,31 @@ class Result(object):
 				self.feedback.append("You hire "+str(camHired)+" campaigners")
 				player.campaigners += camHired
 				
+			if o == "subpop":
+				sciHired = 0
+				engHired = 0
+				mathsHired = 0
+				camHired = 0
+				for i in range(n):
+					rand = random.randint(1, 4)
+					if rand == 1:
+						sciHired -= 1
+					if rand == 2:
+						engHired -= 1
+					if rand == 3:
+						mathsHired -= 1
+					if rand == 4:
+						camHired -= 1
+				
+				self.feedback.append("You hire "+str(sciHired)+" scientists")
+				player.scientists += sciHired
+				self.feedback.append("You hire "+str(engHired)+" engineers")
+				player.engineers += engHired
+				self.feedback.append("You hire "+str(mathsHired)+" mathematitions")
+				player.maths += mathsHired
+				self.feedback.append("You hire "+str(camHired)+" campaigners")
+				player.campaigners += camHired
+				
 			if o == "overtime":
 				rand = n * ((2*player.campaigners) - (player.engineers * player.cost))
 				rand2 = player.mult * n * ((.2*player.scientists)+1)*player.engineers*0.4
@@ -210,10 +235,10 @@ hire1 = Prompt("", ["Your advisor from the government approches you:", "I would 
 #fire1 = sci, eng, mat
 
 #Money and materials
-bakesale = Prompt("", ["One of your campaigners suggests:", "We should have a bake sale to raise money."], [Result("Sure, but only if I can have some too.", "After having a bakesale", [["addmoney", 2], ["addflav", "The bake sale premotes working in the areospace industy"], ["addpop", 1]]), Result("No, I hate baked goods", "After not having a bake sale..", [["addflav", "Some people were really looking forward to that bake sale."],["addpop", -1]])], 3)
+bakesale = Prompt("", ["One of your campaigners suggests:", "We should have a bake sale to raise money."], [Result("Sure, but only if I can have some too.", "After having a bakesale", [["addmoney", 2], ["addflav", "The bake sale premotes working in the areospace industy"], ["addpop", 1]]), Result("No, I hate baked goods", "After not having a bake sale..", [["addflav", "Some people were really looking forward to that bake sale."],["subpop", -1]])], 3)
 adcampaign = Prompt("", ["One of your mathmatitions suggests", "an add campaign to hire people."], [Result("Yeah, we need the staff", "After creating an amazing ad campaign...", [["addpop", 4], ["addmoney", -4]]), Result("No, we don't have enough money.", "After not creating an amazing ad campaign...", [["addflav", "Nothing changes"]])], 5)
-materials = Prompt("", ["One of your scientists approaches you:", "We need to discuss our materials."], [Result("How about all carbon fiber?", "After using hi-tech materials:", [["addfail", -4], ["addcost", 2]]), Result("Why not normal materials, like steel?", "After deciding to use standard materials:", [["addflav", "Engineers are attracted to the ease of their jobs."], ["addeng", 1]]), Result("Lets think cheap. Duct-tape cheap.", "After deciding to use low-cost materials:", [["addcost", -.5], ["addmult", .1], ["addfail", 20], ["addflav", "Some of your mathmatitions can't handle the absurdity of this project."], ["addmat", -2]])], 3)
-fuels = Prompt("", ["An engineer approaches you:", "So, uh.. What should we use for fuel?"], [Result("Nuclear would be the most effeicent", "After deciding to place a nuclear reactor within the rocket", [["addfail", -10], ["addmoney", -10]]), Result("Rocket fuel, duh.", "After using standard rocket fuel..", [["addfail", -5], ["addmoney", -7]]), Result("Car fuel, we are low on funds", "After deciding to use car fuel...", [["addflav", "Some people belive you aren't taking this job seriously"], ["addpop", -2],["addfail", -2], ["addmoney", -4]])], 4)
+materials = Prompt("", ["One of your scientists approaches you:", "We need to discuss our materials."], [Result("How about all carbon fiber?", "After using hi-tech materials:", [["addfail", -4], ["addcost", 2]]), Result("Why not normal materials, like steel?", "After deciding to use standard materials:", [["addflav", "Engineers are attracted to the ease of their jobs."], ["addeng", 1]]), Result("Lets think cheap. Duct-tape cheap.", "After deciding to use low-cost materials:", [["addcost", -.5], ["addmult", .1], ["addfail", 20], ["addflav", "Some of your mathmatitions can't handle the absurdity of this project."], ["addmat", -2]])], 99)
+fuels = Prompt("", ["An engineer approaches you:", "So, uh.. What should we use for fuel?"], [Result("Nuclear would be the most effeicent", "After deciding to place a nuclear reactor within the rocket", [["addfail", -10], ["addmoney", -10]]), Result("Rocket fuel, duh.", "After using standard rocket fuel..", [["addfail", -5], ["addmoney", -7]]), Result("Car fuel, we are low on funds", "After deciding to use car fuel...", [["addflav", "Some people belive you aren't taking this job seriously"], ["subpop", -2],["addfail", -2], ["addmoney", -4]])], 99)
 
 
 #Bad ideas
@@ -267,6 +292,7 @@ while running:
 		possiblequestions.append(toaster)
 	if player.money < 8 and not bakesale in possiblequestions:
 		possiblequestions.append(bakesale)
+	
 		
 	theQuestion = possiblequestions[random.randint(0, len(possiblequestions) - 1)]
 	done, mouse_down = False, False
@@ -394,12 +420,12 @@ while running:
 	feedback1 = []
 	feedback1.append("After a full day of work...")
 	if player.campaigners > 0:
-		player.money += 2*player.campaigners
 		feedback1.append("Your campaigners raise "+str(2*player.campaigners)+"K")
 	if funded:
 		#6 is default reduced per turn with 1 sci & math, and 2 eng
 		player.money += 8
 		feedback1.append("You gain 8K in government funding.")
+		
 	feedback1.append("You pay your employees "+str(player.maths+player.scientists+player.engineers)+"K")
 	feedback1.append("Your engineers spend "+str(player.engineers*player.cost)+"K")
 	feedback1.append("Your mathematitions reduce chance of failiure by "+str(2*player.maths)+"%")
