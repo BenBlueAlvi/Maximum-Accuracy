@@ -68,39 +68,42 @@ def bubble_sort(items):
 def wraptext(text, fullline):
 	Denting = True
 	count = fullline
-	size = pygame.font.size(text)
+	size = font.size(text)
 	outtext = []
 	while Denting:
-		if pygame.font.size(text)[0] > fullline:
+		if font.size(text)[0] > fullline:
 			#Search for ammount of charachters that can fit in set fullline size
 			thistext = ""
 			for i in range(900):
-				if pygame.font.size(thistext + text[i])[0] > fullline:
+				if font.size(thistext + text[i])[0] > fullline:
 					count = len(thistext)
+					break
 				else:
 					thistext += text[i]
 			thistext = text[:count]
 			#is it indentable
 			if " " in thistext:
 				for i in range(len(thistext)):
-					#find first space
+					#find first space from end
 					if thistext[len(thistext)-(i+1)] == " ":
-						if i > (fullline/4):
-							count += fullline #to prevent largly empty lines. USE SKIPS TO COUNTER
 						#split text, add indent, update count
-						else:
-							outtext.append(thistext[:len(thistext)-(i+1)])
-							text = text[len(thistext)-(i):]
-							count = fullline
-							break
+						outtext.append(thistext[:len(thistext)-(i+1)])
+						text = text[len(thistext)-(i):]
+						count = fullline
+						break
 			#unindentable, skip to next
 			else:
 				count += fullline
 		else:
 			#exit denting, add remaining to outtext, return
 			Denting = False
-			outtext = outtext+text+"\n"
-		#time.sleep(1)
+			outtext.append(text)
+	return outtext
+
+rand = wraptext("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", 100)
+for i in rand:
+	print i
+del rand
 
 def hitDetect(p1, p2, p3, p4):
 	if p2[0] > p3[0] and p1[0] < p4[0] and p2[1] > p3[1] and p1[1] < p4[1]:
@@ -119,11 +122,9 @@ class Result(object):
 		for i in range(len(self.doings)):
 			o, n = self.doings[i][0], self.doings[i][1]
 			
-			if o == "addflav":
-				self.feedback.append(n)
 			if o == "addprog":
 				if n < 0:
-					self.feedback.append("The rocket loses progresses by "+str(n) + "%")
+					self.feedback.append("The rocket loses "+str(-n) + "% progress.")
 				else:
 					self.feedback.append("The rocket progresses by "+str(n) + "%")
 				player.progress += player.mult*n
@@ -145,33 +146,73 @@ class Result(object):
 					self.feedback.append("Estamates show that the chance for faliure has increased by "+str(n)+"%")
 				player.failChance += n
 			if o == "addsci":
-				if n < 0:
-					self.feedback.append("You have lost "+str(-n)+" scientists.")
+				sciHired = 0
+				for i in range(abs(n)):
+					if n > 0:
+						break
+					else:
+						if player.scientists - 1 < 0:
+							break
+						else:
+							sciHired -= 1
+				if sciHired < 0:
+					self.feedback.append("You have lost "+str(-sciHired)+" scientists.")
 				else:
 					self.feedback.append("You hire "+str(n)+" scientists")
-				player.scientists += n
+					sciHired = n
+				player.scientists += sciHired
 			if o == "addeng":
-				if n < 0:
-					self.feedback.append("You have lost "+str(-n)+" engineers.")
+				engHired = 0
+				for i in range(abs(n)):
+					if n > 0:
+						break
+					else:
+						if player.engineers - 1 < 0:
+							break
+						else:
+							engHired -= 1
+				if engHired < 0:
+					self.feedback.append("You have lost "+str(-sciHired)+" engineers.")
 				else:
 					self.feedback.append("You hire "+str(n)+" engineers")
-				player.engineers += n
+					engHired = n
+				player.engineers += engHired
 			if o == "addmat":
-				if n < 0:
-					self.feedback.append("You have lost "+str(-n)+" mathematitions.")
+				matHired = 0
+				for i in range(abs(n)):
+					if n > 0:
+						break
+					else:
+						if player.maths - 1 < 0:
+							break
+						else:
+							engHired -= 1
+				if matHired < 0:
+					self.feedback.append("You have lost "+str(-matHired)+" mathematitions.")
 				else:
 					self.feedback.append("You hire "+str(n)+" mathematitions")
-				player.maths += n
+					matHired = n
+				player.maths += matHired
 			if o == "addcam":
-				if n < 0:
-					self.feedback.append("You have lost "+str(-n)+" campaigners.")
+				camHired = 0
+				for i in range(abs(n)):
+					if n > 0:
+						break
+					else:
+						if player.campaigners - 1 < 0:
+							break
+						else:
+							camHired -= 1
+				if camHired < 0:
+					self.feedback.append("You have lost "+str(-camHired)+" campaigners.")
 				else:
 					self.feedback.append("You hire "+str(n)+" campaigners")
-				player.campaigners += n
+					camHired = n
+				player.campaigners += camHired
 			if o == "addpop":
 				sciHired = 0
 				engHired = 0
-				mathsHired = 0
+				matHired = 0
 				camHired = 0
 				for i in range(n):
 					rand = random.randint(1, 4)
@@ -180,44 +221,65 @@ class Result(object):
 					if rand == 2:
 						engHired += 1
 					if rand == 3:
-						mathsHired += 1
+						matHired += 1
 					if rand == 4:
 						camHired += 1
-				
-				self.feedback.append("You hire "+str(sciHired)+" scientists")
-				player.scientists += sciHired
-				self.feedback.append("You hire "+str(engHired)+" engineers")
-				player.engineers += engHired
-				self.feedback.append("You hire "+str(mathsHired)+" mathematitions")
-				player.maths += mathsHired
-				self.feedback.append("You hire "+str(camHired)+" campaigners")
-				player.campaigners += camHired
-				
+				if sciHired > 0:
+					self.feedback.append("You gain "+str(sciHired)+" scientists")
+					player.scientists += sciHired
+				if engHired > 0:
+					self.feedback.append("You gain "+str(engHired)+" engineers")
+					player.engineers += engHired
+				if mathsHired > 0:
+					self.feedback.append("You gain "+str(matHired)+" mathematitions")
+					player.maths += matHired
+				if camHired > 0:
+					self.feedback.append("You gain "+str(camHired)+" campaigners")
+					player.campaigners += camHired		
 			if o == "subpop":
 				sciHired = 0
 				engHired = 0
-				mathsHired = 0
+				matHired = 0
 				camHired = 0
-				for i in range(n):
+				while n > 0:
 					rand = random.randint(1, 4)
+					n -= 1
 					if rand == 1:
-						sciHired -= 1
+						if player.scientists - 1 < 0:
+							n += 1
+						else:
+							sciHired += 1
 					if rand == 2:
-						engHired -= 1
+						if player.engineers - 1 < 0:
+							n += 1
+						else:
+							engHired += 1
 					if rand == 3:
-						mathsHired -= 1
+						if player.maths - 1 < 0:
+							n += 1
+						else:
+							matHired += 1
 					if rand == 4:
-						camHired -= 1
-				
-				self.feedback.append("You hire "+str(sciHired)+" scientists")
-				player.scientists += sciHired
-				self.feedback.append("You hire "+str(engHired)+" engineers")
-				player.engineers += engHired
-				self.feedback.append("You hire "+str(mathsHired)+" mathematitions")
-				player.maths += mathsHired
-				self.feedback.append("You hire "+str(camHired)+" campaigners")
-				player.campaigners += camHired
-				
+						if player.campaigners - 1 < 0:
+							n += 1
+						else:
+							camHired += 1
+					if player.scientists <= 0 and player.engineers <= 0 and player.maths <= 0 and player.campaigners <= 0:
+						n = -1
+				if sciHired > 0:
+					self.feedback.append("You lose "+str(sciHired)+" scientists")
+					player.scientists -= sciHired
+				if engHired > 0:
+					self.feedback.append("You lose "+str(engHired)+" engineers")
+					player.engineers -= engHired
+				if matHired > 0:
+					self.feedback.append("You lose "+str(matHired)+" mathematitions")
+					player.maths -= matHired
+				if camHired > 0:
+					self.feedback.append("You lose "+str(camHired)+" campaigners")
+					player.campaigners -= camHired
+				if n == -1:
+					self.feedback.append("You have no employees remaining.")
 			if o == "overtime":
 				rand = n * ((2*player.campaigners) - (player.engineers * player.cost))
 				rand2 = player.mult * n * ((.2*player.scientists)+1)*player.engineers*0.4
@@ -268,7 +330,14 @@ class Result(object):
 				else:
 					self.feedback.append("Your costs have inrceased")
 				player.progress *= n
-				
+			
+			if o == "addflav":
+				self.feedback.append(n)
+			if o == "achive":
+				if n == "toaster":
+					pass
+					#toaster.gotten = True
+
 		return self.feedback
 
 class Prompt(object):
@@ -286,12 +355,12 @@ hire1 = Prompt("", ["Your advisor from the government approches you:", "I would 
 #hire3 = maths, campaigners
 #fire1 = sci, eng, mat
 fire1 = Prompt("", ["That one advisor from the government approches you:", "We have hired too many people and we are losing money", "somebody needs to get fired."], [Result("But we are getting so much done.", "After not firing anyone...", [["addfail", 2]]), Result("I'll leave it up to you.", "After that government advisor fires some people...", [["subpop", 3], ["addfail", -2]]),Result("Fire some of those engineers.", "After firing some engineers...", [["addeng", -2], ["addfail", -1]])], 6)
+
 #Money and materials
 bakesale = Prompt("", ["One of your campaigners suggests:", "We should have a bake sale to raise money."], [Result("Sure, but only if I can have some too.", "After having a bakesale", [["addmoney", 2], ["addflav", "The bake sale premotes working in the areospace industy"], ["addpop", 1]]), Result("No, I hate baked goods", "After not having a bake sale..", [["addflav", "Some people were really looking forward to that bake sale."],["subpop", 1]])], 3)
 adcampaign = Prompt("", ["One of your mathmatitions suggests", "an add campaign to hire people."], [Result("Yeah, we need the staff", "After creating an amazing ad campaign...", [["addmoney", -4], ["addpop", 4]]), Result("No, we don't have enough money.", "After not creating an amazing ad campaign...", [["addflav", "Nothing changes"]])], 5)
 materials = Prompt("", ["One of your scientists approaches you:", "We need to discuss our materials."], [Result("How about all carbon fiber?", "After using hi-tech materials:", [["addfail", -4], ["addcost", 2]]), Result("Why not normal materials, like steel?", "After deciding to use standard materials:", [["addflav", "Engineers are attracted to the ease of their jobs."], ["addeng", 1]]), Result("Lets think cheap. Duct-tape cheap.", "After deciding to use low-cost materials:", [["addcost", -.5], ["addmult", .1], ["addfail", 20], ["addflav", "Some of your mathmatitions can't handle the absurdity of this project."], ["addmat", -2]])], 99)
 fuels = Prompt("", ["An engineer approaches you:", "So, uh.. What should we use for fuel?"], [Result("Nuclear would be the most effeicent", "After deciding to place a nuclear reactor within the rocket", [["addfail", -10], ["addmoney", -10]]), Result("Rocket fuel, duh.", "After using standard rocket fuel..", [["addfail", -5], ["addmoney", -7]]), Result("Car fuel, we are low on funds", "After deciding to use car fuel...", [["addflav", "Some people belive you aren't taking this job seriously"], ["subpop", 2],["addfail", -2], ["addmoney", -4]])], 99)
-
 
 #Bad ideas
 coffee = Prompt("", ["A few engineers approch you and ask:", "Can we install a coffee machine in the rocket?"], [Result("Sure, Why not?", "After installing a coffee machine on the rocket,", [["addmoney", -1], ["addprog", 2], ["addfail", 4], ["addeng", 1]]), Result("NO?", "After not installing a coffee machine...", [["addfail", -1]])], 1)			
@@ -327,18 +396,25 @@ class Player(object):
 player = Player(18, 0, 100, 1, 2, 1, 0)
 
 class Achive(object):
-	def __init__(self, Id, name, desc, img):
+	def __init__(self, Id, name, desc, rl, img):
 		self.box = achiveBox
 		self.id = Id
 		self.name = name
 		self.desc = desc
 		self.img = img
+		#if it resets on launch
+		self.rl = rl
+		#if you are going to get the achive
+		self.gotten = False
 		self.timer = 0
 		self.cords = [0,-50]
 		self.yvel = 1
+		#i have no idea
 		self.getd = False
+		#if it is displaying currently
+		self.displaying = False
 	def update(self):
-		if self.timer > 0:
+		if self.timer > 0 and displaying:
 			gScreen.blit(self.box, self.cords)
 			gScreen.blit(self.img, [self.cords[0] +2, self.cords[1] + 2])
 			if self.cords[1] > 0 or self.cords[1] < -50:
@@ -350,15 +426,16 @@ class Achive(object):
 		if not self.getd:
 			self.timer = 100
 			self.getd = True
+			self.displaying = True
 		
-		
-testAchive = Achive("", "Test", "YAY", pygame.image.load("Assets/achives/wip.png"))
+#start all achivements with A to prevent overlapping variables.
+Atest = Achive("test", "Test", "YAY", False, getImg("achives/wip"))
+Atoast = Achive("toaster", "It could run on a toaster", "Succesfully launch a spaceship with a toaster chassis", True, getImg("achives/wip"))
 
-allAchives = [testAchive]
+allAchives = [Atest, Atoast]
 			
 		
 
-#Atoast = Achive("toaster", "It could run on a toaster", "Succesfully launch a spaceship with a toaster chassis", )
 
 def addQuestion(possiblequestions, parm, comp, limit, question):
 	if comp == "greater":
@@ -417,12 +494,8 @@ while running:
 			elif event.type == pygame.MOUSEBUTTONUP:
 				mouse_down = False
 		mouse_pos = pygame.mouse.get_pos()
-		
-		
-			
-		
+
 		gScreen.fill(WHITE)
-		
 		gScreen.blit(textbox([250, 50], ""), [0,0])
 		
 		for i in range(len(theQuestion.prompt)):
@@ -452,12 +525,7 @@ while running:
 								possiblequestions.append(q)
 						done = True
 						break
-				
-				
-		
 				y+= 1
-			
-		
 
 		pygame.draw.rect(gScreen, YELLOW, [155 - 38, 60, 50, (player.money * -1) / 20])
 		gScreen.blit(moneypic, [155 - 38, 10])
@@ -582,10 +650,13 @@ while running:
 		#launch button, and continue button.
 		if hitDetect(mouse_pos, mouse_pos, [10,640], [180, 690]) and mouse_down:
 			mouse_down = False
+			for i in allAchives:
+				if i.rl:
+					i.gotten = False
 			successChance = player.progress / player.failChance
 			launchChance = random.randint(0, 100)
 			rand = 100 - launchChance
-			
+
 			if launchChance <= successChance:
 				print "LAUNCH SUCCESSFUL!"
 				
