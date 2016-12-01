@@ -453,7 +453,7 @@ class Achive(object):
 Abegining = Achive("begining", "Day 1", "Succesfully complete your first day on the job.", "wip")
 Atoast = Achive("toaster", "It could run on a toaster", "Succesfully launch a spaceship with a toaster chassis", "wip")
 Anukes = Achive("nukes", "Oops", "Blow up a nuke in midair, destroying the lab.", "wip")
-Aai = Achive("ai", "That cake is a lie", "Get some cake from a friendly AI", "wip")
+Aai = Achive("ai", "That cake is a lie", "Get some cake from a friendly AI", "cake")
 
 allAchives = [Atoast, Anukes, Abegining, Aai]
 			
@@ -521,6 +521,8 @@ while running:
 	addQuestion(possiblequestions, player.pop, "greater", 10, fire1)
 	
 	addQuestion(possiblequestions, player.money, "greater", 25, fsc)
+	
+	
 		
 	theQuestion = possiblequestions[random.randint(0, len(possiblequestions) - 1)]
 	
@@ -677,7 +679,7 @@ while running:
 
 	done, mouse_down = False, False
 	while not done and running:
-		Abegining.get()
+		Aai.get()
 		gScreen.fill(WHITE)
 		gScreen.blit(end_of_day_pic, [190, 90])
 		for i in range(len(feedback)):
