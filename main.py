@@ -396,9 +396,9 @@ silos = Prompt("", ["One very frugel lab assistant approches you:", "We don't ha
 fsc = Prompt("", ["Upon seeing how well the rocket is going,", "an advisor from the Futuristic Science Corp.", "wishes to partner with you."], [Result("Together we will do great things.", "After partnering with the FSC...", [["addflav", "The project has drasticly increased in size."], ["spec", "JoinedFSC"], ["addmoney", 20], ["addmult", 0.1]]), Result("I'm sorry, I would prefer to go alone.", "After making the mistake of not partnering with the FSC..", [["addflav", "You feel you have made a horrible mistake."]])], 99)
 
 #MATERIALS AND FUELS MUST BE THE FIRST 2 QUESTIONS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-possiblequestions = [materials, fuels, coffee, hire1, adcampaign, fsc, silo]	
+possiblequestions = [materials, fuels, coffee, hire1, adcampaign, fsc, silos]	
 
-questions = [coffee, hire1, hotel, toaster, materials, fuels, bakesale, silo]
+questions = [coffee, hire1, hotel, toaster, materials, fuels, bakesale, silos]
 
 class Player(object):
 	def __init__(self, mon, prog, fail, sci, eng, mat, cam):
