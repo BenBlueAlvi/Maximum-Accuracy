@@ -22,6 +22,8 @@ PURPLE = (255, 0, 255)
 
 pygame.init()
 font = pygame.font.SysFont('Calibri', 15, True, False)
+achiveFont = pygame.font.SysFont('Calibri', 10, True, False)
+
 size = (700, 700)
 gScreen = pygame.display.set_mode(size)
 clock = pygame.time.Clock()
@@ -331,25 +333,43 @@ class Achive(object):
 		self.desc = desc
 		self.img = img
 		self.timer = 0
+		self.waittimer = 0
 		self.cords = [0,-50]
 		self.yvel = 1
+		self.divider = 1
 		self.getd = False
 	def update(self):
 		if self.timer > 0:
 			gScreen.blit(self.box, self.cords)
+			gScreen.blit(self.name, [self.cords[0] + 50, self.cords[1] + 3])
+			gScreen.blit(self.desc, [self.cords[0] + 50, self.cords[1] + 19])
 			gScreen.blit(self.img, [self.cords[0] +2, self.cords[1] + 2])
-			if self.cords[1] > 0 or self.cords[1] < -50:
-				self.yvel *= -1
+			print self.yvel
+			if self.timer < 50: 
+				self.yvel = -1
+				
+			if self.timer % 5 == 0:
+				if self.timer > 50:
+					self.divider += 1
+				elif self.timer <=50:
+					self.divider -= 1
+			if self.cords[1] >= 0:
+				if self.waittimer >= 0:
+					self.waittimer -= 1
+					self.yvel = 0
+					self.timer = 50
+			print self.divider
 			
-			self.cords[1] += self.yvel / (self.timer + 1 / 50) + 1
+			self.cords[1] += self.yvel / (self.divider / 5.0)
 			self.timer -= 1
 	def get(self):
 		if not self.getd:
 			self.timer = 100
+			self.waittimer = 50
 			self.getd = True
 		
 		
-testAchive = Achive("", "Test", "YAY", pygame.image.load("Assets/achives/wip.png"))
+testAchive = Achive("", font.render("Test", True, BLACK), achiveFont.render("YAY", True, BLACK), pygame.image.load("Assets/achives/wip.png"))
 
 allAchives = [testAchive]
 			
