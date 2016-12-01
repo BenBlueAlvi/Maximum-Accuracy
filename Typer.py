@@ -6,7 +6,7 @@ thetext = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusm
 #change to force indents on multi-line strings
 
 #maximum length before indent
-fullline = 100
+fullline = 50
 
 def wraptext(text):
     Denting = True
