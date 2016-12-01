@@ -188,7 +188,7 @@ class Result(object):
 						if player.maths - 1 < 0:
 							break
 						else:
-							engHired -= 1
+							matHired -= 1
 				if matHired < 0:
 					self.feedback.append("You have lost "+str(-matHired)+" mathematitions.")
 				else:
@@ -335,8 +335,11 @@ class Result(object):
 			
 			if o == "addflav":
 				self.feedback.append(n)
-			if o == "specJoinFSC":
-				player.specs.append("JoinedFSC")
+			if o == "spec":
+				if n == "JoinedFSC":
+					player.specs.append("JoinedFSC")
+				if n == "ToasterChassis":
+					player.rocketspecsspecs.append("ToasterChassis")
 
 		return self.feedback
 
@@ -364,13 +367,13 @@ fuels = Prompt("", ["An engineer approaches you:", "So, uh.. What should we use 
 
 #Bad ideas
 coffee = Prompt("", ["A few engineers approch you and ask:", "Can we install a coffee machine in the rocket?"], [Result("Sure, Why not?", "After installing a coffee machine on the rocket,", [["addmoney", -1], ["addprog", 2], ["addfail", 4], ["addeng", 1]]), Result("NO?", "After not installing a coffee machine...", [["addfail", -1]])], 1)			
-toaster = Prompt("", ["One of those hippies from science department asks:", "Hey, we're low on funds right now. I suggest we turn our chassis into a toaster."], [Result("Sure, we need to save money.", "After switching over your chassis:", [["addmult", 2], ["addfail", 100], ["addmat", -2], ["addprog", 2]]), Result("We don't need to be THAT drastic..", "After reducing the size:", [["addmult", .2], ["addfail", -1], ["addsci", 1]]), Result("No way.", "After denying the toaster plan:", [["addmat", 1], ["addpop", 1]])], 3)
+toaster = Prompt("", ["One of those hippies from science department asks:", "Hey, we're low on funds right now. I suggest we turn our chassis into a toaster."], [Result("Sure, we need to save money.", "After switching over your chassis:", [["addmult", 2], ["addfail", 100], ["addmat", -2], ["addprog", 2], ["spec", "ToasterChassis"]]), Result("We don't need to be THAT drastic..", "After reducing the size:", [["addmult", .2], ["addfail", -1], ["addsci", 1]]), Result("No way.", "After denying the toaster plan:", [["addmat", 1], ["addpop", 1]])], 3)
 hotel = Prompt("", ["The CEO of a large hotel group has approched you", "and wishes install one of his hotels on the moon.", "He bribes you with quite a bit of money."], [Result("I guess so.", "The engineers begin to load materials to build the hotel on the moon.", [["multprog", .2], ["addmult", -.8], ["addfail", 30], ["addmoney", 30]]), Result("No.", "After focusing on building the rocket and not business deals:", [["addprog", 5], ["addpop", 1]])], 3)
 #mtndew
 #sodamachine
 
 #interesting ideas
-fsc = Prompt("", ["Upon seeing how well the rocket is going,", "an advisor from the Futuristic Science Corp.", "wishes to partner with you."], [Result("Together we will do great things.", "After partnering with the FSC...", [["addflav", "The project has drasticly increased in size."], ["specJoinFSC", 1], ["addmoney", 20], ["addmult", 0.1]]), Result("I'm sorry, I would prefer to go alone.", "After making the mistake of not partnering with the FSC..", [["addflav", "You feel you have made a horrible mistake."]])], 99)
+fsc = Prompt("", ["Upon seeing how well the rocket is going,", "an advisor from the Futuristic Science Corp.", "wishes to partner with you."], [Result("Together we will do great things.", "After partnering with the FSC...", [["addflav", "The project has drasticly increased in size."], ["spec", "JoinedFSC"], ["addmoney", 20], ["addmult", 0.1]]), Result("I'm sorry, I would prefer to go alone.", "After making the mistake of not partnering with the FSC..", [["addflav", "You feel you have made a horrible mistake."]])], 99)
 
 #MATERIALS AND FUELS MUST BE THE FIRST 2 QUESTIONS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 possiblequestions = [materials, fuels, coffee, hire1, adcampaign, fsc]	
@@ -392,6 +395,7 @@ class Player(object):
 		self.pop = 0
 		self.days = 0
 		self.specs = []
+		self.rocketspecs = []
 		#previous
 		self.preMon = mon
 		self.preProg = prog
@@ -404,7 +408,7 @@ class Achive(object):
 		self.box = achiveBox
 		self.id = Id
 		self.name = font.render(name, True, BLACK)
-		self.desc = achiveFont.render(desc, True, BLACK)
+		self.desc = wraptext(desc, 245) 
 		self.img = pygame.image.load("Assets/achives/" + img + ".png")
 
 		#if you are going to get the achive
@@ -420,7 +424,12 @@ class Achive(object):
 		if self.timer > 0:
 			gScreen.blit(self.box, self.cords)
 			gScreen.blit(self.name, [self.cords[0] + 50, self.cords[1] + 3])
-			gScreen.blit(self.desc, [self.cords[0] + 50, self.cords[1] + 19])
+				
+			for i in range(len(self.desc)):
+				gScreen.blit(achiveFont.render(self.desc[i], True, BLACK), [self.cords[0] + 50, self.cords[1] + 19 + i * 11])
+				
+				
+			#gScreen.blit(self.desc, [self.cords[0] + 50, self.cords[1] + 19])
 			gScreen.blit(self.img, [self.cords[0] +2, self.cords[1] + 2])
 			print self.yvel
 			if self.timer < 50: 
@@ -443,7 +452,7 @@ class Achive(object):
 	def get(self):
 		if not self.getd:
 			self.timer = 100
-			self.waittimer = 50
+			self.waittimer = 100
 			self.getd = True
 	
 		
@@ -680,7 +689,7 @@ while running:
 
 	done, mouse_down = False, False
 	while not done and running:
-		Aai.get()
+		Abegining.get()
 		gScreen.fill(WHITE)
 		gScreen.blit(end_of_day_pic, [190, 90])
 		for i in range(len(feedback)):
@@ -708,15 +717,23 @@ while running:
 
 			if launchChance <= successChance:
 				print "LAUNCH SUCCESSFUL!"
+				if "ToasterChassis" in player.rocketspecs:
+					player.rocketspecs.remove("ToasterChassis")
+					Atoast.get()
+					
 				
 			if launchChance > successChance and launchChance <= successChance + (rand * 1 / 3):
 				print "LAUNCH Failure 1!"
+				player.rocketspecs = []
+				
 				
 			if launchChance > successChance + (rand * 1 / 3) and launchChance <= successChance + (rand * 2 / 3):
 				print "LAUNCH Failure 2!"
+				player.rocketspecs = []
 				
 			if launchChance > successChance + (rand * 2 / 3):
 				print "LAUNCH Failure 3!"
+				player.rocketspecs = []
 				
 			player.fails += 1
 			player.progress, player.cost, player.mult = 0, 1, 1
