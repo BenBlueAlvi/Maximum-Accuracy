@@ -232,7 +232,7 @@ class Result(object):
 				if engHired > 0:
 					self.feedback.append("You gain "+str(engHired)+" engineers")
 					player.engineers += engHired
-				if mathsHired > 0:
+				if matHired > 0:
 					self.feedback.append("You gain "+str(matHired)+" mathematitions")
 					player.maths += matHired
 				if camHired > 0:
@@ -398,14 +398,13 @@ class Player(object):
 player = Player(18, 0, 100, 1, 2, 1, 0)
 
 class Achive(object):
-	def __init__(self, Id, name, desc, rl, img):
+	def __init__(self, Id, name, desc, img):
 		self.box = achiveBox
 		self.id = Id
 		self.name = name
 		self.desc = desc
 		self.img = img
-		#if it resets on launch
-		self.rl = rl
+		
 		#if you are going to get the achive
 		self.gotten = False
 		self.timer = 0
@@ -415,10 +414,8 @@ class Achive(object):
 		self.divider = 1
 
 		self.getd = False
-		#if it is displaying currently
-		self.displaying = False
 	def update(self):
-		if self.timer > 0 and displaying:
+		if self.timer > 0:
 			gScreen.blit(self.box, self.cords)
 			gScreen.blit(self.name, [self.cords[0] + 50, self.cords[1] + 3])
 			gScreen.blit(self.desc, [self.cords[0] + 50, self.cords[1] + 19])
@@ -446,16 +443,15 @@ class Achive(object):
 			self.timer = 100
 			self.waittimer = 50
 			self.getd = True
-			self.displaying = True
-		
+	
 		
 testAchive = Achive("", font.render("Test", True, BLACK), achiveFont.render("YAY", True, BLACK), pygame.image.load("Assets/achives/wip.png"))
 
 #start all achivements with A to prevent overlapping variables.
-#Atoast = Achive("toaster", "It could run on a toaster", "Succesfully launch a spaceship with a toaster chassis", True, getImg("achives/wip"))
+Atoast = Achive("toaster", font.render("It could run on a toaster", True, BLACK), achiveFont.render("Succesfully launch a spaceship with a toaster chassis", True, BLACK), getImg("achives/wip"))
 
 
-allAchives = [testAchive, Atoast]
+allAchives = [Atoast]
 			
 		
 
@@ -654,7 +650,7 @@ while running:
 
 	done, mouse_down = False, False
 	while not done and running:
-		testAchive.get()
+		Atoast.get()
 		gScreen.fill(WHITE)
 		gScreen.blit(end_of_day_pic, [190, 90])
 		for i in range(len(feedback)):
