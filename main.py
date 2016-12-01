@@ -67,17 +67,17 @@ def bubble_sort(items):
 				items[j], items[j+1] = items[j+1], items[j] 
 	return items
 	
-def wraptext(text, fullline):
+def wraptext(text, fullline, Font):
 	Denting = True
 	count = fullline
-	size = font.size(text)
+	size = Font.size(text)
 	outtext = []
 	while Denting:
-		if font.size(text)[0] > fullline:
+		if Font.size(text)[0] > fullline:
 			#Search for ammount of charachters that can fit in set fullline size
 			thistext = ""
 			for i in range(900):
-				if font.size(thistext + text[i])[0] > fullline:
+				if Font.size(thistext + text[i])[0] > fullline:
 					count = len(thistext)
 					break
 				else:
@@ -102,7 +102,7 @@ def wraptext(text, fullline):
 			outtext.append(text)
 	return outtext
 
-rand = wraptext("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", 100)
+rand = wraptext("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", 100, font)
 for i in rand:
 	print i
 del rand
@@ -406,7 +406,7 @@ class Achive(object):
 		self.name = font.render(name, True, BLACK)
 		self.desc = achiveFont.render(desc, True, BLACK)
 		self.img = pygame.image.load("Assets/achives/" + img + ".png")
-		
+
 		#if you are going to get the achive
 		self.gotten = False
 		self.timer = 0
@@ -454,6 +454,7 @@ Abegining = Achive("begining", "Day 1", "Succesfully complete your first day on 
 Atoast = Achive("toaster", "It could run on a toaster", "Succesfully launch a spaceship with a toaster chassis", "wip")
 Anukes = Achive("nukes", "Oops", "Blow up a nuke in midair, destroying the lab.", "wip")
 Aai = Achive("ai", "That cake is a lie", "Get some cake from a friendly AI", "cake")
+Ahl = Achive("hl3", "Half life 3 confirmed", "succesfully launch a nuclear powered rocket on your third try.", "wip")
 
 allAchives = [Atoast, Anukes, Abegining, Aai]
 			
@@ -476,9 +477,9 @@ funded = True
 mouse_down = False
 
 done, running = False, True
-def textbox(size, text):
+def textbox(size, text, Font):
 	global capstrip1, capstrip2, vertstrip
-	text = wraptext(text, 248)
+	text = wraptext(text, 248, Font)
 	textbox = pygame.Surface(size)
 	for i in range(size[1]):
 		if i == 0:
