@@ -335,10 +335,8 @@ class Result(object):
 			
 			if o == "addflav":
 				self.feedback.append(n)
-			if o == "achive":
-				if n == "toaster":
-					pass
-					#toaster.gotten = True
+			if o == "specJoinFSC":
+				player.specs.append("JoinedFSC")
 
 		return self.feedback
 
@@ -362,7 +360,7 @@ fire1 = Prompt("", ["That one advisor from the government approches you:", "We h
 bakesale = Prompt("", ["One of your campaigners suggests:", "We should have a bake sale to raise money."], [Result("Sure, but only if I can have some too.", "After having a bakesale", [["addmoney", 2], ["addflav", "The bake sale premotes working in the areospace industy"], ["addpop", 1]]), Result("No, I hate baked goods", "After not having a bake sale..", [["addflav", "Some people were really looking forward to that bake sale."],["subpop", 1]])], 3)
 adcampaign = Prompt("", ["One of your mathmatitions suggests", "an add campaign to hire people."], [Result("Yeah, we need the staff", "After creating an amazing ad campaign...", [["addmoney", -4], ["addpop", 4]]), Result("No, we don't have enough money.", "After not creating an amazing ad campaign...", [["addflav", "Nothing changes"]])], 5)
 materials = Prompt("", ["One of your scientists approaches you:", "We need to discuss our materials."], [Result("How about all carbon fiber?", "After using hi-tech materials:", [["addfail", -4], ["addcost", 2]]), Result("Why not normal materials, like steel?", "After deciding to use standard materials:", [["addflav", "Engineers are attracted to the ease of their jobs."], ["addeng", 1]]), Result("Lets think cheap. Duct-tape cheap.", "After deciding to use low-cost materials:", [["addcost", -.5], ["addmult", .1], ["addfail", 20], ["addflav", "Some of your mathmatitions can't handle the absurdity of this project."], ["addmat", -2]])], 99)
-fuels = Prompt("", ["An engineer approaches you:", "So, uh.. What should we use for fuel?"], [Result("Nuclear would be the most effeicent", "After deciding to place a nuclear reactor within the rocket", [["addfail", -10], ["addmoney", -10]]), Result("Rocket fuel, duh.", "After using standard rocket fuel..", [["addfail", -5], ["addmoney", -7]]), Result("Car fuel, we are low on funds", "After deciding to use car fuel...", [["addflav", "Some people belive you aren't taking this job seriously"], ["subpop", 2],["addfail", -2], ["addmoney", -4]])], 99)
+fuels = Prompt("", ["An engineer approaches you:", "So, uh.. What should we use for fuel?"], [Result("Nuclear would be the most effeicent", "After deciding to place a nuclear reactor within the rocket", [["addfail", -10], ["addmoney", -10]]), Result("Rocket fuel, duh.", "After using standard rocket fuel..", [["addfail", -5], ["addmoney", -7]]), Result("Car fuel, we need to save money", "After deciding to use car fuel...", [["addflav", "Some people belive you aren't taking this job seriously"], ["subpop", 2],["addfail", -2], ["addmoney", -4]])], 99)
 
 #Bad ideas
 coffee = Prompt("", ["A few engineers approch you and ask:", "Can we install a coffee machine in the rocket?"], [Result("Sure, Why not?", "After installing a coffee machine on the rocket,", [["addmoney", -1], ["addprog", 2], ["addfail", 4], ["addeng", 1]]), Result("NO?", "After not installing a coffee machine...", [["addfail", -1]])], 1)			
@@ -372,9 +370,11 @@ hotel = Prompt("", ["The CEO of a large hotel group has approched you", "and wis
 #sodamachine
 
 #interesting ideas
-fsc = Prompt("", ["Upon seeing how well the rocket is going", "an advisor from the Futuristic Science Corp.", "wishes to partner with you."], [Result("Together we will do great things.", "After partnering with the FSC...", [["addflav", "The project has drasticly increased in size."], ["addmoney", 20], ["addmult", 0.1]]), Result("I'm sorry, I would prefer to go alone.", "After making the mistake of not partnering with the FSC..", [["addflav", "You feel you have made a horrible mistake."]])], 99)
+fsc = Prompt("", ["Upon seeing how well the rocket is going,", "an advisor from the Futuristic Science Corp.", "wishes to partner with you."], [Result("Together we will do great things.", "After partnering with the FSC...", [["addflav", "The project has drasticly increased in size."], ["specJoinFSC", 1], ["addmoney", 20], ["addmult", 0.1]]), Result("I'm sorry, I would prefer to go alone.", "After making the mistake of not partnering with the FSC..", [["addflav", "You feel you have made a horrible mistake."]])], 99)
 
-possiblequestions = [coffee, hire1, materials, fuels, adcampaign, fsc]	
+#MATERIALS AND FUELS MUST BE THE FIRST 2 QUESTIONS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+possiblequestions = [materials, fuels, coffee, hire1, adcampaign, fsc]	
+
 questions = [coffee, hire1, hotel, toaster, materials, fuels, bakesale]
 
 class Player(object):
@@ -390,6 +390,8 @@ class Player(object):
 		self.campaigners = cam
 		self.mult = 1
 		self.pop = 0
+		self.days = 0
+		self.specs = []
 		#previous
 		self.preMon = mon
 		self.preProg = prog
@@ -401,9 +403,9 @@ class Achive(object):
 	def __init__(self, Id, name, desc, img):
 		self.box = achiveBox
 		self.id = Id
-		self.name = name
-		self.desc = desc
-		self.img = img
+		self.name = font.render(name, True, BLACK)
+		self.desc = achiveFont.render(desc, True, BLACK)
+		self.img = pygame.image.load("Assets/achives/" + img + ".png")
 		
 		#if you are going to get the achive
 		self.gotten = False
@@ -445,13 +447,15 @@ class Achive(object):
 			self.getd = True
 	
 		
-testAchive = Achive("", font.render("Test", True, BLACK), achiveFont.render("YAY", True, BLACK), pygame.image.load("Assets/achives/wip.png"))
+
 
 #start all achivements with A to prevent overlapping variables.
-Atoast = Achive("toaster", font.render("It could run on a toaster", True, BLACK), achiveFont.render("Succesfully launch a spaceship with a toaster chassis", True, BLACK), getImg("achives/wip"))
+Abegining = Achive("begining", "Day 1", "Succesfully complete your first day on the job.", "wip")
+Atoast = Achive("toaster", "It could run on a toaster", "Succesfully launch a spaceship with a toaster chassis", "wip")
+Anukes = Achive("nukes", "Oops", "Blow up a nuke in midair, destroying the lab.", "wip")
+Aai = Achive("ai", "That cake is a lie", "Get some cake from a friendly AI", "wip")
 
-
-allAchives = [Atoast]
+allAchives = [Atoast, Anukes, Abegining, Aai]
 			
 		
 
@@ -488,7 +492,22 @@ def textbox(size, text):
 		else:
 			textbox.blit(vertstrip, [0, i])
 	return textbox
+day = 0
+month = 1
+year = 1
 while running:
+	day += 1
+	if day >= 30:
+		month += 1
+		day = 0
+	if month >= 12:
+		month = 0
+		year += 1
+		
+		
+	
+	date = font.render(str(month) + "/" + str(day) + "/" + str(year), True, BLACK)
+	player.days += 1
 	player.pop = player.scientists + player.maths + player.campaigners + player.engineers
 	
 	#Before choosing an answer
@@ -500,8 +519,15 @@ while running:
 	addQuestion(possiblequestions, player.money, "lesser", 8, bakesale)
 	
 	addQuestion(possiblequestions, player.pop, "greater", 10, fire1)
+	
+	addQuestion(possiblequestions, player.money, "greater", 25, fsc)
 		
 	theQuestion = possiblequestions[random.randint(0, len(possiblequestions) - 1)]
+	
+	if player.days == 1 or player.days == 2:
+		theQuestion = possiblequestions[0]
+	
+	
 	done, mouse_down = False, False
 	while not done:
 
@@ -515,7 +541,7 @@ while running:
 		mouse_pos = pygame.mouse.get_pos()
 
 		gScreen.fill(WHITE)
-		gScreen.blit(textbox([250, 50], ""), [0,0])
+		
 		
 		for i in range(len(theQuestion.prompt)):
 		
@@ -545,7 +571,8 @@ while running:
 						done = True
 						break
 				y+= 1
-
+		
+		gScreen.blit(date, [10,10])
 		pygame.draw.rect(gScreen, YELLOW, [155 - 38, 60, 50, (player.money * -1) / 20])
 		gScreen.blit(moneypic, [155 - 38, 10])
 		
@@ -650,7 +677,7 @@ while running:
 
 	done, mouse_down = False, False
 	while not done and running:
-		Atoast.get()
+		Abegining.get()
 		gScreen.fill(WHITE)
 		gScreen.blit(end_of_day_pic, [190, 90])
 		for i in range(len(feedback)):
