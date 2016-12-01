@@ -107,6 +107,23 @@ for i in rand:
 	print i
 del rand
 
+def textbox(size, text, Font):
+	global capstrip1, capstrip2, vertstrip
+	#text = wraptext(text, 292, Font)
+	textbox = pygame.Surface(size)
+	for i in range(size[1]):
+		if i == 0:
+			textbox.blit(capstrip2, [0, i])
+		elif i == 1:
+			textbox.blit(capstrip1, [0, i])
+		elif i == size[1] - 2:
+			textbox.blit(capstrip1, [0, i])
+		elif i == size[1] - 1:
+			textbox.blit(capstrip2, [0, i])
+		else:
+			textbox.blit(vertstrip, [0, i])
+	return textbox
+
 def hitDetect(p1, p2, p3, p4):
 	if p2[0] > p3[0] and p1[0] < p4[0] and p2[1] > p3[1] and p1[1] < p4[1]:
 		return True
@@ -408,50 +425,55 @@ class Achive(object):
 		self.box = achiveBox
 		self.id = Id
 		self.name = font.render(name, True, BLACK)
-		self.desc = wraptext(desc, 245) 
+		self.desc = wraptext(desc, 245, achiveFont) 
 		self.img = pygame.image.load("Assets/achives/" + img + ".png")
 
 		#if you are going to get the achive
 		self.gotten = False
 		self.timer = 0
 		self.waittimer = 0
-		self.cords = [0,-50]
+		self.length = len(self.desc) * 11 + 4
+		self.cords = [0,(self.length + 50) * -1]
 		self.yvel = 1
 		self.divider = 1
+		self.descbox = textbox([300, self.length], "", achiveFont)
 
 		self.getd = False
 	def update(self):
 		if self.timer > 0:
 			gScreen.blit(self.box, self.cords)
 			gScreen.blit(self.name, [self.cords[0] + 50, self.cords[1] + 3])
-				
+			gScreen.blit(self.descbox, [self.cords[0], self.cords[1] + 50])	
 			for i in range(len(self.desc)):
-				gScreen.blit(achiveFont.render(self.desc[i], True, BLACK), [self.cords[0] + 50, self.cords[1] + 19 + i * 11])
+				
+				gScreen.blit(achiveFont.render(self.desc[i], True, BLACK), [self.cords[0] + 4, self.cords[1] + 52 + i * 11])
 				
 				
 			#gScreen.blit(self.desc, [self.cords[0] + 50, self.cords[1] + 19])
 			gScreen.blit(self.img, [self.cords[0] +2, self.cords[1] + 2])
 			print self.yvel
-			if self.timer < 50: 
+			if self.timer < (self.length + 50): 
 				self.yvel = -1
 				
-			if self.timer % 5 == 0:
-				if self.timer > 50:
+			if self.timer % 10 == 0:
+				if self.timer > (self.length + 50):
 					self.divider += 1
-				elif self.timer <=50:
+				elif self.timer <=(self.length + 50):
 					self.divider -= 1
 			if self.cords[1] >= 0:
 				if self.waittimer >= 0:
 					self.waittimer -= 1
 					self.yvel = 0
-					self.timer = 50
-			print self.divider
+					self.timer = (self.length + 50)
 			
-			self.cords[1] += self.yvel / (self.divider / 5.0)
+			if self.divider <= 0:
+				self.divider = 1
+			print self.divider
+			self.cords[1] += self.yvel / (self.divider / 5.00)
 			self.timer -= 1
 	def get(self):
 		if not self.getd:
-			self.timer = 100
+			self.timer = (self.length + 50) * 2 + 2
 			self.waittimer = 100
 			self.getd = True
 	
@@ -459,11 +481,11 @@ class Achive(object):
 
 
 #start all achivements with A to prevent overlapping variables.
-Abegining = Achive("begining", "Day 1", "Succesfully complete your first day on the job.", "wip")
+Abegining = Achive("begining", "Day 1", "you win nothing, because it's impossible to get this achivement", "wip")
 Atoast = Achive("toaster", "It could run on a toaster", "Succesfully launch a spaceship with a toaster chassis", "wip")
 Anukes = Achive("nukes", "Oops", "Blow up a nuke in midair, destroying the lab.", "wip")
 Aai = Achive("ai", "That cake is a lie", "Get some cake from a friendly AI", "cake")
-Ahl = Achive("hl3", "Half life 3 confirmed", "succesfully launch a nuclear powered rocket on your third try.", "wip")
+Ahl = Achive("hl3", "Half life 3 confirmed", "Succesfully launch a nuclear powered rocket on your third try.", "wip")
 
 allAchives = [Atoast, Anukes, Abegining, Aai]
 			
@@ -486,22 +508,7 @@ funded = True
 mouse_down = False
 
 done, running = False, True
-def textbox(size, text, Font):
-	global capstrip1, capstrip2, vertstrip
-	text = wraptext(text, 248, Font)
-	textbox = pygame.Surface(size)
-	for i in range(size[1]):
-		if i == 0:
-			textbox.blit(capstrip2, [0, i])
-		elif i == 1:
-			textbox.blit(capstrip1, [0, i])
-		elif i == size[1] - 2:
-			textbox.blit(capstrip1, [0, i])
-		elif i == size[1] - 1:
-			textbox.blit(capstrip2, [0, i])
-		else:
-			textbox.blit(vertstrip, [0, i])
-	return textbox
+
 day = 0
 month = 1
 year = 1
@@ -689,7 +696,7 @@ while running:
 
 	done, mouse_down = False, False
 	while not done and running:
-		Abegining.get()
+		Atoast.get()
 		gScreen.fill(WHITE)
 		gScreen.blit(end_of_day_pic, [190, 90])
 		for i in range(len(feedback)):
