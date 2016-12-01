@@ -386,6 +386,7 @@ fuels = Prompt("", ["An engineer approaches you:", "So, uh.. What should we use 
 coffee = Prompt("", ["A few engineers approch you and ask:", "Can we install a coffee machine in the rocket?"], [Result("Sure, Why not?", "After installing a coffee machine on the rocket,", [["addmoney", -1], ["addprog", 2], ["addfail", 4], ["addeng", 1]]), Result("NO?", "After not installing a coffee machine...", [["addfail", -1]])], 1)			
 toaster = Prompt("", ["One of those hippies from science department asks:", "Hey, we're low on funds right now. I suggest we turn our chassis into a toaster."], [Result("Sure, we need to save money.", "After switching over your chassis:", [["addmult", 2], ["addfail", 100], ["addmat", -2], ["addprog", 2], ["spec", "ToasterChassis"]]), Result("We don't need to be THAT drastic..", "After reducing the size:", [["addmult", .2], ["addfail", -1], ["addsci", 1]]), Result("No way.", "After denying the toaster plan:", [["addmat", 1], ["addpop", 1]])], 3)
 hotel = Prompt("", ["The CEO of a large hotel group has approched you", "and wishes install one of his hotels on the moon.", "He bribes you with quite a bit of money."], [Result("I guess so.", "The engineers begin to load materials to build the hotel on the moon.", [["multprog", .2], ["addmult", -.8], ["addfail", 30], ["addmoney", 30]]), Result("No.", "After focusing on building the rocket and not business deals:", [["addprog", 5], ["addpop", 1]])], 3)
+silos = Prompt("", ["One very frugel lab assistant approches you:", "We don't have enough money to build the thrusters", "How about we use the silos from the sourounding farmland?"], [Result("What a wonderful idea!", "After refiting farm silos to work as thrusters...", [["addfail", 30], ["addsci", 1], ["addflav", "A hippy scientist joins your team"]]), Result("Are you sane?", "After not taking the farmer's silos", [["addflav", "The farmers share some of their wages with you!"],["addmoney", 5]])], 99)
 #mtndew
 #sodamachine
 
@@ -393,9 +394,9 @@ hotel = Prompt("", ["The CEO of a large hotel group has approched you", "and wis
 fsc = Prompt("", ["Upon seeing how well the rocket is going,", "an advisor from the Futuristic Science Corp.", "wishes to partner with you."], [Result("Together we will do great things.", "After partnering with the FSC...", [["addflav", "The project has drasticly increased in size."], ["spec", "JoinedFSC"], ["addmoney", 20], ["addmult", 0.1]]), Result("I'm sorry, I would prefer to go alone.", "After making the mistake of not partnering with the FSC..", [["addflav", "You feel you have made a horrible mistake."]])], 99)
 
 #MATERIALS AND FUELS MUST BE THE FIRST 2 QUESTIONS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-possiblequestions = [materials, fuels, coffee, hire1, adcampaign, fsc]	
+possiblequestions = [materials, fuels, coffee, hire1, adcampaign, fsc, silo]	
 
-questions = [coffee, hire1, hotel, toaster, materials, fuels, bakesale]
+questions = [coffee, hire1, hotel, toaster, materials, fuels, bakesale, silo]
 
 class Player(object):
 	def __init__(self, mon, prog, fail, sci, eng, mat, cam):
