@@ -356,7 +356,9 @@ class Result(object):
 				if n == "JoinedFSC":
 					player.specs.append("JoinedFSC")
 				if n == "ToasterChassis":
-					player.rocketspecsspecs.append("ToasterChassis")
+					player.rocketspecs.append("ToasterChassis")
+				if n == "fuelNuclear":
+					player.rocketspecs.append("fuelNuclear")
 
 		return self.feedback
 
@@ -488,7 +490,7 @@ Anukes = Achive("nukes", "Oops", "Blow up a nuke in midair, destroying the lab."
 Aai = Achive("ai", "That cake is a lie", "Get some cake from a friendly AI", "cake")
 Ahl = Achive("hl3", "Half life 3 confirmed", "Succesfully launch a nuclear powered rocket on your third try.", "wip")
 
-allAchives = [Atoast, Anukes, Abegining, Aai]
+allAchives = [Atoast, Anukes, Abegining, Aai, Ahl]
 			
 		
 
@@ -716,32 +718,27 @@ while running:
 		#launch button, and continue button.
 		if hitDetect(mouse_pos, mouse_pos, [10,640], [180, 690]) and mouse_down:
 			mouse_down = False
-			for i in allAchives:
-				if i.rl:
-					i.gotten = False
 			successChance = player.progress / player.failChance
 			launchChance = random.randint(0, 100)
 			rand = 100 - launchChance
-
 			if launchChance <= successChance:
 				print "LAUNCH SUCCESSFUL!"
 				if "ToasterChassis" in player.rocketspecs:
-					player.rocketspecs.remove("ToasterChassis")
 					Atoast.get()
+				if "fuelNuclear" in player.rocketspecs and fails == 2:
+					Ahl.get()
 					
 				
 			if launchChance > successChance and launchChance <= successChance + (rand * 1 / 3):
 				print "LAUNCH Failure 1!"
-				player.rocketspecs = []
 				
 				
 			if launchChance > successChance + (rand * 1 / 3) and launchChance <= successChance + (rand * 2 / 3):
 				print "LAUNCH Failure 2!"
-				player.rocketspecs = []
 				
 			if launchChance > successChance + (rand * 2 / 3):
 				print "LAUNCH Failure 3!"
-				player.rocketspecs = []
+			player.rocketspecs = []
 				
 			player.fails += 1
 			player.progress, player.cost, player.mult = 0, 1, 1
