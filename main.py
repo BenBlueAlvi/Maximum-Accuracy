@@ -589,7 +589,8 @@ def addQuestion(possiblequestions, parm, comp, limit, question):
 			possiblequestions.remove(question)
 	elif comp == "spec":
 		if limit in parm:
-			possiblequestions.remove(question)
+			if question in possiblequestions:
+				possiblequestions.remove(question)
 		else:
 			possiblequestions.append(question)
 			
