@@ -32,8 +32,12 @@ pygame.display.set_caption("Maximum Accuracy")
 def getImg(name):
 	full = "Assets/"+name+".png"
 	print "Loading: "+full
-	return pygame.image.load(full)
-	
+	try:
+		return pygame.image.load(full)
+	except pygame.error:
+		print "File not found. Substituting"
+		return pygame.image.load("Assets/achives/wip.png")
+
 sciencepic = getImg("science")
 progresspic = getImg("progress")
 failurepic = getImg("failure")
@@ -127,6 +131,35 @@ def textbox(size, text, Font):
 		else:
 			textbox.blit(vertstrip, [0, i])
 	return textbox
+
+#part variables start with P, part types are B (booster), M (main), C (chassis), materials have M with a T (tape), I (iron), N (nano)
+PBMT = getImg("parts/boosterMatTape")
+PBMI = getImg("parts/boosterMatIron")
+PBMN = getImg("parts/boosterMatNano")
+PBnormal = getImg("parts/boosterNormal")
+PBsilo = getImg("parts/boosterSilo")
+PMMT = getImg("parts/mainMatTape")
+PMMI = getImg("parts/mainMatIron")
+PMMN = getImg("parts/mainMatNano")
+PMnuclear = getImg("parts/mainNuclear")
+PCMT = getImg("parts/chassisMatTape")
+PCMI = getImg("parts/chassisMatIron")
+PCMN = getImg("parts/chassisMatNano")
+PCtoaster = getImg("parts/chassisToaster")
+
+
+#takes in materials
+def spaceshipimg(booster, main, chassis):
+	thisship = pygame.Surface((200, 240), pygame.SRCALPHA, 32).convert_alpha()
+	thisship.blit(booster, [0, 60])
+	thisship.blit(booster, [140, 60])
+	thisship.blit(main, [60, 100])
+	thisship.blit(chassis, [70, 0])
+
+	return thisship
+
+doood = spaceshipimg(PBMT, PMMI, PCMI)
+dood = spaceshipimg(PBsilo, PMnuclear, PCtoaster)
 
 def hitDetect(p1, p2, p3, p4):
 	if p2[0] > p3[0] and p1[0] < p4[0] and p2[1] > p3[1] and p1[1] < p4[1]:
@@ -566,6 +599,8 @@ mouse_down = False
 
 done, running = False, True
 
+
+
 day = 0
 month = 1
 year = 1
@@ -615,7 +650,9 @@ while running:
 
 		gScreen.fill(WHITE)
 		
-		
+		gScreen.blit(doood, [80, 120])
+		gScreen.blit(dood, [400, 120])
+
 		for i in range(len(theQuestion.prompt)):
 		
 			gScreen.blit(font.render(theQuestion.prompt[i], True, BLACK), [200, 100 + i * 20])
