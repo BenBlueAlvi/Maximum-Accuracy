@@ -49,6 +49,10 @@ capstrip1 = getImg("capstrip1")
 vertstrip = getImg("vertstrip")
 capstrip2 = getImg("capstrip2")
 achiveBox = pygame.image.load("Assets/achives/achiveBox.png")
+explosion = pygame.mixer.Sound("Assets/soundfx/Explosion.wav")
+launch = pygame.mixer.Sound("Assets/soundfx/Launch.wav")
+select = pygame.mixer.Sound("Assets/soundfx/Blip_Select.wav")
+new_day = pygame.mixer.Sound("Assets/soundfx/New_Day.wav")
 class button(object):
 	def __init__(self, image, hoverimg):
 		self.image = image
@@ -299,6 +303,20 @@ class Result(object):
 					player.campaigners -= camHired
 				if n == -1:
 					self.feedback.append("You have no employees remaining.")
+			
+			
+			if player.campaigners < 0:
+				player.campaigners = 0
+			if player.maths < 0:
+				player.maths = 0
+			if player.scientists < 0:
+				player.scientists = 0
+			if player.engineers < 0:
+				player.engineers = 0
+			
+			
+			
+			
 			if o == "overtime":
 				rand = n * ((2*player.campaigners) - (player.engineers * player.cost))
 				rand2 = player.mult * n * ((.2*player.scientists)+1)*player.engineers*0.4
@@ -359,6 +377,8 @@ class Result(object):
 					player.rocketspecs.append("ToasterChassis")
 				if n == "fuelNuclear":
 					player.rocketspecs.append("fuelNuclear")
+				if n == "coffeeMachine":
+					player.rocketspecs.append("coffeeMachine")
 				if n == "caffinate":
 					rand = True
 					for x in range(len(player.specs)):
@@ -406,7 +426,7 @@ materials = Prompt("", ["One of your scientists approaches you:", "We need to di
 fuels = Prompt("", ["An engineer approaches you:", "So, uh.. What should we use for fuel?"], [Result("Nuclear would be the most effeicent", "After deciding to place a nuclear reactor within the rocket", [["addfail", -10], ["addmoney", -10]]), Result("Rocket fuel, duh.", "After using standard rocket fuel..", [["addfail", -5], ["addmoney", -7]]), Result("Car fuel, we need to save money", "After deciding to use car fuel...", [["addflav", "Some people belive you aren't taking this job seriously"], ["subpop", 2],["addfail", -2], ["addmoney", -4]])], 99)
 
 #Bad ideas
-coffee = Prompt("", ["A few engineers approch you and ask:", "Can we install a coffee machine in the rocket?"], [Result("Sure, Why not?", "After installing a coffee machine on the rocket,", [["addmoney", -1], ["addprog", 2], ["addfail", 4], ["addeng", 1], ["spec", "caffinate"]]), Result("NO?", "After not installing a coffee machine...", [["addfail", -1]])], 1)			
+coffee = Prompt("", ["A few engineers approch you and ask:", "Can we install a coffee machine in the rocket?"], [Result("Sure, Why not?", "After installing a coffee machine on the rocket,", [["addmoney", -1], ["addprog", 2], ["addfail", 4], ["addeng", 1], ["spec", "caffinate"], ["spec", "coffeeMachine"]]), Result("NO?", "After not installing a coffee machine...", [["addfail", -1]])], 1)			
 toaster = Prompt("", ["One of those hippies from science department asks:", "Hey, we're low on funds right now. I suggest we turn our chassis into a toaster."], [Result("Sure, we need to save money.", "After switching over your chassis:", [["addmult", 2], ["addfail", 100], ["addmat", -2], ["addprog", 2], ["spec", "ToasterChassis"]]), Result("We don't need to be THAT drastic..", "After reducing the size:", [["addmult", .2], ["addfail", -1], ["addsci", 1]]), Result("No way.", "After denying the toaster plan:", [["addmat", 1], ["addpop", 1]])], 3)
 hotel = Prompt("", ["The CEO of a large hotel group has approched you", "and wishes install one of his hotels on the moon.", "He bribes you with quite a bit of money."], [Result("I guess so.", "The engineers begin to load materials to build the hotel on the moon.", [["multprog", .2], ["addmult", -.8], ["addfail", 30], ["addmoney", 30]]), Result("No.", "After focusing on building the rocket and not business deals:", [["addprog", 5], ["addpop", 1]])], 3)
 silos = Prompt("", ["One very frugel lab assistant approches you:", "We don't have enough money to build the thrusters", "How about we use the silos from the sourounding farmland?"], [Result("What a wonderful idea!", "After refiting farm silos to work as thrusters...", [["addfail", 30], ["addsci", 1], ["addflav", "A hippy scientist joins your team"]]), Result("Are you sane?", "After not taking the farmer's silos", [["addflav", "The farmers share some of their wages with you!"],["addmoney", 5]])], 99)
@@ -417,9 +437,9 @@ silos = Prompt("", ["One very frugel lab assistant approches you:", "We don't ha
 fsc = Prompt("", ["Upon seeing how well the rocket is going,", "an advisor from the Futuristic Science Corp.", "wishes to partner with you."], [Result("Together we will do great things.", "After partnering with the FSC...", [["addflav", "The project has drasticly increased in size."], ["spec", "JoinedFSC"], ["addmoney", 20], ["addmult", 0.1]]), Result("I'm sorry, I would prefer to go alone.", "After making the mistake of not partnering with the FSC..", [["addflav", "You feel you have made a horrible mistake."]])], 99)
 
 #MATERIALS AND FUELS MUST BE THE FIRST 2 QUESTIONS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-possiblequestions = [materials, fuels, coffee, hire1, adcampaign, fsc, silos]	
+possiblequestions = [materials, fuels, coffee, hire1, adcampaign, silos]	
 
-questions = [coffee, hire1, hotel, toaster, materials, fuels, bakesale, silos]
+questions = [coffee, hire1, hotel, toaster, materials, fuels, bakesale, silos, fsc]
 
 class Player(object):
 	def __init__(self, mon, prog, fail, sci, eng, mat, cam):
@@ -517,7 +537,7 @@ Aai = Achive("ai", "That cake is a lie", "Get some cake from a friendly AI", "ca
 Ahl = Achive("hl3", "Half life 3 confirmed", "Succesfully launch your third rocket using a radioactive power source", "wip")
 Acaffine = Achive("caffine", "Caffinated Crew", "Build a ship with 5 caffinated additions", "coffee")
 
-allAchives = [Atoast, Anukes, Abegining, Aai, Ahl]
+allAchives = [Atoast, Anukes, Abegining, Aai, Ahl, Acaffine]
 			
 		
 
@@ -591,9 +611,7 @@ while running:
 		y = 0
 		for i in theQuestion.results:
 			displayresult = True
-			for doing in i.doings:
-				if doing[0] == "addmoney" and doing[1] * -1 > player.money:
-					displayresult = False
+			
 			
 			if displayresult:
 				gScreen.blit(responseButton.image, [50, 450 + y * 50])
@@ -602,6 +620,7 @@ while running:
 				
 				if mouse_down:
 					if hitDetect(mouse_pos, mouse_pos, [50, 450 + y * 50], [650, 475 + y * 50]):
+						pygame.mixer.Sound.play(select)
 						mouse_down = False
 						feedback = i.decide(player)
 						possiblequestions.remove(theQuestion)
@@ -682,7 +701,7 @@ while running:
 		clock.tick(60)
 
 	#after choosing an answer
-	
+	Abegining.get()
 	player.failChance -= 2*player.maths
 	if player.failChance < 1:
 		player.failChance = 1
@@ -735,6 +754,7 @@ while running:
 
 		#launch button, and continue button.
 		if hitDetect(mouse_pos, mouse_pos, [10,640], [180, 690]) and mouse_down:
+			
 			mouse_down = False
 			successChance = player.progress / player.failChance
 			launchChance = random.randint(0, 100)
@@ -745,15 +765,17 @@ while running:
 					Atoast.get()
 				if "fuelNuclear" in player.rocketspecs and fails == 2:
 					Ahl.get()
-					
+				pygame.mixer.Sound.play(launch)
+				player.money += 50
 			if launchChance > successChance and launchChance <= successChance + (rand * 1 / 3):
 				print "LAUNCH Failure 1!"
-				
+				pygame.mixer.Sound.play(explosion)
 			if launchChance > successChance + (rand * 1 / 3) and launchChance <= successChance + (rand * 2 / 3):
 				print "LAUNCH Failure 2!"
-				
+				pygame.mixer.Sound.play(explosion)
 			if launchChance > successChance + (rand * 2 / 3):
 				print "LAUNCH Failure 3!"
+				pygame.mixer.Sound.play(explosion)
 				if "fuelNuclear" in player.rocketspecs:
 					Anukes.get()
 
@@ -765,7 +787,7 @@ while running:
 			done = True
 		if hitDetect(mouse_pos, mouse_pos, [10,580], [180, 630]) and mouse_down:
 			done = True
-				
+			pygame.mixer.Sound.play(new_day)
 		
 		gScreen.blit(continuepic, [10, 580])
 		gScreen.blit(launchpic, [10, 640])
