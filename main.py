@@ -444,7 +444,8 @@ class Prompt(object):
 	
 
 #Staff management
-hire1 = Prompt("", ["Your advisor from the government approches you:", "I would like to suggest we hire new staff."], [Result("Sure, I'll leave it up to you.", "You manage to hire 2 new people.", [["addmoney", -4], ["addpop", 2]]), Result("Let's hire some Campaigners.", "You attempt to hire campaigners.", [["addmoney", -2], ["addcam", 2]]), Result("Let's hire some of thoose math people.", "After hiring some math people...", [["addmoney", -2], ["addmat", 2]]), Result("We need more science, we can never have enough science!", "After searching for more science.", [["addmoney", -2], ["addsci", 2], ["addflav", "Your science has increased!"]])], 4) 
+hire1 = Prompt("", ["Your advisor from the government approches you:", "I would like to suggest we hire new staff."], [Result("Sure, I'll leave it up to you.", "You manage to hire 2 new people.", [["addmoney", -4], ["addpop", 2]]), Result("Let's hire some Campaigners.", "You attempt to hire campaigners.", [["addmoney", -2], ["addcam", 2]]), Result("Let's hire some of thoose math people.", "After hiring some mathematitions people...", [["addmoney", -2], ["addmat", 2]]), Result("We need more science, we can never have enough science!", "After searching for more science.", [["addmoney", -2], ["addsci", 2], ["addflav", "Your science has increased!"]])], 4) 
+hire2 = Prompt("", ["A large group of papers is sitting on your desk", "They appear to all be applications for jobs"], [Result("This person has a good scientific reputation.", "A new scientist has joined your team.", [["addsci", 1]]), Result("This person seems highly caffinated, but could be a good engineer.", "A jittery engineer has joined your crew", [["addeng", 1], ["spec", "caffinate"]]), Result("BURN ALL THE PAPERS!", "...is something important on fire?", [["addfail", 1], ["addprog", -2], ["addflav", "Yes, yes something important was on fire"], ["spec", "charred"])], 3)
 #Result("Let's just focus on working today.", "after convincing your staff to work overtime..", [["overtime", 0.2]])], 2)
 
 
@@ -491,6 +492,7 @@ class Player(object):
 		self.days = 0
 		self.specs = []
 		self.rocketspecs = []
+		self.impossiblilyFactor = 0
 		#previous
 		self.preMon = mon
 		self.preProg = prog
@@ -752,7 +754,7 @@ while running:
 
 	#after choosing an answer
 	Abegining.get()
-	player.failChance -= round(math.sqrt(player.maths), 2)
+	player.failChance -= (round(math.sqrt(player.maths), 2) - player.impossiblilyFactor)
 	if player.failChance < 1:
 		player.failChance = 1
 	player.progress += round(player.mult * ((.2*player.scientists)+1)*player.engineers*0.4, 2)
@@ -806,7 +808,11 @@ while running:
 		if hitDetect(mouse_pos, mouse_pos, [10,640], [180, 690]) and mouse_down:
 			
 			mouse_down = False
-			successChance = player.progress / player.failChance
+			if player.failChance >= 100:
+				successChance = 0
+			else:		
+				successChance = (100 - player.failChance) * (player.progress / 100) 
+			print "success Chance:", successChance
 			launchChance = random.randint(0, 100)
 			rand = 100 - launchChance
 			if launchChance <= successChance:
