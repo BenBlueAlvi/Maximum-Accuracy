@@ -584,6 +584,7 @@ class Player(object):
 		#the images of the frame, and the compleated product
 		self.frame = frameImg("iron")
 		self.ship = spaceshipimg(self)
+		self.questionsAnswered = []
 
 player = Player(18, 0, 100, 1, 2, 1, 0)
 
@@ -743,7 +744,7 @@ while running:
 	player.days += 1
 	player.pop = player.scientists + player.maths + player.campaigners + player.engineers
 	
-	for q in questions:
+	for q in player.questionsAnswered:
 		q.daysSince +=1
 		if q.daysSince >= q.cooldown:
 			if q not in possiblequestions:
@@ -820,6 +821,8 @@ while running:
 						print "Question:", theQuestion.name
 						print "Answer:", i.desc
 						possiblequestions.remove(theQuestion)
+						if not theQuestion in player.questionsAnswered: 
+							player.questionsAnswered.append(theQuestion)
 						
 						done = True
 						break
