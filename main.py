@@ -437,6 +437,15 @@ class Result(object):
 				else:
 					self.feedback.append("Your costs have inrceased")
 				player.progress *= n
+			if o == "addIfactor":
+				if n < 1:
+					self.feedback.append("Mathematitians are having an easy time working on the rocket.")
+				else:
+					self.feedback.append("Mathematitians are having a hard time working on the rocket.")
+				
+				player.impossiblilyFactor += n
+				if player.impossiblilyFactor <= 0:
+					player.impossiblilyFactor = 0.1
 			
 			if o == "addflav":
 				self.feedback.append(n)
@@ -464,6 +473,9 @@ class Result(object):
 						self.feedback.append("Your employees have access to caffine.")
 				else:
 					player.specs.append(n)
+			if o == "removeSpec":
+				if n in player.specs:
+					player.specs.remove(n)
 			if o == "rocketspec":
 				player.rocketspecs.append(n)
 			
@@ -526,7 +538,6 @@ toaster = Prompt("toaster", ["One of those hippies from science department asks:
 hotel = Prompt("hotel", ["The CEO of a large hotel group has approched you", "and wishes install one of his hotels on the moon.", "He bribes you with quite a bit of money."], [Result("I guess so.", "The engineers begin to load materials to build the hotel on the moon.", [["multprog", .2], ["addmult", -.8], ["addfail", 30], ["addmoney", 30], ["rocketspec", "hotel"]]), Result("No.", "After focusing on building the rocket and not business deals:", [["addprog", 5], ["addpop", 1]])], 3)
 silos = Prompt("silos", ["One very frugel lab assistant approches you:", "We don't have enough money to build the thrusters", "How about we use the silos from the sourounding farmland?"], [Result("What a wonderful idea!", "After refiting farm silos to work as thrusters...", [["addfail", 30], ["addsci", 1], ["addflav", "A hippy scientist joins your team"], ["rocketspec", "silos"]]), Result("Are you sane?", "After not taking the farmer's silos", [["addflav", "The farmers share some of their wages with you!"],["addmoney", 5]])], 99)
 
-fire1 = Prompt("", ["That one advisor from the government approches you:", "We have hired too many people and we are losing money", "somebody needs to get fired."], [Result("But we are getting so much done.", "After not firing anyone...", [["addfail", 2]]), Result("I'll leave it up to you.", "After that government advisor fires some people...", [["subpop", 3], ["addfail", -2]]),Result("Fire some of those engineers.", "After firing some engineers...", [["addeng", -2], ["addfail", -1]])], 6)
 #fire3 = fire highest quantity, reduce costs, hire cam
 
 #mtndew
@@ -535,6 +546,7 @@ spaceSoda = Prompt("spaceSoda", ["A campainer approaches you:", "Can we put some
 #interesting ideas
 fsc = Prompt("fsc", ["Upon seeing how well the rocket is going,", "an advisor from the Futuristic Science Corp.", "wishes to partner with you."], [Result("Together we will do great things.", "After partnering with the FSC...", [["addflav", "The project has drasticly increased in size."], ["spec", "JoinedFSC"], ["addmoney", 20], ["addmult", 0.1]]), Result("I'm sorry, I would prefer to go alone.", "After making the mistake of not partnering with the FSC..", [["addflav", "You feel you have made a horrible mistake."]])], 99)
 theProject = Prompt("theProject", ["The FSC has requested a transfer of some of your engineers", "to work on some kind of classified project."], [Result("Sure, as long as we benefit from this project.", "You transfer some of your engineers and scientists over...", [["addeng", -3], ["addsci", -3]])], 10)
+ai = Prompt("Ai", ["The FSC has finally completeled the project", "They have created a super intelegent AI and wish to install it", "in the lab to help progress."], [Result("YES! This is exactly what we need!", "After installing the AI in the lab...", [["spec", "AI"], ["addflav", "The AI makes complex equations easier."], ["addIfactor", -0.5]]), Result("I'm worried about the consequences of this, also rogue AIs are scary.", "After declining the FSC's offer...", [["addflav", "A saddened scientist leaves"], ["addsci", -1], ["addflav", "The FSC no longer wishes to work with you"], ["removeSpec", "JoinedFSC"]])], 99)
 pen = Prompt("pen", ["One of your trusted scientists exclaims:", "After doing some amazing science,", "I have discovered that it will be impossible", "to write with pen in space!", "We need to develop a space pen!"], [Result("Yes, the space pen will be a big success!", "After funding a space pen project...", [["addmoney", -3], ["spec", "spacePen"]]), Result("I'm surounded by idiots, JUST USE A PENCIL!", "After deciding to use pencils...", [["addflav", "Paper costs decrease."]])], 10)
 
 #MATERIALS AND FUELS MUST BE THE FIRST 2 QUESTIONS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -559,7 +571,7 @@ class Player(object):
 		self.days = 0
 		self.specs = []
 		self.rocketspecs = []
-		self.impossiblilyFactor = 0
+		self.impossiblilyFactor = 1
 		#previous
 		self.preMon = mon
 		self.preProg = prog
@@ -679,23 +691,33 @@ def addQuestion(possiblequestions, requirements, question):
 			else:
 				matches.append(True)
 		elif i[1] == "daysSince":
-			if i[0] >= i[2].daysSince:
+			if i[0] >= i[2].daysSince and i[2].daysSince >= 1:
 				matches.append(True)
 				
 	if len(matches) == len(requirements):
+		print "++++"
 		if not question in possiblequestions:
 			possiblequestions.append(question)
-			print "++++"
+			
 			print "Requirements met for", question.name
 			print "Appending:", question.name
 			print "++++"
+		else:
+			print "Requirements met for "+ question.name + " BUT IT WAS ALREADY IN possiblequestions!"
+			
+			print "++++"
+			
 			
 	else:
+		print "++++"
 		if question in possiblequestions:
 			possiblequestions.remove(question)
-			print "++++"
+			
 			print "Requirements no longer met for", question.name
 			print "Removing:", question.name
+			print "++++"
+		else:
+			print "Requirements not met for", question.name
 			print "++++"
 
 funded = True	
@@ -744,6 +766,7 @@ while running:
 	addQuestion(possiblequestions, [[player.specs, "spec", "spacePen"]], pen)
 	addQuestion(possiblequestions, [[player.rocketspecs, "spec", "soda"]], spaceSoda)
 	addQuestion(possiblequestions, [[10, "daysSince", fsc], [player.scientists, "greater", 2], [player.engineers, "greater", 2]], theProject)
+	addQuestion(possiblequestions, [[10, "daysSince", theProject]], ai)
 		
 	theQuestion = possiblequestions[random.randint(0, len(possiblequestions) - 1)]
 	
@@ -872,7 +895,9 @@ while running:
 
 	#after choosing an answer
 	Abegining.get()
-	player.failChance -= (round(math.sqrt(player.maths), 2) - player.impossiblilyFactor)
+	if "AI" in player.specs:
+		Aai.get()
+	player.failChance -= (round(math.sqrt(player.maths), 2) / player.impossiblilyFactor)
 	if player.failChance < 1:
 		player.failChance = 1
 	player.progress += round(player.mult * ((.2*player.scientists)+1)*player.engineers*0.4, 2)
