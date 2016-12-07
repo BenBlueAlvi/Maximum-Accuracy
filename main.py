@@ -7,7 +7,11 @@ clock = pygame.time.Clock()
 pygame.mixer.pre_init(22050, -16, 3, 8)
 pygame.mixer.init()
 
-
+debug = True
+def prints(stuff):
+	global debug
+	if debug:
+		print stuff
 
 # Define some colors
 BLACK = (0, 0, 0)
@@ -132,75 +136,47 @@ def textbox(size, text, Font):
 			textbox.blit(vertstrip, [0, i])
 	return textbox
 
+class shipPart(object):
+	def __init__(self, name, cost, percent, fail, image):
+		self.name = name
+		self.cost = cost
+		self.perc = percent
+		self.fail = fail
+		self.img = image
+
 #part variables start with P, part types are B (booster), M (main), C (chassis), materials have M with a T (tape), I (iron), N (nano)
+#frames and materials
 Pframe = getImg("parts/Scaffold")
-PBMT = getImg("parts/boosterMatTape")
-PBMI = getImg("parts/boosterMatIron")
-PBMN = getImg("parts/boosterMatNano")
-PBnormal = getImg("parts/boosterNormal")
-PBsilo = getImg("parts/boosterSilo")
-PMMT = getImg("parts/mainMatTape")
-PMMI = getImg("parts/mainMatIron")
-PMMN = getImg("parts/mainMatNano")
-PMnuclear = getImg("parts/mainNuclear")
-PMnormal = getImg("parts/mainNorm")
-PCMT = getImg("parts/chassisMatTape")
-PCMI = getImg("parts/chassisMatIron")
-PCMN = getImg("parts/chassisMatNano")
-PCtoaster = getImg("parts/chassisToaster")
-PCnormal = getImg("parts/chassisNormal")
+PMT = shipPart("Tape", -.2, 0, 0.5, getImg("parts/mainMatTape"))
+PMI = shipPart("Iron", 0, 0, 0, getImg("parts/mainMatIron"))
+PMN = shipPart("Nano", 0.5, 10, -.4, getImg("parts/mainMatNano"))
+#Boosters
+PBnormal = shipPart("Normal", 0.2, 30, 0, getImg("parts/boosterNormal"))
+PBsilo = shipPart("Silo", 0.1, 28, 0.4, getImg("parts/boosterSilo"))
+#Mains (material stats stored here)
+PMnuclear = shipPart("Nuclear", 0.5, 60, 0.1, getImg("parts/mainNuclear"))
+PMnormal = shipPart("Normal", 0.4, 50, 0, getImg("parts/mainNorm"))
+PMcar = shipPart("Car", 0.3, 40, 0.1, getImg("parts/mainCar"))
+#Chassis
+PCtoaster = shipPart("Toaster", 0.1, 4, 1, getImg("parts/chassisToaster"))
+PCnormal = shipPart("Normal", 0.4, 20, 0, getImg("parts/chassisNormal"))
+PChotel = shipPart("Hotel", 0.4, 100, 1, getImg("parts/chassisHotel"))
 
 #takes in materials
 def frameImg(mat):
-	if mat == "tape":
-		booster = PBMT
-		main = PMMT
-		chassis = PCMT
-	if mat == "iron":
-		booster = PBMI
-		main = PMMI
-		chassis = PCMI
-	if mat == "nano":
-		booster = PBMN
-		main = PMMN
-		chassis = PCMN
-
 	thisship = pygame.Surface((200, 240), pygame.SRCALPHA, 32).convert_alpha()
 	thisship.blit(Pframe, [0, 0])
-	thisship.blit(booster, [0, 60])
-	thisship.blit(booster, [140, 60])
-	thisship.blit(main, [60, 100])
-	thisship.blit(chassis, [70, 0])
+	thisship.blit(mat.img, [0, 0])
 	return thisship
-
-
-
 
 #takes in parts
 def spaceshipimg(pl):
-	if pl.booster == "silo":
-		booster = PBsilo
-	else:
-		booster = PBnormal
-	if pl.main == "nuclear":
-		main = PMnuclear
-	else:
-		main = PMnormal
-	if pl.chassis == "toaster":
-		chassis = PCtoaster
-	else:
-		chassis = PCnormal
-
 	thisship = pygame.Surface((200, 240), pygame.SRCALPHA, 32).convert_alpha()
-	thisship.blit(booster, [0, 60])
-	thisship.blit(booster, [140, 60])
-	thisship.blit(main, [60, 100])
-	thisship.blit(chassis, [70, 0])
+	thisship.blit(pl.booster.img, [0, 60])
+	thisship.blit(pl.booster.img, [140, 60])
+	thisship.blit(pl.main.img, [60, 100])
+	thisship.blit(pl.chassis.img, [70, 0])
 	return thisship
-
-#note: BETTER VARIBLE NAMEING PLEASE
-'''doood = spaceshipimg(PBMT, PMMI, PCMI)
-dood = spaceshipimg(PBsilo, PMnuclear, PCtoaster)'''
 
 def hitDetect(p1, p2, p3, p4):
 	if p2[0] > p3[0] and p1[0] < p4[0] and p2[1] > p3[1] and p1[1] < p4[1]:
@@ -224,7 +200,7 @@ class Result(object):
 					self.feedback.append("The rocket loses "+str(-n) + "% progress.")
 				else:
 					self.feedback.append("The rocket progresses by "+str(n) + "%")
-				player.progress += player.mult*n
+				player.progress += n
 			if o == "addmoney":
 				if n < 0:
 					if player.money + n < 0:
@@ -389,7 +365,7 @@ class Result(object):
 			
 			if o == "overtime":
 				rand = n * ((2*player.campaigners) - (player.engineers * player.cost))
-				rand2 = player.mult * n * ((.2*player.scientists)+1)*player.engineers*0.4
+				rand2 = n * ((.2*player.scientists)+1)*player.engineers*0.4
 				if rand < 0:
 					if player.money - rand < 0:
 						self.feedback.append("You realize you don't have enough funds.")
@@ -405,15 +381,13 @@ class Result(object):
 				player.progress += rand2
 			if o == "addmult":
 				if n < 0:
-					if player.mult + n < 0:
+					if n < 0:
 						self.feedback.append("Your plans cannot grow any grander.")
 						break
 					else:
 						self.feedback.append("Your spaceship plans have grown.")
-						player.mult += n
 				else:
 					self.feedback.append("Your spaceship plans have shrunk.")
-					player.mult += n
 			if o == "multprog":
 				if n < 1:
 					self.feedback.append("Your progress has reduced")
@@ -475,18 +449,9 @@ class Result(object):
 					self.feedback.append("Your frame is made from steel and iron.")
 				if n == "nano":
 					self.feedback.append("The ship has carbon fiber framing.")
-				player.frame = frameImg(n)
-			if o == "setPart":
-				if n == "Bsilo":
-					player.booster = "silo"
-				if n == "Bnorm":
-					player.booster = "normal"
-				if n == "Mnuclear":
-					player.main = "nuclear"
-				if n == "Ctoaster":
-					player.chassis = "toaster"
-
-				player.ship = spaceshipimg(player)
+				player.setpart("material")
+			if o == "setpart":
+				player.setpart(n)
 				
 
 		return self.feedback
@@ -516,15 +481,15 @@ fire1 = Prompt("fire1", ["That one advisor from the government approches you:", 
 #Money and materials
 bakesale = Prompt("bakesale", ["One of your campaigners suggests:", "We should have a bake sale to raise money."], [Result("Sure, but only if I can have some too.", "After having a bakesale", [["addmoney", 2], ["addflav", "The bake sale premotes working in the areospace industy"], ["addpop", 1]]), Result("No, I hate baked goods", "After not having a bake sale..", [["addflav", "Some people were really looking forward to that bake sale."],["subpop", 1]])], 3)
 adcampaign = Prompt("adcampaign", ["One of your mathmatitions suggests", "an add campaign to hire people."], [Result("Yeah, we need the staff", "After creating an amazing ad campaign...", [["addmoney", -4], ["addpop", 4]]), Result("No, we don't have enough money.", "After not creating an amazing ad campaign...", [["addflav", "Nothing changes"]])], 5)
-materials = Prompt("materials", ["One of your scientists approaches you:", "We need to discuss our materials."], [Result("How about all carbon fiber?", "After using hi-tech materials:", [["addfail", -4], ["addcost", 2], ["rocketspec", "hi-tech"]]), Result("Why not normal materials, like steel?", "After deciding to use standard materials:", [["addflav", "Engineers are attracted to the ease of their jobs."], ["addeng", 1], ["rocketspec", "steel"]]), Result("Lets think cheap. Duct-tape cheap.", "After deciding to use low-cost materials:", [["addcost", -.5], ["addmult", .1], ["addfail", 20], ["addflav", "Some of your mathmatitions can't handle the absurdity of this project."], ["addmat", -2], ["rocketspec", "ductTape"]])], 99)
-fuels = Prompt("fuels", ["An engineer approaches you:", "So, uh.. What should we use for fuel?"], [Result("Nuclear would be the most effeicent", "After deciding to place a nuclear reactor within the rocket", [["addfail", -10], ["addmoney", -10], ["rocketspec", "fuelNuclear"]]), Result("Rocket fuel, duh.", "After using standard rocket fuel..", [["addfail", -5], ["addmoney", -7], ["rocketspec", "fuelRocket"]]), Result("Car fuel, we need to save money", "After deciding to use car fuel...", [["addflav", "Some people belive you aren't taking this job seriously"], ["subpop", 2],["addfail", -2], ["addmoney", -4], ["rocketspec", "fuelCar"]])], 99)
+materials = Prompt("materials", ["One of your scientists approaches you:", "We need to discuss our materials."], [Result("How about all carbon fiber?", "After using hi-tech materials:", [["addfail", -4], ["rocketspec", "hi-tech"], ["setMat", PMN]]), Result("Why not normal materials, like steel?", "After deciding to use standard materials:", [["addflav", "Engineers are attracted to the ease of their jobs."], ["addeng", 1], ["rocketspec", "steel"], ["setMat", PMI]]), Result("Lets think cheap. Duct-tape cheap.", "After deciding to use low-cost materials:", [["setMat", PMT], ["addfail", 20], ["addflav", "Some of your mathmatitions can't handle the absurdity of this project."], ["addmat", -2], ["rocketspec", "ductTape"]])], 99)
+fuels = Prompt("fuels", ["An engineer approaches you:", "So, uh.. What should we use for fuel?"], [Result("Nuclear would be the most effeicent", "After deciding to place a nuclear reactor within the rocket", [["addfail", -10], ["addmoney", -2], ["rocketspec", "fuelNuclear"], ["setpart", "Mnuclear"]]), Result("Rocket fuel, duh.", "After using standard rocket fuel..", [["addfail", -5], ["rocketspec", "fuelRocket"], ["setpart", "Mnormal"]]), Result("Car fuel, we need to save money", "After deciding to use car fuel...", [["addflav", "Some people belive you aren't taking this job seriously"], ["subpop", 2],["addfail", -2], ["addmoney", -4], ["rocketspec", "fuelCar"], ["setpart", "Mcar"]])], 99)
 
 #Bad ideas -- 
 coffeeShipments = Prompt("coffeeShipments", ["A group of mathmatitions have been staying up all night:", "We need more shipments of caffinated beverages!"], [Result("Of course, coffee is a necissity.", "After ordering some caffine...", [["addmoney", -1], ["spec", "caffine"], ["overtime", 0.1]]), Result("No, too much coffee is unhealthy", "After depriving your employees of caffine...", [["addfail", 5], ["overtime", -0.1], ["addflav", "The employees are quite tired."]])], 10)
 coffee = Prompt("coffee", ["A few engineers approch you and ask:", "Can we install a coffee machine in the rocket?"], [Result("Sure, Why not?", "After installing a coffee machine on the rocket,", [["addmoney", -1], ["addprog", 2], ["addfail", 4], ["addeng", 1], ["spec", "caffinate"], ["rocketspec", "coffeeMachine"]]), Result("NO?", "After not installing a coffee machine...", [["addfail", -1]])], 1)			
-toaster = Prompt("toaster", ["One of those hippies from science department asks:", "Hey, we're low on funds right now. I suggest we turn our chassis into a toaster."], [Result("Sure, we need to save money.", "After switching over your chassis:", [["addmult", 2], ["addfail", 100], ["addmat", -2], ["addprog", 2], ["rocketspec", "ToasterChassis"]]), Result("We don't need to be THAT drastic..", "After reducing the size:", [["addmult", .2], ["addfail", -1], ["addsci", 1]]), Result("No way.", "After denying the toaster plan:", [["addmat", 1], ["addpop", 1]])], 3)
-hotel = Prompt("hotel", ["The CEO of a large hotel group has approched you", "and wishes install one of his hotels on the moon.", "He bribes you with quite a bit of money."], [Result("I guess so.", "The engineers begin to load materials to build the hotel on the moon.", [["multprog", .2], ["addmult", -.8], ["addfail", 30], ["addmoney", 30], ["rocketspec", "hotel"]]), Result("No.", "After focusing on building the rocket and not business deals:", [["addprog", 5], ["addpop", 1]])], 3)
-silos = Prompt("silos", ["One very frugel lab assistant approches you:", "We don't have enough money to build the thrusters", "How about we use the silos from the sourounding farmland?"], [Result("What a wonderful idea!", "After refiting farm silos to work as thrusters...", [["addfail", 30], ["addsci", 1], ["addflav", "A hippy scientist joins your team"], ["rocketspec", "silos"]]), Result("Are you sane?", "After not taking the farmer's silos", [["addflav", "The farmers share some of their wages with you!"],["addmoney", 5]])], 99)
+toaster = Prompt("toaster", ["One of those hippies from science department asks:", "Hey, we're low on funds right now. I suggest we turn our chassis into a toaster."], [Result("Sure, we need to save money.", "After switching over your chassis:", [["setpart", "Ctoaster"], ["addfail", 50], ["addmat", -2], ["rocketspec", "ToasterChassis"]]), Result("We don't need to be THAT drastic..", "After reducing the size:", [["addfail", -1], ["addsci", 1]]), Result("No way.", "After denying the toaster plan:", [["addmat", 1], ["addpop", 1], ["setpart", "Cnormal"]])], 3)
+hotel = Prompt("hotel", ["The CEO of a large hotel group has approched you", "and wishes install one of his hotels on the moon.", "He bribes you with quite a bit of money."], [Result("I guess so.", "The engineers begin to load materials to build the hotel on the moon.", [["multprog", .2], ["addfail", 10], ["addmoney", 30], ["rocketspec", "hotel"], ["setpart", "Chotel"]]), Result("No.", "After focusing on building the rocket and not business deals:", [["addprog", 5], ["addpop", 1]])], 3)
+silos = Prompt("silos", ["One very frugel lab assistant approches you:", "We don't have enough money to build the thrusters", "How about we use the silos from the sourounding farmland?"], [Result("What a wonderful idea!", "After refiting farm silos to work as thrusters...", [["addfail", 20], ["addsci", 1], ["addflav", "A hippy scientist joins your team"], ["rocketspec", "silos"], ["setpart", "Bsilo"]]), Result("Are you sane?", "After not taking the farmer's silos", [["addflav", "The farmers share some of their wages with you!"],["addmoney", 5]])], 99)
 
 fire1 = Prompt("", ["That one advisor from the government approches you:", "We have hired too many people and we are losing money", "somebody needs to get fired."], [Result("But we are getting so much done.", "After not firing anyone...", [["addfail", 2]]), Result("I'll leave it up to you.", "After that government advisor fires some people...", [["subpop", 3], ["addfail", -2]]),Result("Fire some of those engineers.", "After firing some engineers...", [["addeng", -2], ["addfail", -1]])], 6)
 #fire3 = fire highest quantity, reduce costs, hire cam
@@ -554,7 +519,7 @@ class Player(object):
 		self.cost = 1
 		self.maths = mat
 		self.campaigners = cam
-		self.mult = 1
+		self.full = 100
 		self.pop = 0
 		self.days = 0
 		self.specs = []
@@ -565,13 +530,42 @@ class Player(object):
 		self.preProg = prog
 		self.preFail = fail
 		#ship type stuff
-		self.material = "iron"
-		self.booster = "normal"
-		self.main = "normal"
-		self.chassis = "normal"
+		self.material = PMI
+		self.booster = PBnormal
+		self.main = PMnormal
+		self.chassis = PCnormal
 		#the images of the frame, and the compleated product
-		self.frame = frameImg("iron")
+		self.frame = frameImg(PMI)
 		self.ship = spaceshipimg(self)
+	def setpart(self, part):
+		if part == "material":
+			pass
+		if part == "Bsilo":
+			player.booster = PBsilo
+		if part == "Bnorm":
+			player.booster = PBnormal
+		if part == "Mnuclear":
+			player.main = PMnuclear
+		if part == "Mnorm":
+			player.main = PMnormal
+		if part == "Mcar":
+			player.main = PMcar
+		if part == "Ctoaster":
+			player.chassis = PCtoaster
+		if part == "Cnormal":
+			player.chassis = PCnormal
+		if part == "Chotel":
+			player.chassis = PChotel
+		
+		self.impossiblilyFactor = 1+self.booster.fail+self.main.fail+self.chassis.fail+self.material.fail
+		self.cost = self.booster.cost + self.main.cost + self.chassis.cost + self.material.cost
+		self.full = self.booster.perc + self.main.perc + self.chassis.perc + self.material.perc
+		self.ship = spaceshipimg(player)
+		self.frame = frameImg(player.material)
+		prints("fail factor: "+str(self.impossiblilyFactor))
+		prints("cost: "+str(self.cost))
+		prints("full: "+str(self.full))
+
 
 player = Player(18, 0, 100, 1, 2, 1, 0)
 
@@ -806,7 +800,7 @@ while running:
 		pygame.draw.rect(gScreen, YELLOW, [155 - 38, 60, 50, (player.money * -1) / 20])
 		gScreen.blit(moneypic, [155 - 38, 10])
 		
-		pygame.draw.rect(gScreen, GREEN, [233 - 38, 60, 50, (player.progress * -1) / 2])
+		pygame.draw.rect(gScreen, GREEN, [233 - 38, 60, 50, ((player.progress/player.full) * -100) / 2])
 		gScreen.blit(progresspic, [233 - 38, 10])
 		
 		pygame.draw.rect(gScreen, RED, [311 - 38, 60, 50, (player.failChance * -1) / 2])
@@ -825,7 +819,7 @@ while running:
 		gScreen.blit(campainerspic, [622 - 38, 10])
 
 		gScreen.blit(font.render(str(player.money)+"K",True,BLACK), [155 - 38, 60])
-		gScreen.blit(font.render(str(player.progress)+"%",True,BLACK), [233 - 38, 60])
+		gScreen.blit(font.render(str(round(player.progress/player.full*100, 2))+"%",True,BLACK), [233 - 38, 60])
 		gScreen.blit(font.render(str(player.failChance)+"%",True,BLACK), [311 - 38, 60])
 		gScreen.blit(font.render(str(player.scientists),True,BLACK), [388 - 38, 60])
 		gScreen.blit(font.render(str(player.engineers),True,BLACK), [466 -38, 60])
@@ -875,7 +869,7 @@ while running:
 	player.failChance -= (round(math.sqrt(player.maths), 2) - player.impossiblilyFactor)
 	if player.failChance < 1:
 		player.failChance = 1
-	player.progress += round(player.mult * ((.2*player.scientists)+1)*player.engineers*0.4, 2)
+	player.progress += round(((.2*player.scientists)+1)*player.engineers*0.4, 2)
 	player.money += ((2 * player.campaigners) - (player.engineers + player.maths + player.scientists + player.cost*player.engineers))
 	feedback1 = []
 	feedback1.append("After a full day of work...")
@@ -956,7 +950,7 @@ while running:
 			player.rocketspecs = []
 				
 			player.fails += 1
-			player.progress, player.cost, player.mult = 0, 1, 1
+			player.progress, player.cost = 0, 1
 			
 			done = True
 		if hitDetect(mouse_pos, mouse_pos, [10,580], [180, 630]) and mouse_down:
