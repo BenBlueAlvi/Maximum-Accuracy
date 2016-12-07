@@ -22,6 +22,7 @@ BLUE = (0,0,255)
 GREY = (150,150,150)
 YELLOW = (255, 255, 0)
 PURPLE = (255, 0, 255)
+TEAL = (0, 255, 255)
 
 
 pygame.init()
@@ -845,7 +846,7 @@ while running:
 		pygame.draw.rect(gScreen, PURPLE, [544 - 38, 60, 50, (player.maths * -1)])
 		gScreen.blit(mathspic, [544 - 38, 10])
 		
-		pygame.draw.rect(gScreen, WHITE, [622 - 38, 60, 50, (player.campaigners * -1)])
+		pygame.draw.rect(gScreen, TEAL, [622 - 38, 60, 50, (player.campaigners * -1)])
 		gScreen.blit(campainerspic, [622 - 38, 10])
 
 		gScreen.blit(font.render(str(player.money)+"K",True,BLACK), [155 - 38, 60])
