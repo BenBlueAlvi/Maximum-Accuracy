@@ -52,7 +52,7 @@ tippic = getImg("tip")
 capstrip1 = getImg("capstrip1")
 vertstrip = getImg("vertstrip")
 capstrip2 = getImg("capstrip2")
-achiveBox = pygame.image.load("Assets/achives/achiveBox.png")
+achiveBox = getImg("achives/achiveBox")
 explosion = pygame.mixer.Sound("Assets/soundfx/Explosion.wav")
 launch = pygame.mixer.Sound("Assets/soundfx/Launch.wav")
 select = pygame.mixer.Sound("Assets/soundfx/Blip_Select.wav")
@@ -133,6 +133,7 @@ def textbox(size, text, Font):
 	return textbox
 
 #part variables start with P, part types are B (booster), M (main), C (chassis), materials have M with a T (tape), I (iron), N (nano)
+Pframe = getImg("parts/Scaffold")
 PBMT = getImg("parts/boosterMatTape")
 PBMI = getImg("parts/boosterMatIron")
 PBMN = getImg("parts/boosterMatNano")
@@ -142,20 +143,59 @@ PMMT = getImg("parts/mainMatTape")
 PMMI = getImg("parts/mainMatIron")
 PMMN = getImg("parts/mainMatNano")
 PMnuclear = getImg("parts/mainNuclear")
+PMnormal = getImg("parts/mainNorm")
 PCMT = getImg("parts/chassisMatTape")
 PCMI = getImg("parts/chassisMatIron")
 PCMN = getImg("parts/chassisMatNano")
 PCtoaster = getImg("parts/chassisToaster")
-
+PCnormal = getImg("parts/chassisNormal")
 
 #takes in materials
-def spaceshipimg(booster, main, chassis):
+def frameImg(mat):
+	if mat == "tape":
+		booster = PBMT
+		main = PMMT
+		chassis = PCMT
+	if mat == "iron":
+		booster = PBMI
+		main = PMMI
+		chassis = PCMI
+	if mat == "nano":
+		booster = PBMN
+		main = PMMN
+		chassis = PCMN
+
+	thisship = pygame.Surface((200, 240), pygame.SRCALPHA, 32).convert_alpha()
+	thisship.blit(Pframe, [0, 0])
+	thisship.blit(booster, [0, 60])
+	thisship.blit(booster, [140, 60])
+	thisship.blit(main, [60, 100])
+	thisship.blit(chassis, [70, 0])
+	return thisship
+
+
+
+
+#takes in parts
+def spaceshipimg(pl):
+	if pl.booster == "silo":
+		booster = PBsilo
+	else:
+		booster = PBnormal
+	if pl.main == "nuclear":
+		main = PMnuclear
+	else:
+		main = PMnormal
+	if pl.chassis == "toaster":
+		chassis = PCtoaster
+	else:
+		chassis = PCnormal
+
 	thisship = pygame.Surface((200, 240), pygame.SRCALPHA, 32).convert_alpha()
 	thisship.blit(booster, [0, 60])
 	thisship.blit(booster, [140, 60])
 	thisship.blit(main, [60, 100])
 	thisship.blit(chassis, [70, 0])
-
 	return thisship
 
 #note: BETTER VARIBLE NAMEING PLEASE
@@ -338,7 +378,6 @@ class Result(object):
 				if n == -1:
 					self.feedback.append("You have no employees remaining.")
 			
-			
 			if player.campaigners < 0:
 				player.campaigners = 0
 			if player.maths < 0:
@@ -347,9 +386,6 @@ class Result(object):
 				player.scientists = 0
 			if player.engineers < 0:
 				player.engineers = 0
-			
-			
-			
 			
 			if o == "overtime":
 				rand = n * ((2*player.campaigners) - (player.engineers * player.cost))
@@ -430,7 +466,27 @@ class Result(object):
 					player.specs.append(n)
 			if o == "rocketspec":
 				player.rocketspecs.append(n)
-				
+			
+			if o == "setMat":
+				player.material = n
+				if n == "tape":
+					self.feedback.append("Your frame is cardboard duct taped together.")
+				if n == "iron":
+					self.feedback.append("Your frame is made from steel and iron.")
+				if n == "nano":
+					self.feedback.append("The ship has carbon fiber framing.")
+				player.frame = frameImg(n)
+			if o == "setPart":
+				if n == "Bsilo":
+					player.booster = "silo"
+				if n == "Bnorm":
+					player.booster = "normal"
+				if n == "Mnuclear":
+					player.main = "nuclear"
+				if n == "Ctoaster":
+					player.chassis = "toaster"
+
+				player.ship = spaceshipimg(player)
 				
 
 		return self.feedback
@@ -445,12 +501,16 @@ class Prompt(object):
 	
 
 #Staff management
+
 hire1 = Prompt("hire1", ["Your advisor from the government approches you:", "I would like to suggest we hire new staff."], [Result("Sure, I'll leave it up to you.", "You manage to hire 2 new people.", [["addmoney", -4], ["addpop", 2]]), Result("Let's hire some Campaigners.", "You attempt to hire campaigners.", [["addmoney", -2], ["addcam", 2]]), Result("Let's hire some of thoose math people.", "After hiring some mathematitions people...", [["addmoney", -2], ["addmat", 2]]), Result("We need more science, we can never have enough science!", "After searching for more science.", [["addmoney", -2], ["addsci", 2], ["addflav", "Your science has increased!"]])], 4) 
 hire2 = Prompt("hire2", ["A large group of papers is sitting on your desk", "They appear to all be applications for jobs"], [Result("This person has a good scientific reputation.", "A new scientist has joined your team.", [["addsci", 1]]), Result("This person seems highly caffinated, but could be a good engineer.", "A jittery engineer has joined your crew", [["addeng", 1], ["spec", "caffinate"]]), Result("BURN ALL THE PAPERS!", "...is something important on fire?", [["addfail", 1], ["addprog", -2], ["addflav", "Yes, yes something important was on fire"], ["spec", "charred"]])], 3)
+
+
 #Result("Let's just focus on working today.", "after convincing your staff to work overtime..", [["overtime", 0.2]])], 2)
 overtime = Prompt("overtime", ["Some particullarly hard working engineers", "are requesting the facility stay open later tonight so they can work overtime."], [Result("I suppose we can do that", "after your staff works overtime..", [["overtime", 0.3]]), Result("I don't think that's such a good idea.", "After convincing your staff not to work overtime...", [["addmoney", 2], ["addflav", "You recive an endorsement from the local health officials."]])], 2)
 
 #fire2 = sci, mat, none
+
 fire1 = Prompt("fire1", ["That one advisor from the government approches you:", "We have hired too many people and we are losing money", "somebody needs to get fired."], [Result("But we are getting so much done.", "After not firing anyone...", [["addfail", 2]]), Result("I'll leave it up to you.", "After that government advisor fires some people...", [["subpop", 3], ["addfail", -2]]),Result("Fire some of those engineers.", "After firing some engineers...", [["addeng", -2], ["addfail", -1]])], 6)
 
 #Money and materials
@@ -465,6 +525,10 @@ coffee = Prompt("coffee", ["A few engineers approch you and ask:", "Can we insta
 toaster = Prompt("toaster", ["One of those hippies from science department asks:", "Hey, we're low on funds right now. I suggest we turn our chassis into a toaster."], [Result("Sure, we need to save money.", "After switching over your chassis:", [["addmult", 2], ["addfail", 100], ["addmat", -2], ["addprog", 2], ["rocketspec", "ToasterChassis"]]), Result("We don't need to be THAT drastic..", "After reducing the size:", [["addmult", .2], ["addfail", -1], ["addsci", 1]]), Result("No way.", "After denying the toaster plan:", [["addmat", 1], ["addpop", 1]])], 3)
 hotel = Prompt("hotel", ["The CEO of a large hotel group has approched you", "and wishes install one of his hotels on the moon.", "He bribes you with quite a bit of money."], [Result("I guess so.", "The engineers begin to load materials to build the hotel on the moon.", [["multprog", .2], ["addmult", -.8], ["addfail", 30], ["addmoney", 30], ["rocketspec", "hotel"]]), Result("No.", "After focusing on building the rocket and not business deals:", [["addprog", 5], ["addpop", 1]])], 3)
 silos = Prompt("silos", ["One very frugel lab assistant approches you:", "We don't have enough money to build the thrusters", "How about we use the silos from the sourounding farmland?"], [Result("What a wonderful idea!", "After refiting farm silos to work as thrusters...", [["addfail", 30], ["addsci", 1], ["addflav", "A hippy scientist joins your team"], ["rocketspec", "silos"]]), Result("Are you sane?", "After not taking the farmer's silos", [["addflav", "The farmers share some of their wages with you!"],["addmoney", 5]])], 99)
+
+fire1 = Prompt("", ["That one advisor from the government approches you:", "We have hired too many people and we are losing money", "somebody needs to get fired."], [Result("But we are getting so much done.", "After not firing anyone...", [["addfail", 2]]), Result("I'll leave it up to you.", "After that government advisor fires some people...", [["subpop", 3], ["addfail", -2]]),Result("Fire some of those engineers.", "After firing some engineers...", [["addeng", -2], ["addfail", -1]])], 6)
+#fire3 = fire highest quantity, reduce costs, hire cam
+
 #mtndew
 sodamachine = Prompt("sodamachine", ["A promising scientist asks if they can", "install a soda machine in the lab."], [Result("Sure, how much will it cost me?", "After installing a soda machine in the lab...", [["addmoney", -2], ["overtime", 0.2]]), Result("No, we don't have the money.", "After not installing a soda machine in the lab.", [["overtime", -0.1], ["addflav", "Your employees seem a bit slow today."]])], 10)
 spaceSoda = Prompt("spaceSoda", ["A campainer approaches you:", "Can we put some coffee in the rocket?"], [Result("Of course, the extra sugar will help us do more research!", "After adding some soda to the rocket plans...", [["addmoney", -1], ["addfail", 3], ["addprog", 3], ["rocketspec", "soda"], ["spec", "caffinate"]]), Result("No, soda is unhealthy and will make the astronauts ill.", "After proritizing the health of your astronauts...", [["addfail", -1], ["addmat", 1], ["addflav", "A mathmatition joins due to reports of a healthy climate."]])], 10)
@@ -503,8 +567,11 @@ class Player(object):
 		#ship type stuff
 		self.material = "iron"
 		self.booster = "normal"
-		self.main = "nuclear"
-		self.chassis = "toaster"
+		self.main = "normal"
+		self.chassis = "normal"
+		#the images of the frame, and the compleated product
+		self.frame = frameImg("iron")
+		self.ship = spaceshipimg(self)
 
 player = Player(18, 0, 100, 1, 2, 1, 0)
 
@@ -514,7 +581,7 @@ class Achive(object):
 		self.id = Id
 		self.name = font.render(name, True, BLACK)
 		self.desc = wraptext(desc, 245, achiveFont) 
-		self.img = pygame.image.load("Assets/achives/" + img + ".png")
+		self.img = getImg("achives/" + img)
 
 		#if you are going to get the achive
 		self.gotten = False
@@ -698,8 +765,8 @@ while running:
 
 		gScreen.fill(WHITE)
 		
-		gScreen.blit(doood, [80, 120])
-		gScreen.blit(dood, [400, 120])
+		gScreen.blit(player.frame, [80, 120])
+		gScreen.blit(player.ship, [400, 120])
 
 		for i in range(len(theQuestion.prompt)):
 		
