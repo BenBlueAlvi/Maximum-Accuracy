@@ -956,7 +956,7 @@ while running:
 			if player.failChance >= 100:
 				successChance = 0
 			else:		
-				successChance = (100 - player.failChance) * (player.progress / 100) 
+				successChance = (100 - player.failChance) * (player.progress / player.full)
 			print "success Chance:", successChance
 			launchChance = random.randint(0, 100)
 			rand = 100 - launchChance
