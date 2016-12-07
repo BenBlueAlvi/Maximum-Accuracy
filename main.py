@@ -269,7 +269,7 @@ class Result(object):
 						else:
 							engHired -= 1
 				if engHired < 0:
-					self.feedback.append("You have lost "+str(-sciHired)+" engineers.")
+					self.feedback.append("You have lost "+str(-engHired)+" engineers.")
 				else:
 					self.feedback.append("You hire "+str(n)+" engineers")
 					engHired = n
@@ -545,12 +545,12 @@ sodamachine = Prompt("sodamachine", ["A promising scientist asks if they can", "
 spaceSoda = Prompt("spaceSoda", ["A campainer approaches you:", "Can we put some coffee in the rocket?"], [Result("Of course, the extra sugar will help us do more research!", "After adding some soda to the rocket plans...", [["addmoney", -1], ["addfail", 3], ["addprog", 3], ["rocketspec", "soda"], ["spec", "caffinate"]]), Result("No, soda is unhealthy and will make the astronauts ill.", "After proritizing the health of your astronauts...", [["addfail", -1], ["addmat", 1], ["addflav", "A mathmatition joins due to reports of a healthy climate."]])], 10)
 #interesting ideas
 fsc = Prompt("fsc", ["Upon seeing how well the rocket is going,", "an advisor from the Futuristic Science Corp.", "wishes to partner with you."], [Result("Together we will do great things.", "After partnering with the FSC...", [["addflav", "The project has drasticly increased in size."], ["spec", "JoinedFSC"], ["addmoney", 20], ["addmult", 0.1]]), Result("I'm sorry, I would prefer to go alone.", "After making the mistake of not partnering with the FSC..", [["addflav", "You feel you have made a horrible mistake."]])], 99)
-theProject = Prompt("theProject", ["The FSC has requested a transfer of some of your engineers", "to work on some kind of classified project."], [Result("Sure, as long as we benefit from this project.", "You transfer some of your engineers and scientists over...", [["addeng", -3], ["addsci", -3]])], 10)
+theProject = Prompt("theProject", ["The FSC has requested a transfer of some of your engineers", "to work on some kind of classified project."], [Result("Sure, as long as we benefit from this project.", "You transfer some of your engineers and scientists over...", [["addeng", -3], ["addsci", -3], ["spec", "theProject"]]), Result("No, this is too supsecious.", "After declining the FSC's offer...", [["addflav", "Nothing happends, or has it?"]])], 10)
 ai = Prompt("Ai", ["The FSC has finally completeled the project", "They have created a super intelegent AI and wish to install it", "in the lab to help progress."], [Result("YES! This is exactly what we need!", "After installing the AI in the lab...", [["spec", "AI"], ["addflav", "The AI makes complex equations easier."], ["addIfactor", -0.5]]), Result("I'm worried about the consequences of this, also rogue AIs are scary.", "After declining the FSC's offer...", [["addflav", "A saddened scientist leaves"], ["addsci", -1], ["addflav", "The FSC no longer wishes to work with you"], ["removeSpec", "JoinedFSC"]])], 99)
 pen = Prompt("pen", ["One of your trusted scientists exclaims:", "After doing some amazing science,", "I have discovered that it will be impossible", "to write with pen in space!", "We need to develop a space pen!"], [Result("Yes, the space pen will be a big success!", "After funding a space pen project...", [["addmoney", -3], ["spec", "spacePen"]]), Result("I'm surounded by idiots, JUST USE A PENCIL!", "After deciding to use pencils...", [["addflav", "Paper costs decrease."]])], 10)
 
 #MATERIALS AND FUELS MUST BE THE FIRST 2 QUESTIONS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-possiblequestions = [materials, fuels, coffee, hire1, adcampaign, silos, pen, coffeeShipments, spaceSoda, hire2, overtime]	
+possiblequestions = [materials, fuels, coffee, hire1, adcampaign, silos, pen, coffeeShipments, spaceSoda, hire2, overtime, spaceSoda, sodamachine]	
 
 questions = [coffee, hire1, hotel, toaster, materials, fuels, bakesale, silos, fsc, coffeeShipments, spaceSoda, hire2, overtime, theProject]
 
@@ -685,14 +685,19 @@ def addQuestion(possiblequestions, requirements, question):
 				matches.append(True)
 			
 				
-		elif i[1] == "spec":
+		elif i[1] == "notSpec":
 			if i[2] in i[0]:
 				if question in possiblequestions:
 					pass
 			else:
 				matches.append(True)
+		elif i[1] == "spec":
+			if i[2] in i[0]:
+				matches.append(True)
+			else:
+				pass
 		elif i[1] == "daysSince":
-			if i[0] >= i[2].daysSince and i[2].daysSince >= 1:
+			if i[0] <= i[2].daysSince and i[2].daysSince >= 1:
 				matches.append(True)
 				
 	if len(matches) == len(requirements):
@@ -760,14 +765,14 @@ while running:
 	addQuestion(possiblequestions, [[player.money, "lesser", 4]], toaster)
 	addQuestion(possiblequestions, [[player.money, "lesser", 8]], bakesale)
 	addQuestion(possiblequestions, [[player.pop, "greater", 10]], fire1)
-	addQuestion(possiblequestions, [[player.money, "greater", 25]], fsc)
-	addQuestion(possiblequestions, [[player.rocketspecs, "spec", "coffeeMachine"]], coffee)
-	addQuestion(possiblequestions, [[player.rocketspecs, "spec", "hotel"]], hotel)
-	addQuestion(possiblequestions, [[player.rocketspecs, "spec", "silos"]], silos)
-	addQuestion(possiblequestions, [[player.specs, "spec", "spacePen"]], pen)
-	addQuestion(possiblequestions, [[player.rocketspecs, "spec", "soda"]], spaceSoda)
-	addQuestion(possiblequestions, [[10, "daysSince", fsc], [player.scientists, "greater", 2], [player.engineers, "greater", 2]], theProject)
-	addQuestion(possiblequestions, [[10, "daysSince", theProject]], ai)
+	addQuestion(possiblequestions, [[player.money, "greater", 25], [player.specs, "spec", "JoinedFSC"]], fsc)
+	addQuestion(possiblequestions, [[player.rocketspecs, "notSpec", "coffeeMachine"]], coffee)
+	addQuestion(possiblequestions, [[player.rocketspecs, "notSpec", "hotel"]], hotel)
+	addQuestion(possiblequestions, [[player.rocketspecs, "notSpec", "silos"]], silos)
+	addQuestion(possiblequestions, [[player.specs, "notSpec", "spacePen"]], pen)
+	addQuestion(possiblequestions, [[player.rocketspecs, "notSpec", "soda"]], spaceSoda)
+	addQuestion(possiblequestions, [[10, "daysSince", fsc], [player.scientists, "greater", 2], [player.engineers, "greater", 2], [player.specs, "spec", "JoinedFSC"]], theProject)
+	addQuestion(possiblequestions, [[10, "daysSince", theProject], [player.specs, "spec", "theProject"]], ai)
 		
 	theQuestion = possiblequestions[random.randint(0, len(possiblequestions) - 1)]
 	
@@ -970,21 +975,23 @@ while running:
 				pygame.mixer.Sound.play(launch)
 				player.money += 50
 			if launchChance > successChance and launchChance <= successChance + (rand * 1 / 3):
-				print "LAUNCH Failure 1!"
-				pygame.mixer.Sound.play(explosion)
-			if launchChance > successChance + (rand * 1 / 3) and launchChance <= successChance + (rand * 2 / 3):
-				print "LAUNCH Failure 2!"
-				pygame.mixer.Sound.play(explosion)
-			if launchChance > successChance + (rand * 2 / 3):
 				print "LAUNCH Failure 3!"
 				pygame.mixer.Sound.play(explosion)
 				if "fuelNuclear" in player.rocketspecs:
 					Anukes.get()
+			if launchChance > successChance + (rand * 1 / 3) and launchChance <= successChance + (rand * 2 / 3):
+				print "LAUNCH Failure 2!"
+				pygame.mixer.Sound.play(explosion)
+			if launchChance > successChance + (rand * 2 / 3):
+				print "LAUNCH Failure 1!"
+				pygame.mixer.Sound.play(explosion)
+				
 
 			player.rocketspecs = []
 				
 			player.fails += 1
-			player.progress, player.cost, player.mult = 0, 1, 1
+			player.progress, player.cost, player.mult, player.failChance = 0, 1, 1, 100 - player.fails
+			
 			
 			done = True
 		if hitDetect(mouse_pos, mouse_pos, [10,580], [180, 630]) and mouse_down:
