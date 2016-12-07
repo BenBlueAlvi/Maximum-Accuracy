@@ -199,8 +199,8 @@ def spaceshipimg(pl):
 	return thisship
 
 #note: BETTER VARIBLE NAMEING PLEASE
-doood = spaceshipimg(PBMT, PMMI, PCMI)
-dood = spaceshipimg(PBsilo, PMnuclear, PCtoaster)
+'''doood = spaceshipimg(PBMT, PMMI, PCMI)
+dood = spaceshipimg(PBsilo, PMnuclear, PCtoaster)'''
 
 def hitDetect(p1, p2, p3, p4):
 	if p2[0] > p3[0] and p1[0] < p4[0] and p2[1] > p3[1] and p1[1] < p4[1]:
@@ -721,6 +721,13 @@ while running:
 	player.days += 1
 	player.pop = player.scientists + player.maths + player.campaigners + player.engineers
 	
+	for q in questions:
+		q.daysSince +=1
+		if q.daysSince >= q.cooldown:
+			if q not in possiblequestions:
+				possiblequestions.append(q)
+			q.daysSince = 0
+	
 	#Before choosing an answer
 	#Stat logging
 	print "[][][][][][][][][][][][][][][][][] Day " + str(player.days) + " [][][][][][][][][][][][][][][][][]"
@@ -787,12 +794,10 @@ while running:
 						pygame.mixer.Sound.play(select)
 						mouse_down = False
 						feedback = i.decide(player)
+						print "Question:", theQuestion.name
+						print "Answer:", i.desc
 						possiblequestions.remove(theQuestion)
-						for q in questions:
-							q.daysSince +=1
-							if q.daysSince >= q.cooldown:
-								possiblequestions.append(q)
-								q.daysSince = 0
+						
 						done = True
 						break
 				y+= 1
