@@ -678,17 +678,33 @@ funded = True
 mouse_down = False
 done, running = False, True
 
-day = 0
-month = 1
-year = 1957
+realDay = 0
+realMonth = 1
+realYear = 1957 #year beginning the space race
 while running:
-	day += 1
-	if day >= 30:
+	realDay += 1
+	day = realDay
+	month = realMonth
+	year = realYear
+	success = False
+	if month in [1, 3, 5, 7, 8, 10, 12] and day > 31:
+		success = True
+	if month in [2]:
+		if year % 4 == 0 and not (year % 100 == 0 and not year % 400 == 0):
+			if day >= 29:
+				success = True
+		else:
+			if day >= 28:
+				success = True
+
+	elif month in [4, 6, 9, 11] and day > 30:
+		success = True
+	if success:
 		month += 1
 		day = 1
-	if month >= 12:
-		month = 0
-		year += 1
+		if month > 12:
+			month = 1
+			year += 1
 	
 	date = font.render(str(month) + "/" + str(day) + "/" + str(year), True, BLACK)
 	player.days += 1
