@@ -405,6 +405,10 @@ class Result(object):
 					else:
 						self.feedback.append("Your work hours have increased.")
 						player.baseTime += n
+			if o == "sellRocket":
+				# I uh, ZAKIAH!, fix equation please!
+				player.money += abs((player.cost*player.engineers)*round(player.time * ((.2*player.scientists)+1)*player.engineers*0.4, 2)) * player.progress
+				player.progress -= n
 			if o == "addflav":
 				self.feedback.append(n)
 			if o == "spec":
@@ -461,7 +465,7 @@ class Prompt(object):
 #Staff management
 
 hire1 = Prompt("hire1", ["Your advisor from the government approches you:", "I would like to suggest we hire new staff."], [Result("Sure, I'll leave it up to you.", "You manage to hire 2 new people.", [["addmoney", -4], ["addpop", 2]]), Result("Let's hire some Campaigners.", "You attempt to hire campaigners.", [["addmoney", -2], ["addcam", 2]]), Result("Let's hire some of thoose math people.", "After hiring some mathematitions people...", [["addmoney", -2], ["addmat", 2]]), Result("We need more science, we can never have enough science!", "After searching for more science.", [["addmoney", -2], ["addsci", 2], ["addflav", "Your science has increased!"]])], 4) 
-hire2 = Prompt("hire2", ["A large group of papers is sitting on your desk", "They appear to all be applications for jobs"], [Result("This person has a good scientific reputation.", "A new scientist has joined your team.", [["addsci", 1]]), Result("This person seems highly caffinated, but could be a good engineer.", "A jittery engineer has joined your crew", [["addeng", 1], ["spec", "caffinate"]]), Result("BURN ALL THE PAPERS!", "...is something important on fire?", [["addfail", 1], ["addprog", -2], ["addflav", "Yes, yes something important was on fire"], ["spec", "charred"]])], 3)
+hire2 = Prompt("hire2", ["A large group of papers is sitting on your desk", "They appear to all be applications for jobs"], [Result("This person has a good scientific reputation.", "A new scientist has joined your team.", [["addsci", 1]]), Result("This person seems highly caffinated, but could be a good engineer.", "A jittery engineer has joined your crew", [["addeng", 1], ["spec", "caffinate"]]),Result("How about this campaigner? He seems legitimate.", "A legit campaigner joins your team.", [["addcam", 1]]), Result("None of these people are interesting enough to be hired", "after not hiring anyone", [["addfail", 1], ["addflav", "Unhappiness increases"], ["spec", "charred"]])], 3)
 #Result("Let's just focus on working today.", "after convincing your staff to work overtime..", [["overtime", 0.2]])], 2)
 overtime = Prompt("overtime", ["Some particullarly hard working engineers", "are requesting the facility stay open later tonight so they can work overtime."], [Result("I suppose we can do that", "after your staff works overtime..", [["overtime", 0.3]]), Result("I don't think that's such a good idea.", "After convincing your staff not to work overtime...", [["addmoney", 2], ["addflav", "You recive an endorsement from the local health officials."]])], 2)
 fire1 = Prompt("fire1", ["That one advisor from the government approches you:", "We have hired too many people and we are losing money", "somebody needs to get fired."], [Result("But we are getting so much done.", "After not firing anyone...", [["addfail", 2]]), Result("I'll leave it up to you.", "After that government advisor fires some people...", [["subpop", 3], ["addfail", -2]]),Result("Fire some of those engineers.", "After firing some engineers...", [["addeng", -2], ["addfail", -1]])], 6)
@@ -481,7 +485,7 @@ toaster = Prompt("toaster", ["One of those hippies from science department asks:
 hotel = Prompt("hotel", ["The CEO of a large hotel group has approched you", "and wishes install one of his hotels on the moon.", "He bribes you with quite a bit of money."], [Result("I guess so.", "The engineers begin to load materials to build the hotel on the moon.", [["multprog", .2], ["addfail", 10], ["addmoney", 20], ["addIfactor", 4], ["rocketspec", "hotel"], ["setpart", "Chotel"], ["addspec", "privateFund1"]]), Result("No.", "After focusing on building the rocket and not business deals:", [["addprog", 5], ["addpop", 1]])], 3)
 silos = Prompt("silos", ["One very frugel lab assistant approches you:", "We don't have enough money to build the thrusters", "How about we use the silos from the sourounding farmland?"], [Result("What a wonderful idea!", "After refiting farm silos to work as thrusters...", [["addfail", 20], ["addsci", 1], ["addflav", "A hippy scientist joins your team"], ["rocketspec", "silos"], ["setpart", "Bsilo"]]), Result("Are you sane?", "After not taking the farmer's silos", [["addflav", "The farmers share some of their wages with you!"],["addmoney", 5]])], 99)
 #mtndew
-sodamachine = Prompt("sodamachine", ["A promising scientist asks if they can", "install a soda machine in the lab."], [Result("Sure, how much will it cost me?", "After installing a soda machine in the lab...", [["addmoney", -2], ["overtime", 0.2]]), Result("No, we don't have the money.", "After not installing a soda machine in the lab.", [["overtime", -0.1], ["addflav", "Your employees seem a bit slow today."]])], 10)
+sodamachine = Prompt("sodamachine", ["A promising scientist asks if they can", "install a soda machine in the lab."], [Result("Sure, how much will it cost me?", "After installing a soda machine in the lab...", [["addmoney", -2], ["overtime", 0.2], ["spec", "sodaMachine"]]), Result("No, we don't have the money.", "After not installing a soda machine in the lab.", [["overtime", -0.1], ["addflav", "Your employees seem a bit slow today."]])], 10)
 spaceSoda = Prompt("spaceSoda", ["A campainer approaches you:", "Can we put some coffee in the rocket?"], [Result("Of course, the extra sugar will help us do more research!", "After adding some soda to the rocket plans...", [["addmoney", -1], ["addfail", 3], ["addprog", 3], ["rocketspec", "soda"], ["spec", "caffinate"]]), Result("No, soda is unhealthy and will make the astronauts ill.", "After proritizing the health of your astronauts...", [["addfail", -1], ["addmat", 1], ["addflav", "A mathmatition joins due to reports of a healthy climate."]])], 10)
 
 #interesting ideas
@@ -491,8 +495,12 @@ ai = Prompt("Ai", ["The FSC has finally completeled the project", "They have cre
 pen = Prompt("pen", ["One of your trusted scientists exclaims:", "After doing some amazing science,", "I have discovered that it will be impossible", "to write with pen in space!", "We need to develop a space pen!"], [Result("Yes, the space pen will be a big success!", "After funding a space pen project...", [["addmoney", -3], ["spec", "spacePen"]]), Result("I'm surounded by idiots, JUST USE A PENCIL!", "After deciding to use pencils...", [["addflav", "Paper costs decrease."]])], 10)
 birthday = Prompt("birthday", ["Today is the birthday of one of your employees,", "They want to organize a party."], [Result("Lets take some time off work in celebration.", "After partying in the lounge:", [["overtime", -.2], ["addmon", -.5], ["addflav", "People are drawn to the friendly workplace."], ["addpop", 2]]), Result("Celebrate after work. It shouldn't interfere with your job.", "After postponing the party:", [["addflav", "Your employees are slacking off."], ["addfail", 2]])], -1)
 
+#Debt
+loan = Prompt("loan", ["It appears the lab is in dire need of money.", "Will you take a loan from the bank?"], [Result("Of course, with out money, it's impossible to make any progress!", "After getting a loan from the bank...", [["addmoney", 20], ["spec", "Loan"]]), Result("No, we can come back from this.", "After deciding not to get a loan...", [["addflav", "You are in dire need of money"]])], 1)
+bankrupt = Prompt("bankrupt", ["The lab has gone bankrupt, you need to sell assets."], [Result("Looks like we'll have to sell the rocket", "After selling of the rocket...", [["sellRocket", 100]]), Result("I never wanted to build a rocket anyway", "After giving up on the rocket", [["addflav", "The government, dissaproving of your handling of the project,"], ["addflav", "has hired a replacement for you."], ["addflav", "You go home and get a job working in a coffee shop."], ["spec", "GiveUp"]])], 1)
+
 #MATERIALS AND FUELS MUST BE THE FIRST 2 QUESTIONS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-possiblequestions = [materials, fuels, coffee, hire1, adcampaign, silos, pen, coffeeShipments, spaceSoda, hire2, overtime, spaceSoda, sodamachine]	
+possiblequestions = [materials, fuels, hire2, overtime]	
 
 #Player object
 class Player(object):
@@ -673,6 +681,43 @@ def addQuestion(possiblequestions, requirements, question):
 			print "Requirements no longer met for " + question.name + ". Removing"
 		else:
 			print "Requirements not met for", question.name
+			
+def launchResult(result):
+	running = True
+	mouse_down = False
+	while running:
+		for event in pygame.event.get(): 
+			if event.type == pygame.QUIT: 
+				done, running = True, False
+			elif event.type == pygame.MOUSEBUTTONDOWN:
+				mouse_down = True
+			elif event.type == pygame.MOUSEBUTTONUP:
+				mouse_down = False
+		mouse_pos = pygame.mouse.get_pos()
+		
+		
+		if mouse_down:
+			running = False
+			mouse_down = False
+		gScreen.fill(WHITE)
+		if result == "fail1":
+			#Blit explosion pics here
+			gScreen.blit(font.render("Launch Failure 1", True, BLACK), [50,50])
+		elif result == "fail2":
+			gScreen.blit(font.render("Launch Failure 2", True, BLACK), [50,50])
+		elif result == "fail3":
+			gScreen.blit(font.render("Launch Failure 3", True, BLACK), [50,50])
+		elif result == "success":
+			gScreen.blit(font.render("Launch Success!", True, BLACK), [50,50])
+		
+		for achive in allAchives:
+			achive.update()
+		
+		pygame.display.update()
+		clock.tick(60)
+		
+		
+		
 
 funded = True	
 mouse_down = False
@@ -686,20 +731,21 @@ while running:
 	day = realDay
 	month = realMonth
 	year = realYear
-	success = False
+	newMonth = False
 	if month in [1, 3, 5, 7, 8, 10, 12] and day > 31:
-		success = True
-	if month in [2]:
+		newMonth = True
+	elif month in [2]:
 		if year % 4 == 0 and not (year % 100 == 0 and not year % 400 == 0):
 			if day >= 29:
-				success = True
+				newMonth = True
 		else:
 			if day >= 28:
-				success = True
+				newMonth = True
 
-	elif month in [4, 6, 9, 11] and day > 30:
-		success = True
-	if success:
+	else:
+		if day >= 30:
+			newMonth = True
+	if newMonth:
 		month += 1
 		day = 1
 		if month > 12:
@@ -723,13 +769,19 @@ while running:
 	
 	#see if a question can be added
 	addQuestion(possiblequestions, [[player.money, "greater", 6], [player.rocketspecs, "notSpec", "hotel"]], hotel)
-	addQuestion(possiblequestions, [[player.money, "lesser", 4]], toaster)
+	addQuestion(possiblequestions, [[player.money, "lesser", 4], [player.rocketspecs, "notSpec", "ToasterChassis"]], toaster)
 	addQuestion(possiblequestions, [[player.money, "lesser", 8]], bakesale)
+	addQuestion(possiblequestions, [[player.money, "lesser", 1]], loan)
 	addQuestion(possiblequestions, [[player.pop, "greater", 10]], fire1)
+	addQuestion(possiblequestions, [[player.money, "greater", 2]], hire1)
+	addQuestion(possiblequestions, [[player.money, "greater", 5]], adcampaign)
+	addQuestion(possiblequestions, [[player.money, "greater", 5], [player.specs, "notSpec", "sodaMachine"]], sodamachine)
+	addQuestion(possiblequestions, [[player.money, "greater", 5]], spaceSoda)
+	addQuestion(possiblequestions, [[player.money, "greater", 5]], coffeeShipments)
 	addQuestion(possiblequestions, [[player.money, "greater", 25], [player.specs, "spec", "JoinedFSC"]], fsc)
-	addQuestion(possiblequestions, [[player.rocketspecs, "notSpec", "coffeeMachine"]], coffee)
+	addQuestion(possiblequestions, [[player.rocketspecs, "notSpec", "coffeeMachine"], [player.money, "greater", 2]], coffee)
 	addQuestion(possiblequestions, [[player.rocketspecs, "notSpec", "silos"]], silos)
-	addQuestion(possiblequestions, [[player.specs, "notSpec", "spacePen"]], pen)
+	addQuestion(possiblequestions, [[player.specs, "notSpec", "spacePen"], [player.money, "greater", 5]], pen)
 	addQuestion(possiblequestions, [[player.rocketspecs, "notSpec", "soda"]], spaceSoda)
 	addQuestion(possiblequestions, [[10, "daysSince", fsc], [player.scientists, "greater", 2], [player.engineers, "greater", 2], [player.specs, "spec", "JoinedFSC"]], theProject)
 	addQuestion(possiblequestions, [[10, "daysSince", theProject], [player.specs, "spec", "theProject"]], ai)
@@ -748,8 +800,20 @@ while running:
 	#Add dev birthdays, because good times
 	if month == 12 and day == 1:
 		theQuestion = birthday
+		possiblequestions.append(birthday)
 	if day == 28 and month == 4:
 		theQuestion = birthday
+		possiblequestions.append(birthday)
+	if day == 25 and month == 3:
+		theQuestion = birthday
+		possiblequestions.append(birthday)
+		
+	if player.money <= -10:
+		theQuestion = bankrupt
+		possiblequestions.append(bankrupt)
+	else:
+		if bankrupt in possiblequestions:
+			possiblequestions.remove(bankrupt)
 	done, mouse_down = False, False
 	while not done:
 
@@ -871,6 +935,8 @@ while running:
 	player.failChance -= round(player.time * math.sqrt(player.maths) / player.impossiblilyFactor, 2)
 	if player.failChance < 1:
 		player.failChance = 1
+	if player.progress < 0:
+		player.progress = 0
 	player.progress += round(player.time * ((.2*player.scientists)+1)*player.engineers*0.4, 2)
 	player.money += ((2 * player.campaigners) - (player.engineers + player.maths + player.scientists + player.cost*player.engineers))
 	feedback1 = []
@@ -940,17 +1006,21 @@ while running:
 					Ahl.get()
 				pygame.mixer.Sound.play(launch)
 				player.money += 50
+				launchResult("success")
 			if launchChance > successChance and launchChance <= successChance + (rand * 1 / 3):
 				print "LAUNCH Failure 3!"
 				pygame.mixer.Sound.play(explosion)
 				if "fuelNuclear" in player.rocketspecs:
 					Anukes.get()
+				launchResult("fail3")
 			if launchChance > successChance + (rand * 1 / 3) and launchChance <= successChance + (rand * 2 / 3):
 				print "LAUNCH Failure 2!"
 				pygame.mixer.Sound.play(explosion)
+				launchResult("fail2")
 			if launchChance > successChance + (rand * 2 / 3):
 				print "LAUNCH Failure 1!"
 				pygame.mixer.Sound.play(explosion)
+				launchResult("fail1")
 				
 
 			player.rocketspecs = []
