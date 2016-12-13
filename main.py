@@ -723,27 +723,24 @@ funded = True
 mouse_down = False
 done, running = False, True
 
-realDay = 0
-realMonth = 1
-realYear = 1957 #year beginning the space race
+day = 0
+month = 1
+year = 1957 #year beginning the space race
 while running:
-	realDay += 1
-	day = realDay
-	month = realMonth
-	year = realYear
+	day += 1
 	newMonth = False
 	if month in [1, 3, 5, 7, 8, 10, 12] and day > 31:
 		newMonth = True
 	elif month in [2]:
 		if year % 4 == 0 and not (year % 100 == 0 and not year % 400 == 0):
-			if day >= 29:
+			if day > 29:
 				newMonth = True
 		else:
-			if day >= 28:
+			if day > 28:
 				newMonth = True
 
 	else:
-		if day >= 30:
+		if day > 30:
 			newMonth = True
 	if newMonth:
 		month += 1
