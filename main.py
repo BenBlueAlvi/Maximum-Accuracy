@@ -529,6 +529,8 @@ class Player(object):
 		self.impossiblilyFactor = 1
 		self.baseTime = 1
 		self.time = 1
+		self.netMoneyHistory = []
+		self.netMoneyMean = 0
 		#ship type stuff
 		self.material = PMI
 		self.booster = PBnormal
@@ -539,6 +541,7 @@ class Player(object):
 		self.frame = frameImg(self)
 		self.ship = spaceshipimg(self)
 		self.questionsAnswered = []
+		
 	def setpart(self, part):
 		if part == "material":
 			pass
@@ -578,9 +581,35 @@ class Player(object):
 		prints("fail factor: "+str(self.impossiblilyFactor))
 		prints("cost: "+str(self.cost))
 		prints("full: "+str(self.full))
+	def buildNew(self):
+		newPlayer = Player(self.money, self.progress, self.failChance, self.scientists, self.engineers, self.maths, self.campaigners)
+		newPlayer.progress = self.progress
+		newPlayer.fails = self.fails
+		newPlayer.cost = self.cost
+		newPlayer.full = self.full
+		newPlayer.pop = self.pop
+		newPlayer.days = self.days
+		newPlayer.specs = self.specs 
+		newPlayer.rocketspecs = self.rocketspecs
+		newPlayer.impossiblilyFactor = self.impossiblilyFactor
+		newPlayer.baseTime = self.baseTime
+		newPlayer.time = self.time
+		newPlayer.netMoneyHistory = self.netMoneyHistory
+		newPlayer.netMoneyMean = self.netMoneyMean
+		#ship type stuff
+		newPlayer.material = self.material
+		newPlayer.booster = self.booster
+		newPlayer.main = self.main
+		newPlayer.chassis = self.chassis
+		newPlayer.otherParts = self.otherParts
+		#the images of the frame, and the compleated product
+		newPlayer.frame = frameImg(self)
+		newPlayer.ship = spaceshipimg(self)
+		newPlayer.questionsAnswered = self.questionsAnswered
+		return newPlayer
 
 player = Player(18, 0, 100, 1, 2, 1, 0)
-prePlayer = player
+prePlayer = player.buildNew()
 
 class Achive(object):
 	def __init__(self, Id, name, desc, img):
@@ -786,7 +815,8 @@ while running:
 	addQuestion(possiblequestions, [[player.money, "lesser", 4], [player.rocketspecs, "notSpec", "ToasterChassis"]], toaster)
 	addQuestion(possiblequestions, [[player.money, "lesser", 8]], bakesale)
 	addQuestion(possiblequestions, [[player.money, "lesser", 1]], loan)
-	addQuestion(possiblequestions, [[player.pop, "greater", 10]], fire1)
+	addQuestion(possiblequestions, [[player.netMoneyMean, "lesser", 0]], fire1)
+	addQuestion(possiblequestions, [[player.netMoneyMean, "lesser", 0]], fire2)
 	addQuestion(possiblequestions, [[player.money, "greater", 2]], hire1)
 	addQuestion(possiblequestions, [[player.money, "greater", 5]], adcampaign)
 	addQuestion(possiblequestions, [[player.money, "greater", 5], [player.specs, "notSpec", "sodaMachine"]], sodamachine)
@@ -986,7 +1016,13 @@ while running:
 	if player.money <= 0:
 		feedback1.append("You have run out of money. You might want to launch...")
 
-	feedback, prePlayer = feedback1, prePlayer
+	feedback, prePlayer = feedback1, player.buildNew()
+	
+	player.netMoneyHistory.append(player.money - prePlayer.money)
+	if len(player.netMoneyHistory) >= 3:
+		player.netMoneyHistory.remove(player.netMoneyHistory[0])
+	player.netMoneyMean = round(sum(player.netMoneyHistory)) / max(len(player.netMoneyHistory), 1)
+		
 
 
 	done, mouse_down = False, False
