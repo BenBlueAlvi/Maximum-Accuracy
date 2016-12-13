@@ -40,7 +40,7 @@ def getImg(name):
 	try:
 		return pygame.image.load(full)
 	except pygame.error:
-		print "File not found. Substituting"
+		print "--File not found. Substituting"
 		return pygame.image.load("Assets/achives/wip.png")
 
 sciencepic = getImg("science")
@@ -145,7 +145,7 @@ class shipPart(object):
 		self.fail = fail
 		self.img = image
 
-#part variables start with P, part types are B (booster), M (main), C (chassis), materials have M with a T (tape), I (iron), N (nano)
+#part variables start with P, part types are B (booster), M (main), C (chassis), E (extras), materials have M with a T (tape), I (iron), N (nano)
 #frames and materials
 Pframe = getImg("parts/Scaffold")
 PMT = shipPart("Tape", -.2, 0, 0.5, getImg("parts/matTape"))
@@ -162,12 +162,16 @@ PMcar = shipPart("Car", 0.3, 40, 0.1, getImg("parts/mainCar"))
 PCtoaster = shipPart("Toaster", 0.1, 4, 1, getImg("parts/chassisToaster"))
 PCnormal = shipPart("Normal", 0.4, 20, 0, getImg("parts/chassisNormal"))
 PChotel = shipPart("Hotel", 0.4, 100, 1, getImg("parts/chassisHotel"))
+#Extras
+PEai = shipPart("AI", 0.6, 35, -0.6, getImg("parts/extraAi"))
 
 #takes in materials
-def frameImg(mat):
+def frameImg(player):
 	thisship = pygame.Surface((200, 240), pygame.SRCALPHA, 32).convert_alpha()
 	thisship.blit(Pframe, [0, 0])
-	thisship.blit(mat.img, [0, 0])
+	thisship.blit(player.material.img, [0, 0])
+	for i in player.otherParts:
+		thisship.blit(i.img, [0, 0])
 	return thisship
 
 #takes in parts
@@ -522,49 +526,58 @@ class Player(object):
 		self.impossiblilyFactor = 1
 		self.baseTime = 1
 		self.time = 1
-		#previous
-		self.preMon = mon
-		self.preProg = prog
-		self.preFail = fail
 		#ship type stuff
 		self.material = PMI
 		self.booster = PBnormal
 		self.main = PMnormal
 		self.chassis = PCnormal
+		self.otherParts = []
 		#the images of the frame, and the compleated product
-		self.frame = frameImg(PMI)
+		self.frame = frameImg(self)
 		self.ship = spaceshipimg(self)
 		self.questionsAnswered = []
 	def setpart(self, part):
 		if part == "material":
 			pass
-		if part == "Bsilo":
-			player.booster = PBsilo
-		if part == "Bnorm":
-			player.booster = PBnormal
-		if part == "Mnuclear":
-			player.main = PMnuclear
-		if part == "Mnorm":
-			player.main = PMnormal
-		if part == "Mcar":
-			player.main = PMcar
-		if part == "Ctoaster":
-			player.chassis = PCtoaster
-		if part == "Cnormal":
-			player.chassis = PCnormal
-		if part == "Chotel":
-			player.chassis = PChotel
+		elif part == "Bsilo":
+			self.booster = PBsilo
+		elif part == "Bnorm":
+			self.booster = PBnormal
+		elif part == "Mnuclear":
+			self.main = PMnuclear
+		elif part == "Mnorm":
+			self.main = PMnormal
+		elif part == "Mcar":
+			self.main = PMcar
+		elif part == "Ctoaster":
+			self.chassis = PCtoaster
+		elif part == "Cnormal":
+			self.chassis = PCnormal
+		elif part == "Chotel":
+			self.chassis = PChotel
+		else:
+			prints("Unknown part applied: "+part)
+			self.otherParts.append(part)
 		
 		self.impossiblilyFactor = 1+self.booster.fail+self.main.fail+self.chassis.fail+self.material.fail
 		self.cost = self.booster.cost + self.main.cost + self.chassis.cost + self.material.cost
 		self.full = self.booster.perc + self.main.perc + self.chassis.perc + self.material.perc
-		self.ship = spaceshipimg(player)
-		self.frame = frameImg(player.material)
+		for i in self.otherParts:
+			try:
+				self.impossiblilyFactor += i.fail
+				self.cost += i.cost
+				self.full += i.perc
+			except:
+				prints("Error with: "+i)
+				self.otherParts.remove(i)
+		self.ship = spaceshipimg(self)
+		self.frame = frameImg(self)
 		prints("fail factor: "+str(self.impossiblilyFactor))
 		prints("cost: "+str(self.cost))
 		prints("full: "+str(self.full))
 
 player = Player(18, 0, 100, 1, 2, 1, 0)
+prePlayer = player
 
 class Achive(object):
 	def __init__(self, Id, name, desc, img):
@@ -956,16 +969,16 @@ while running:
 	feedback1.append("")
 	feedback1 += feedback
 	feedback1.append("")
-	feedback1.append("Net progress: "+str(player.progress - player.preProg)+"%")
-	feedback1.append("Net money: "+str(player.money - player.preMon)+"K")
-	feedback1.append("Net fail chance: "+str(player.failChance - player.preFail)+"%")
+	feedback1.append("Net progress: "+str(player.progress - prePlayer.progress)+"%")
+	feedback1.append("Net money: "+str(player.money - prePlayer.money)+"K")
+	feedback1.append("Net fail chance: "+str(player.failChance - prePlayer.failChance)+"%")
 	#feedback1.append("Current progress: "+str(player.progress)+"%")
-	player.preMon, player.preProg, player.preFail = player.money, player.progress, player.failChance
 	
 	if player.money <= 0:
 		feedback1.append("You have run out of money. You might want to launch...")
 
-	feedback = feedback1
+	feedback, prePlayer = feedback1, prePlayer
+
 
 	done, mouse_down = False, False
 	while not done and running:
