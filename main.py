@@ -413,6 +413,8 @@ class Result(object):
 				# I uh, ZAKIAH!, fix equation please!
 				player.money += abs((player.cost*player.engineers)*round(player.time * ((.2*player.scientists)+1)*player.engineers*0.4, 2)) * player.progress
 				player.progress -= n
+				player.rocketspecs = []
+				
 			if o == "addflav":
 				self.feedback.append(n)
 			if o == "spec":
@@ -502,6 +504,7 @@ birthday = Prompt("birthday", ["Today is the birthday of one of your employees,"
 #Debt
 loan = Prompt("loan", ["It appears the lab is in dire need of money.", "Will you take a loan from the bank?"], [Result("Of course, with out money, it's impossible to make any progress!", "After getting a loan from the bank...", [["addmoney", 20], ["spec", "Loan"]]), Result("No, we can come back from this.", "After deciding not to get a loan...", [["addflav", "You are in dire need of money"]])], 1)
 bankrupt = Prompt("bankrupt", ["The lab has gone bankrupt, you need to sell assets."], [Result("Looks like we'll have to sell the rocket", "After selling of the rocket...", [["sellRocket", 100]]), Result("I never wanted to build a rocket anyway", "After giving up on the rocket", [["addflav", "The government, dissaproving of your handling of the project,"], ["addflav", "has hired a replacement for you."], ["addflav", "You go home and get a job working in a coffee shop."], ["spec", "GiveUp"]])], 1)
+paybackLoan = Prompt("paybackLoan", ["A bank employee approaches you,", "It's time to repay that loan."], [Result("Here is your money.", "After paying back that loan...", [["addmoney", 20 * (1 +(loan.daysSince / 100))], ["spec", "PaybackLoan"]]), Result("Sorry, I don't have the money", "After not paying up...", [["addcam", -1], ["addflav", "One of the campaigners disapproves of your credit score."]])], 1)
 
 #MATERIALS AND FUELS MUST BE THE FIRST 2 QUESTIONS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 possiblequestions = [materials, fuels, hire2, overtime]	
@@ -680,7 +683,8 @@ def addQuestion(possiblequestions, requirements, question):
 				matches.append(True)
 		elif i[1] == "daysSince":
 			if i[0] <= i[2].daysSince and i[2].daysSince >= 1:
-				matches.append(True)	
+				matches.append(True)
+
 	if len(matches) == len(requirements):
 		if not question in possiblequestions:
 			possiblequestions.append(question)
@@ -771,7 +775,7 @@ while running:
 		if q.daysSince >= q.cooldown:
 			if q not in possiblequestions:
 				possiblequestions.append(q)
-			q.daysSince = 0
+			
 	
 	#Before choosing an answer
 	#Stat logging
@@ -795,6 +799,7 @@ while running:
 	addQuestion(possiblequestions, [[player.rocketspecs, "notSpec", "soda"]], spaceSoda)
 	addQuestion(possiblequestions, [[10, "daysSince", fsc], [player.scientists, "greater", 2], [player.engineers, "greater", 2], [player.specs, "spec", "JoinedFSC"]], theProject)
 	addQuestion(possiblequestions, [[10, "daysSince", theProject], [player.specs, "spec", "theProject"]], ai)
+	addQuestion(possiblequestions, [[10, "daysSince", loan], [player.specs, "notSpec", "PaybackLoan"]], paybackLoan)
 		
 	theQuestion = possiblequestions[random.randint(0, len(possiblequestions) - 1)]
 	
@@ -824,6 +829,9 @@ while running:
 	else:
 		if bankrupt in possiblequestions:
 			possiblequestions.remove(bankrupt)
+	
+	
+	
 	done, mouse_down = False, False
 	while not done:
 
@@ -863,6 +871,7 @@ while running:
 						print "Question:", theQuestion.name
 						print "Answer:", i.desc
 						possiblequestions.remove(theQuestion)
+						theQuestion.daysSince = 0
 						if not theQuestion in player.questionsAnswered: 
 							player.questionsAnswered.append(theQuestion)
 						
@@ -1031,7 +1040,8 @@ while running:
 				print "LAUNCH Failure 1!"
 				pygame.mixer.Sound.play(explosion)
 				launchResult("fail1")
-				
+			
+			
 
 			player.rocketspecs = []
 			player.fails += 1
