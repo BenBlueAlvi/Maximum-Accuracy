@@ -385,7 +385,26 @@ class Result(object):
 				player.impossiblilyFactor += n
 				if player.impossiblilyFactor <= 0:
 					player.impossiblilyFactor = 0.1
-			
+			if o == "reduce":
+				if player.material == PMI:
+					player.material = PMT
+				elif player.material == PMN:
+					player.material = PMI
+				self.feedback.append("Your project has shrunk.")
+				player.setpart("material")
+			if o == "addTime":
+				if n < 0:
+					if player.baseTime + n < 0:
+						self.feedback.append("Your work hours cannot shrink any more.")
+					else:
+						self.feedback.append("Your work hours have shrunk.")
+						player.baseTime += n
+				else:
+					if player.baseTime + n > 3:
+						self.feedback.append("You cannot go above a 24 hour workday.")
+					else:
+						self.feedback.append("Your work hours have increased.")
+						player.baseTime += n
 			if o == "addflav":
 				self.feedback.append(n)
 			if o == "spec":
@@ -439,9 +458,6 @@ class Prompt(object):
 		self.results = results
 		self.cooldown = cooldown
 		self.daysSince = 0
-
-#Result("Why don't we just hire more campaigners?", "After putting out an ad campaign:", [["addcam", 2], ["addmoney", -6], ["overtime", -.2]])
-#Result("How about we reduce costs?", "After using less expensive materials:", [])
 #Staff management
 
 hire1 = Prompt("hire1", ["Your advisor from the government approches you:", "I would like to suggest we hire new staff."], [Result("Sure, I'll leave it up to you.", "You manage to hire 2 new people.", [["addmoney", -4], ["addpop", 2]]), Result("Let's hire some Campaigners.", "You attempt to hire campaigners.", [["addmoney", -2], ["addcam", 2]]), Result("Let's hire some of thoose math people.", "After hiring some mathematitions people...", [["addmoney", -2], ["addmat", 2]]), Result("We need more science, we can never have enough science!", "After searching for more science.", [["addmoney", -2], ["addsci", 2], ["addflav", "Your science has increased!"]])], 4) 
@@ -450,7 +466,7 @@ hire2 = Prompt("hire2", ["A large group of papers is sitting on your desk", "The
 overtime = Prompt("overtime", ["Some particullarly hard working engineers", "are requesting the facility stay open later tonight so they can work overtime."], [Result("I suppose we can do that", "after your staff works overtime..", [["overtime", 0.3]]), Result("I don't think that's such a good idea.", "After convincing your staff not to work overtime...", [["addmoney", 2], ["addflav", "You recive an endorsement from the local health officials."]])], 2)
 fire1 = Prompt("fire1", ["That one advisor from the government approches you:", "We have hired too many people and we are losing money", "somebody needs to get fired."], [Result("But we are getting so much done.", "After not firing anyone...", [["addfail", 2]]), Result("I'll leave it up to you.", "After that government advisor fires some people...", [["subpop", 3], ["addfail", -2]]),Result("Fire some of those engineers.", "After firing some engineers...", [["addeng", -2], ["addfail", -1]])], 6)
 #fire2 = sci, mat, none
-#fire3 = fire highest quantity, reduce costs, hire cam
+fire2 = Prompt("fire2", ["Your money is low, and you are loosing more.", "You need a way to stop your money"], [Result("Why don't we just hire more campaigners?", "After putting out an ad campaign:", [["addcam", 2], ["addmoney", -6], ["overtime", -.2]]), Result("How about we reduce costs?", "After using less expensive materials:", [["reduce", 1], [""]]), Result("Why not just reduce the work hours?", "You reduce the work hours.", [["addTime", -.2], ["addflav", "Your workers are more well rested at work."], ["addIfactor", -.1]])], 10)
 
 #Money and materials
 bakesale = Prompt("bakesale", ["One of your campaigners suggests:", "We should have a bake sale to raise money."], [Result("Sure, but only if I can have some too.", "After having a bakesale", [["addmoney", 2], ["addflav", "The bake sale premotes working in the areospace industy"], ["addpop", 1]]), Result("No, I hate baked goods", "After not having a bake sale..", [["addflav", "Some people were really looking forward to that bake sale."],["subpop", 1]])], 3)
