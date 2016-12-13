@@ -115,11 +115,6 @@ def wraptext(text, fullline, Font):
 			outtext.append(text)
 	return outtext
 
-rand = wraptext("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", 100, font)
-for i in rand:
-	print i
-del rand
-
 def textbox(size, text, Font):
 	global capstrip1, capstrip2, vertstrip
 	#text = wraptext(text, 292, Font)
@@ -150,7 +145,7 @@ class shipPart(object):
 Pframe = getImg("parts/Scaffold")
 PMT = shipPart("Tape", -.2, 0, 0.5, getImg("parts/matTape"))
 PMI = shipPart("Iron", 0, 0, 0, getImg("parts/mainMatIron"))
-PMN = shipPart("Nano", 0.5, 10, -.2, getImg("parts/matNano"))
+PMN = shipPart("Nano", 0.5, 10, -0.2, getImg("parts/matNano"))
 #Boosters
 PBnormal = shipPart("Normal", 0.2, 30, 0, getImg("parts/boosterNormal"))
 PBsilo = shipPart("Silo", 0.1, 28, 0.4, getImg("parts/boosterSilo"))
@@ -164,6 +159,7 @@ PCnormal = shipPart("Normal", 0.4, 20, 0, getImg("parts/chassisNormal"))
 PChotel = shipPart("Hotel", 0.4, 100, 1, getImg("parts/chassisHotel"))
 #Extras
 PEai = shipPart("AI", 0.6, 35, -0.6, getImg("parts/extraAi"))
+PEshield = shipPart("shielding", 0.1, 4, -0.1, getImg("parts/extraShield"))
 
 #takes in materials
 def frameImg(player):
@@ -394,6 +390,10 @@ class Result(object):
 					player.material = PMT
 				elif player.material == PMN:
 					player.material = PMI
+				else:
+					if PEai in player.otherParts:
+						player.otherParts.remove(PEai)
+					
 				self.feedback.append("Your project has shrunk.")
 				player.setpart("material")
 			if o == "addTime":
@@ -490,7 +490,7 @@ coffee = Prompt("coffee", ["A few engineers approch you and ask:", "Can we insta
 toaster = Prompt("toaster", ["One of those hippies from science department asks:", "Hey, we're low on funds right now. I suggest we turn our chassis into a toaster."], [Result("Sure, we need to save money.", "After switching over your chassis:", [["setpart", "Ctoaster"], ["addfail", 50], ["addmat", -2], ["rocketspec", "ToasterChassis"]]), Result("We don't need to be THAT drastic..", "After reducing the size:", [["addfail", -1], ["addsci", 1]]), Result("No way.", "After denying the toaster plan:", [["addmat", 1], ["addpop", 1], ["setpart", "Cnormal"]])], 3)
 hotel = Prompt("hotel", ["The CEO of a large hotel group has approched you", "and wishes install one of his hotels on the moon.", "He bribes you with quite a bit of money."], [Result("I guess so.", "The engineers begin to load materials to build the hotel on the moon.", [["multprog", .2], ["addfail", 10], ["addmoney", 20], ["addIfactor", 4], ["rocketspec", "hotel"], ["setpart", "Chotel"], ["addspec", "privateFund1"]]), Result("No.", "After focusing on building the rocket and not business deals:", [["addprog", 5], ["addpop", 1]])], 3)
 silos = Prompt("silos", ["One very frugel lab assistant approches you:", "We don't have enough money to build the thrusters", "How about we use the silos from the sourounding farmland?"], [Result("What a wonderful idea!", "After refiting farm silos to work as thrusters...", [["addfail", 20], ["addsci", 1], ["addflav", "A hippy scientist joins your team"], ["rocketspec", "silos"], ["setpart", "Bsilo"]]), Result("Are you sane?", "After not taking the farmer's silos", [["addflav", "The farmers share some of their wages with you!"],["addmoney", 5]])], 99)
-#mtndew
+#mtndew = Prompt("mtndew", [""])
 sodamachine = Prompt("sodamachine", ["A promising scientist asks if they can", "install a soda machine in the lab."], [Result("Sure, how much will it cost me?", "After installing a soda machine in the lab...", [["addmoney", -2], ["overtime", 0.2], ["spec", "sodaMachine"]]), Result("No, we don't have the money.", "After not installing a soda machine in the lab.", [["overtime", -0.1], ["addflav", "Your employees seem a bit slow today."]])], 10)
 spaceSoda = Prompt("spaceSoda", ["A campainer approaches you:", "Can we put some coffee in the rocket?"], [Result("Of course, the extra sugar will help us do more research!", "After adding some soda to the rocket plans...", [["addmoney", -1], ["addfail", 3], ["addprog", 3], ["rocketspec", "soda"], ["spec", "caffinate"]]), Result("No, soda is unhealthy and will make the astronauts ill.", "After proritizing the health of your astronauts...", [["addfail", -1], ["addmat", 1], ["addflav", "A mathmatition joins due to reports of a healthy climate."]])], 10)
 
@@ -740,7 +740,6 @@ def launchResult(result):
 			elif event.type == pygame.MOUSEBUTTONUP:
 				mouse_down = False
 		mouse_pos = pygame.mouse.get_pos()
-		
 		
 		if mouse_down:
 			running = False
