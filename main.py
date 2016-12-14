@@ -8,7 +8,7 @@ pygame.mixer.pre_init(22050, -16, 3, 8)
 pygame.mixer.init()
 
 debug = True
-def prints(stuff):
+def printDebug(stuff):
 	global debug
 	if debug:
 		print stuff
@@ -143,15 +143,15 @@ class shipPart(object):
 #part variables start with P, part types are B (booster), M (main), C (chassis), E (extras), materials have M with a T (tape), I (iron), N (nano)
 #frames and materials
 Pframe = getImg("parts/Scaffold")
-PMT = shipPart("Tape", -.2, 0, 0.5, getImg("parts/matTape"))
-PMI = shipPart("Iron", 0, 0, 0, getImg("parts/mainMatIron"))
-PMN = shipPart("Nano", 0.5, 10, -0.2, getImg("parts/matNano"))
+PMtapeapeape = shipPart("Tape", -.2, 0, 0.5, getImg("parts/matTape"))
+PMironron = shipPart("Iron", 0, 0, 0, getImg("parts/mainMatIron"))
+PMnanoano = shipPart("Nano", 0.5, 10, -0.2, getImg("parts/matNano"))
 #Boosters
 PBnormal = shipPart("Normal", 0.2, 30, 0, getImg("parts/boosterNormal"))
 PBsilo = shipPart("Silo", 0.1, 28, 0.4, getImg("parts/boosterSilo"))
 #Mains
-PMnuclear = shipPart("Nuclear", 0.5, 60, 0.1, getImg("parts/mainNuclear"))
-PMnormal = shipPart("Normal", 0.4, 50, 0, getImg("parts/mainNorm"))
+PMnanouclear = shipPart("Nuclear", 0.5, 60, 0.1, getImg("parts/mainNuclear"))
+PMnanoormal = shipPart("Normal", 0.4, 50, 0, getImg("parts/mainNorm"))
 PMcar = shipPart("Car", 0.3, 40, 0.1, getImg("parts/mainCar"))
 #Chassis
 PCtoaster = shipPart("Toaster", 0.1, 4, 1, getImg("parts/chassisToaster"))
@@ -387,10 +387,10 @@ class Result(object):
 				if player.impossiblilyFactor <= 0:
 					player.impossiblilyFactor = 0.1
 			if o == "reduce":
-				if player.material == PMI:
-					player.material = PMT
-				elif player.material == PMN:
-					player.material = PMI
+				if player.material == PMiron:
+					player.material = PMtapeape
+				elif player.material == PMnano:
+					player.material = PMiron
 				else:
 					if PEai in player.otherParts:
 						player.otherParts.remove(PEai)
@@ -412,7 +412,10 @@ class Result(object):
 						player.baseTime += n
 			if o == "sellRocket":
 				# I uh, ZAKIAH!, fix equation please!
-				player.money += abs((player.cost*player.engineers)*round(player.time * ((.2*player.scientists)+1)*player.engineers*0.4, 2)) * player.progress
+				rocketgains = 0
+				for i in player.costHistory:
+					rocketgains += i
+				player.money += (n/100) * (rocketgains + .2 * player.progress)
 				player.progress -= n
 				player.rocketspecs = []
 				
@@ -482,7 +485,7 @@ fire2 = Prompt("fire2", ["Your money is low, and you are loosing more.", "You ne
 #Money and materials
 bakesale = Prompt("bakesale", ["One of your campaigners suggests:", "We should have a bake sale to raise money."], [Result("Sure, but only if I can have some too.", "After having a bakesale", [["addmoney", 2], ["addflav", "The bake sale premotes working in the areospace industy"], ["addpop", 1]]), Result("No, I hate baked goods", "After not having a bake sale..", [["addflav", "Some people were really looking forward to that bake sale."],["subpop", 1]])], 3)
 adcampaign = Prompt("adcampaign", ["One of your mathmatitions suggests", "an add campaign to hire people."], [Result("Yeah, we need the staff", "After creating an amazing ad campaign...", [["addmoney", -4], ["addpop", 4]]), Result("No, we don't have enough money.", "After not creating an amazing ad campaign...", [["addflav", "Nothing changes"]])], 5)
-materials = Prompt("materials", ["One of your scientists approaches you:", "We need to discuss our materials."], [Result("How about all carbon fiber?", "After using hi-tech materials:", [["addfail", -4], ["rocketspec", "hi-tech"], ["setMat", PMN]]), Result("Why not normal materials, like steel?", "After deciding to use standard materials:", [["addflav", "Engineers are attracted to the ease of their jobs."], ["addeng", 1], ["rocketspec", "steel"], ["setMat", PMI]]), Result("Lets think cheap. Duct-tape cheap.", "After deciding to use low-cost materials:", [["setMat", PMT], ["addfail", 20], ["addflav", "Some of your mathmatitions can't handle the absurdity of this project."], ["addmat", -2], ["rocketspec", "ductTape"]])], 99)
+materials = Prompt("materials", ["One of your scientists approaches you:", "We need to discuss our materials."], [Result("How about all carbon fiber?", "After using hi-tech materials:", [["addfail", -4], ["rocketspec", "hi-tech"], ["setMat", PMnano]]), Result("Why not normal materials, like steel?", "After deciding to use standard materials:", [["addflav", "Engineers are attracted to the ease of their jobs."], ["addeng", 1], ["rocketspec", "steel"], ["setMat", PMiron]]), Result("Lets think cheap. Duct-tape cheap.", "After deciding to use low-cost materials:", [["setMat", PMtapeape], ["addfail", 20], ["addflav", "Some of your mathmatitions can't handle the absurdity of this project."], ["addmat", -2], ["rocketspec", "ductTape"]])], 99)
 fuels = Prompt("fuels", ["An engineer approaches you:", "So, uh.. What should we use for fuel?"], [Result("Nuclear would be the most powerful.", "After deciding to place a nuclear reactor within the rocket:", [["addfail", 2], ["addmoney", -2], ["rocketspec", "fuelNuclear"], ["setpart", "Mnuclear"]]), Result("How about we design a rocket specific fuel?", "After deciding to design rocket fuel..", [["addfail", -5], ["addmon", -2], ["addIfactor", 0.1], ["rocketspec", "fuelRocket"], ["setpart", "Mnormal"]]), Result("Car fuel, we need to save money", "After deciding to use car fuel...", [["addflav", "Some people belive you aren't taking this job seriously"], ["subpop", 2],["addfail", -2], ["addmoney", -4], ["rocketspec", "fuelCar"], ["setpart", "Mcar"]])], 99)
 
 #Bad ideas -- 
@@ -534,15 +537,16 @@ class Player(object):
 		self.netMoneyHistory = []
 		self.netMoneyMean = 0
 		#ship type stuff
-		self.material = PMI
+		self.material = PMiron
 		self.booster = PBnormal
-		self.main = PMnormal
+		self.main = PMnanoormal
 		self.chassis = PCnormal
 		self.otherParts = []
 		#the images of the frame, and the compleated product
 		self.frame = frameImg(self)
 		self.ship = spaceshipimg(self)
 		self.questionsAnswered = []
+		self.costHistory = []
 		
 	def setpart(self, part):
 		if part == "material":
@@ -552,9 +556,9 @@ class Player(object):
 		elif part == "Bnorm":
 			self.booster = PBnormal
 		elif part == "Mnuclear":
-			self.main = PMnuclear
+			self.main = PMnanouclear
 		elif part == "Mnorm":
-			self.main = PMnormal
+			self.main = PMnanoormal
 		elif part == "Mcar":
 			self.main = PMcar
 		elif part == "Ctoaster":
@@ -564,7 +568,7 @@ class Player(object):
 		elif part == "Chotel":
 			self.chassis = PChotel
 		else:
-			prints("Unknown part applied: "+part)
+			printDebug("Unknown part applied: "+part.name)
 			self.otherParts.append(part)
 		
 		self.impossiblilyFactor = 1+self.booster.fail+self.main.fail+self.chassis.fail+self.material.fail
@@ -576,13 +580,13 @@ class Player(object):
 				self.cost += i.cost
 				self.full += i.perc
 			except:
-				prints("Error with: "+i)
+				printDebug("Error with: "+i)
 				self.otherParts.remove(i)
 		self.ship = spaceshipimg(self)
 		self.frame = frameImg(self)
-		prints("fail factor: "+str(self.impossiblilyFactor))
-		prints("cost: "+str(self.cost))
-		prints("full: "+str(self.full))
+		printDebug("fail factor: "+str(self.impossiblilyFactor))
+		printDebug("cost: "+str(self.cost))
+		printDebug("full: "+str(self.full))
 	def buildNew(self):
 		newPlayer = Player(self.money, self.progress, self.failChance, self.scientists, self.engineers, self.maths, self.campaigners)
 		newPlayer.progress = self.progress
@@ -608,6 +612,7 @@ class Player(object):
 		newPlayer.frame = frameImg(self)
 		newPlayer.ship = spaceshipimg(self)
 		newPlayer.questionsAnswered = self.questionsAnswered
+		newPlayer.costHistory = self.costHistory
 		return newPlayer
 
 player = Player(18, 0, 100, 1, 2, 1, 0)
@@ -990,6 +995,7 @@ while running:
 		player.progress = 0
 	player.progress += round(player.time * ((.2*player.scientists)+1)*player.engineers*0.4, 2)
 	player.money += ((2 * player.campaigners) - (player.engineers + player.maths + player.scientists + player.cost*player.engineers))
+	
 	feedback1 = []
 	feedback1.append("After a full day of work...")
 	if player.campaigners > 0:
@@ -1004,6 +1010,7 @@ while running:
 		
 	feedback1.append("You pay your employees "+str(player.maths+player.scientists+player.engineers)+"K")
 	feedback1.append("Your engineers spend "+str(player.engineers*player.cost)+"K")
+	player.costHistory.append(player.engineers*player.cost)
 	feedback1.append("Your mathematitions reduce chance of failiure by "+str(2*player.maths)+"%")
 	
 	
@@ -1024,6 +1031,7 @@ while running:
 	if len(player.netMoneyHistory) >= 3:
 		player.netMoneyHistory.remove(player.netMoneyHistory[0])
 	player.netMoneyMean = round(sum(player.netMoneyHistory)) / max(len(player.netMoneyHistory), 1)
+	
 		
 
 
