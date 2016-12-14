@@ -143,15 +143,15 @@ class shipPart(object):
 #part variables start with P, part types are B (booster), M (main), C (chassis), E (extras), materials have M with a T (tape), I (iron), N (nano)
 #frames and materials
 Pframe = getImg("parts/Scaffold")
-PMtapeapeape = shipPart("Tape", -.2, 0, 0.5, getImg("parts/matTape"))
-PMironron = shipPart("Iron", 0, 0, 0, getImg("parts/mainMatIron"))
-PMnanoano = shipPart("Nano", 0.5, 10, -0.2, getImg("parts/matNano"))
+PMT = shipPart("Tape", -.2, 0, 0.5, getImg("parts/matTape"))
+PMI = shipPart("Iron", 0, 0, 0, getImg("parts/mainMatIron"))
+PMN = shipPart("Nano", 0.5, 10, -0.2, getImg("parts/matNano"))
 #Boosters
 PBnormal = shipPart("Normal", 0.2, 30, 0, getImg("parts/boosterNormal"))
 PBsilo = shipPart("Silo", 0.1, 28, 0.4, getImg("parts/boosterSilo"))
 #Mains
-PMnanouclear = shipPart("Nuclear", 0.5, 60, 0.1, getImg("parts/mainNuclear"))
-PMnanoormal = shipPart("Normal", 0.4, 50, 0, getImg("parts/mainNorm"))
+PMnuclear = shipPart("Nuclear", 0.5, 60, 0.1, getImg("parts/mainNuclear"))
+PMnormal = shipPart("Normal", 0.4, 50, 0, getImg("parts/mainNorm"))
 PMcar = shipPart("Car", 0.3, 40, 0.1, getImg("parts/mainCar"))
 #Chassis
 PCtoaster = shipPart("Toaster", 0.1, 4, 1, getImg("parts/chassisToaster"))
@@ -387,15 +387,24 @@ class Result(object):
 				if player.impossiblilyFactor <= 0:
 					player.impossiblilyFactor = 0.1
 			if o == "reduce":
-				if player.material == PMiron:
-					player.material = PMtapeape
-				elif player.material == PMnano:
-					player.material = PMiron
+				if player.material == PMI:
+					player.material = PMT
+					self.feedback.append("You have downgraded your materials.")
+				elif player.material == PMN:
+					player.material = PMI
+					self.feedback.append("You have downgraded your materials.")
 				else:
 					if PEai in player.otherParts:
 						player.otherParts.remove(PEai)
+						self.feedback.append("You have removed the AI from the ship.")
+					elif PEshield in player.otherParts:
+						player.otherParts.remove(PEshield)
+						self.feedback.append("Shielding has been removed.")
+					elif PEcoffee in player.otherParts:
+						player.otherParts.remove(PEcoffee)
+						self.feedback.append("Coffee machines have been removed from the rocket.")
 					
-				self.feedback.append("Your project has shrunk.")
+				#self.feedback.append("Your project has shrunk.")
 				player.setpart("material")
 			if o == "addTime":
 				if n < 0:
@@ -485,7 +494,7 @@ fire2 = Prompt("fire2", ["Your money is low, and you are loosing more.", "You ne
 #Money and materials
 bakesale = Prompt("bakesale", ["One of your campaigners suggests:", "We should have a bake sale to raise money."], [Result("Sure, but only if I can have some too.", "After having a bakesale", [["addmoney", 2], ["addflav", "The bake sale premotes working in the areospace industy"], ["addpop", 1]]), Result("No, I hate baked goods", "After not having a bake sale..", [["addflav", "Some people were really looking forward to that bake sale."],["subpop", 1]])], 3)
 adcampaign = Prompt("adcampaign", ["One of your mathmatitions suggests", "an add campaign to hire people."], [Result("Yeah, we need the staff", "After creating an amazing ad campaign...", [["addmoney", -4], ["addpop", 4]]), Result("No, we don't have enough money.", "After not creating an amazing ad campaign...", [["addflav", "Nothing changes"]])], 5)
-materials = Prompt("materials", ["One of your scientists approaches you:", "We need to discuss our materials."], [Result("How about all carbon fiber?", "After using hi-tech materials:", [["addfail", -4], ["rocketspec", "hi-tech"], ["setMat", PMnano]]), Result("Why not normal materials, like steel?", "After deciding to use standard materials:", [["addflav", "Engineers are attracted to the ease of their jobs."], ["addeng", 1], ["rocketspec", "steel"], ["setMat", PMiron]]), Result("Lets think cheap. Duct-tape cheap.", "After deciding to use low-cost materials:", [["setMat", PMtapeape], ["addfail", 20], ["addflav", "Some of your mathmatitions can't handle the absurdity of this project."], ["addmat", -2], ["rocketspec", "ductTape"]])], 99)
+materials = Prompt("materials", ["One of your scientists approaches you:", "We need to discuss our materials."], [Result("How about all carbon fiber?", "After using hi-tech materials:", [["addfail", -4], ["rocketspec", "hi-tech"], ["setMat", PMN]]), Result("Why not normal materials, like steel?", "After deciding to use standard materials:", [["addflav", "Engineers are attracted to the ease of their jobs."], ["addeng", 1], ["rocketspec", "steel"], ["setMat", PMI]]), Result("Lets think cheap. Duct-tape cheap.", "After deciding to use low-cost materials:", [["setMat", PMT], ["addfail", 20], ["addflav", "Some of your mathmatitions can't handle the absurdity of this project."], ["addmat", -2], ["rocketspec", "ductTape"]])], 99)
 fuels = Prompt("fuels", ["An engineer approaches you:", "So, uh.. What should we use for fuel?"], [Result("Nuclear would be the most powerful.", "After deciding to place a nuclear reactor within the rocket:", [["addfail", 2], ["addmoney", -2], ["rocketspec", "fuelNuclear"], ["setpart", "Mnuclear"]]), Result("How about we design a rocket specific fuel?", "After deciding to design rocket fuel..", [["addfail", -5], ["addmon", -2], ["addIfactor", 0.1], ["rocketspec", "fuelRocket"], ["setpart", "Mnormal"]]), Result("Car fuel, we need to save money", "After deciding to use car fuel...", [["addflav", "Some people belive you aren't taking this job seriously"], ["subpop", 2],["addfail", -2], ["addmoney", -4], ["rocketspec", "fuelCar"], ["setpart", "Mcar"]])], 99)
 
 #Bad ideas -- 
@@ -537,9 +546,9 @@ class Player(object):
 		self.netMoneyHistory = []
 		self.netMoneyMean = 0
 		#ship type stuff
-		self.material = PMiron
+		self.material = PMI
 		self.booster = PBnormal
-		self.main = PMnanoormal
+		self.main = PMnormal
 		self.chassis = PCnormal
 		self.otherParts = []
 		#the images of the frame, and the compleated product
@@ -553,12 +562,12 @@ class Player(object):
 			pass
 		elif part == "Bsilo":
 			self.booster = PBsilo
-		elif part == "Bnorm":
+		elif part == "Bnormal":
 			self.booster = PBnormal
 		elif part == "Mnuclear":
-			self.main = PMnanouclear
-		elif part == "Mnorm":
-			self.main = PMnanoormal
+			self.main = PMnuclear
+		elif part == "Mnormal":
+			self.main = PMnormal
 		elif part == "Mcar":
 			self.main = PMcar
 		elif part == "Ctoaster":
@@ -568,7 +577,7 @@ class Player(object):
 		elif part == "Chotel":
 			self.chassis = PChotel
 		else:
-			printDebug("Unknown part applied: "+part.name)
+			printDebug("Unknown part applied: "+part)
 			self.otherParts.append(part)
 		
 		self.impossiblilyFactor = 1+self.booster.fail+self.main.fail+self.chassis.fail+self.material.fail
@@ -697,43 +706,38 @@ allAchives = [Atoast, Anukes, Abegining, Aai, Ahl, Acaffine]
 #daysSince - Tests if it has been the specified integer number of days scince the specified question has been asked, takes in an integer and a Prompt
 def addQuestion(possiblequestions, requirements, question):
 	#Matches keeps track of the number of requirements passed
-	matches = []
+	matches = 0
 	for i in requirements:
 	
 		if i[1] == "greater":
-			if i[0] > i[2] and not question in possiblequestions:
-				matches.append(True)
+			if i[0] > i[2]:
+				matches += 1
 				
 		elif i[1] == "lesser":
-			if i[0] < i[2] and not question in possiblequestions:
-				matches.append(True)
+			if i[0] < i[2]:
+				matches += 1
 			
 		elif i[1] == "notSpec":
-			if i[2] in i[0]:
-				if question in possiblequestions:
-					pass
-			else:
-				matches.append(True)
+			if i[2] not in i[0]:
+				matches += 1
 		elif i[1] == "spec":
 			if i[2] in i[0]:
-				matches.append(True)
+				matches += 1
 		elif i[1] == "daysSince":
 			if i[0] <= i[2].daysSince and i[2].daysSince >= 1:
-				matches.append(True)
+				matches += 1
 
-	if len(matches) == len(requirements):
+	if matches == len(requirements) and question.daysSince >= question.cooldown:
 		if not question in possiblequestions:
 			possiblequestions.append(question)
-			print "Requirements met for", question.name
-		else:
-			print "Requirements met for "+ question.name + " BUT IT WAS ALREADY IN possiblequestions!"
-
+			printDebug("Adding: "+question.name)
 	else:
 		if question in possiblequestions:
 			possiblequestions.remove(question)
-			print "Requirements no longer met for " + question.name + ". Removing"
+			printDebug("Removing: " + question.name)
 		else:
-			print "Requirements not met for", question.name
+			#printDebug("Requirements not met for " + question.name)
+			pass
 			
 def launchResult(result):
 	running = True
@@ -767,8 +771,6 @@ def launchResult(result):
 		
 		pygame.display.update()
 		clock.tick(60)
-		
-		
 		
 
 funded = True	
@@ -814,7 +816,7 @@ while running:
 	
 	#Before choosing an answer
 	#Stat logging
-	print "[][][][][][][][][][][][][][][][][] Day " + str(player.days) + " [][][][][][][][][][][][][][][][][]"
+	printDebug("[][][][][][][][][][][][][][][][][] Day " + str(player.days) + " [][][][][][][][][][][][][][][][][]")
 	
 	#see if a question can be added
 	addQuestion(possiblequestions, [[player.money, "greater", 6], [player.rocketspecs, "notSpec", "hotel"]], hotel)
@@ -823,32 +825,30 @@ while running:
 	addQuestion(possiblequestions, [[player.money, "lesser", 1]], loan)
 	addQuestion(possiblequestions, [[player.netMoneyMean, "lesser", 0]], fire1)
 	addQuestion(possiblequestions, [[player.netMoneyMean, "lesser", 0]], fire2)
-	addQuestion(possiblequestions, [[player.money, "greater", 2]], hire1)
+	addQuestion(possiblequestions, [[player.money, "greater", 10]], hire1)
+	addQuestion(possiblequestions, [[player.money, "greater", 4]], hire2)
 	addQuestion(possiblequestions, [[player.money, "greater", 5]], adcampaign)
 	addQuestion(possiblequestions, [[player.money, "greater", 5], [player.specs, "notSpec", "sodaMachine"]], sodamachine)
-	addQuestion(possiblequestions, [[player.money, "greater", 5]], spaceSoda)
+	addQuestion(possiblequestions, [[player.money, "greater", 5], [player.rocketspecs, "notSpec", "soda"]], spaceSoda)
 	addQuestion(possiblequestions, [[player.money, "greater", 5]], coffeeShipments)
 	addQuestion(possiblequestions, [[player.money, "greater", 25], [player.specs, "spec", "JoinedFSC"]], fsc)
 	addQuestion(possiblequestions, [[player.rocketspecs, "notSpec", "coffeeMachine"], [player.money, "greater", 2]], coffee)
 	addQuestion(possiblequestions, [[player.rocketspecs, "notSpec", "silos"]], silos)
 	addQuestion(possiblequestions, [[player.specs, "notSpec", "spacePen"], [player.money, "greater", 5]], pen)
-	addQuestion(possiblequestions, [[player.rocketspecs, "notSpec", "soda"]], spaceSoda)
 	addQuestion(possiblequestions, [[10, "daysSince", fsc], [player.scientists, "greater", 2], [player.engineers, "greater", 2], [player.specs, "spec", "JoinedFSC"]], theProject)
 	addQuestion(possiblequestions, [[10, "daysSince", theProject], [player.specs, "spec", "theProject"]], ai)
 	addQuestion(possiblequestions, [[17, "daysSince", ai], [player.specs, "notSpec", "shipAi"]], shipAi)
 	addQuestion(possiblequestions, [[10, "daysSince", loan], [player.specs, "notSpec", "PaybackLoan"]], paybackLoan)
-		
+	
 	theQuestion = possiblequestions[random.randint(0, len(possiblequestions) - 1)]
 	
-	print "-------------------------------------------------------------------------------------------------"
+	#print "---------------------------------------------------------------------------"
 	rand = "Possible questions:"
 	for i in possiblequestions:
 		rand = rand + "  " + i.name
-	print rand
-	print "-------------------------------------------------------------------------------------------------"
-	if player.days == 1 or player.days == 2:
-		theQuestion = possiblequestions[0]
-
+	printDebug(rand)
+	print "---------------------------------------------------------------------------"
+	
 	#Add dev birthdays, because good times
 	if month == 12 and day == 1:
 		theQuestion = birthday
@@ -859,6 +859,9 @@ while running:
 	if day == 25 and month == 3:
 		theQuestion = birthday
 		possiblequestions.append(birthday)
+
+	if player.days == 1 or player.days == 2:
+		theQuestion = possiblequestions[0]
 		
 	if player.money <= -10:
 		theQuestion = bankrupt
@@ -985,7 +988,7 @@ while running:
 		clock.tick(60)
 
 	#after choosing an answer
-	Abegining.get()
+	#Abegining.get()
 	if "AI" in player.specs:
 		Aai.get()
 	player.failChance -= round(player.time * math.sqrt(player.maths) / player.impossiblilyFactor, 2)
@@ -994,7 +997,7 @@ while running:
 	if player.progress < 0:
 		player.progress = 0
 	player.progress += round(player.time * ((.2*player.scientists)+1)*player.engineers*0.4, 2)
-	player.money += ((2 * player.campaigners) - (player.engineers + player.maths + player.scientists + player.cost*player.engineers))
+	player.money += ((2 * player.campaigners) - (player.engineers + player.maths + player.scientists + round(player.time*player.cost*player.engineers, 1)))
 	
 	feedback1 = []
 	feedback1.append("After a full day of work...")
@@ -1002,15 +1005,15 @@ while running:
 		feedback1.append("   Your campaigners raise "+str(2*player.campaigners)+"K")
 	if funded:
 		#6 is default reduced per turn with 1 sci & math, and 2 eng
-		player.money += 8
-		feedback1.append("   You gain 8K in government funding.")
+		player.money += 6
+		feedback1.append("   You gain 6K in government funding.")
 	if "privateFund1" in player.specs:
 		player.money += 4
 		feedback1.append("   You gain 4K from private sectors.")
 		
 	feedback1.append("You pay your employees "+str(player.maths+player.scientists+player.engineers)+"K")
-	feedback1.append("Your engineers spend "+str(player.engineers*player.cost)+"K")
-	player.costHistory.append(player.engineers*player.cost)
+	feedback1.append("Your engineers spend "+str(round(player.time*player.engineers*player.cost, 1))+"K")
+	player.costHistory.append(round(player.time*player.engineers*player.cost, 1))
 	feedback1.append("Your mathematitions reduce chance of failiure by "+str(2*player.maths)+"%")
 	
 	
