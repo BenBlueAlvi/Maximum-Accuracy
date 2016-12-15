@@ -143,9 +143,9 @@ class shipPart(object):
 #part variables start with P, part types are B (booster), M (main), C (chassis), E (extras), materials have M with a T (tape), I (iron), N (nano)
 #frames and materials
 Pframe = getImg("parts/Scaffold")
-PMT = shipPart("Tape", -.2, 0, 0.5, getImg("parts/matTape"))
-PMI = shipPart("Iron", 0, 0, 0, getImg("parts/mainMatIron"))
-PMN = shipPart("Nano", 0.5, 10, -0.2, getImg("parts/matNano"))
+PMTape = shipPart("Tape", -.2, 0, 0.5, getImg("parts/matTape"))
+PMIron = shipPart("Iron", 0, 0, 0, getImg("parts/mainMatIron"))
+PMNano = shipPart("Nano", 0.5, 10, -0.2, getImg("parts/matNano"))
 #Boosters
 PBnormal = shipPart("Normal", 0.2, 30, 0, getImg("parts/boosterNormal"))
 PBsilo = shipPart("Silo", 0.1, 28, 0.4, getImg("parts/boosterSilo"))
@@ -387,11 +387,11 @@ class Result(object):
 				if player.impossiblilyFactor <= 0:
 					player.impossiblilyFactor = 0.1
 			if o == "reduce":
-				if player.material == PMI:
-					player.material = PMT
+				if player.material == PMIron:
+					player.material = PMTape
 					self.feedback.append("You have downgraded your materials.")
-				elif player.material == PMN:
-					player.material = PMI
+				elif player.material == PMNano:
+					player.material = PMIron
 					self.feedback.append("You have downgraded your materials.")
 				else:
 					if PEai in player.otherParts:
@@ -480,7 +480,7 @@ class Prompt(object):
 		self.prompt = prompt
 		self.results = results
 		self.cooldown = cooldown
-		self.daysSince = cooldown
+		self.daysSince = 0
 
 #Staff management
 hire1 = Prompt("hire1", ["Your advisor from the government approches you:", "I would like to suggest we hire new staff."], [Result("Sure, I'll leave it up to you.", "You manage to hire 2 new people.", [["addmoney", -4], ["addpop", 3]]), Result("Let's hire some Campaigners.", "You attempt to hire campaigners.", [["addmoney", -2], ["addcam", 2]]), Result("Let's hire some of thoose math people.", "After hiring some mathematitions people...", [["addmoney", -2], ["addmat", 2]]), Result("We need more science, we can never have enough science!", "After searching for more science.", [["addmoney", -2], ["addsci", 2], ["addflav", "Your science has increased!"]])], 4) 
@@ -495,7 +495,7 @@ fire2 = Prompt("fire2", ["Your money is low, and you are loosing more.", "You ne
 #Money and materials
 bakesale = Prompt("bakesale", ["One of your campaigners suggests:", "We should have a bake sale to raise money."], [Result("Sure, but only if I can have some too.", "After having a bakesale", [["addmoney", 2], ["addflav", "The bake sale premotes working in the areospace industy"], ["addpop", 1]]), Result("No, I hate baked goods", "After not having a bake sale..", [["addflav", "Some people were really looking forward to that bake sale."],["subpop", 1]])], 3)
 adcampaign = Prompt("adcampaign", ["One of your mathmatitions suggests", "an add campaign to hire people."], [Result("Yeah, we need the staff", "After creating an amazing ad campaign...", [["addmoney", -4], ["addpop", 4]]), Result("No, we don't have enough money.", "After not creating an amazing ad campaign...", [["addflav", "Nothing changes"]])], 5)
-materials = Prompt("materials", ["One of your scientists approaches you:", "We need to discuss our materials."], [Result("How about all carbon fiber?", "After using hi-tech materials:", [["addfail", -4], ["rocketspec", "hi-tech"], ["setMat", PMN]]), Result("Why not normal materials, like steel?", "After deciding to use standard materials:", [["addflav", "Engineers are attracted to the ease of their jobs."], ["addeng", 1], ["rocketspec", "steel"], ["setMat", PMI]]), Result("Lets think cheap. Duct-tape cheap.", "After deciding to use low-cost materials:", [["setMat", PMT], ["addfail", 20], ["addflav", "Some of your mathmatitions can't handle the absurdity of this project."], ["addmat", -2], ["rocketspec", "ductTape"]])], 99)
+materials = Prompt("materials", ["One of your scientists approaches you:", "We need to discuss our materials."], [Result("How about all carbon fiber?", "After using hi-tech materials:", [["addfail", -4], ["rocketspec", "hi-tech"], ["setMat", PMNano]]), Result("Why not normal materials, like steel?", "After deciding to use standard materials:", [["addflav", "Engineers are attracted to the ease of their jobs."], ["addeng", 1], ["rocketspec", "steel"], ["setMat", PMIron]]), Result("Lets think cheap. Duct-tape cheap.", "After deciding to use low-cost materials:", [["setMat", PMTape], ["addfail", 20], ["addflav", "Some of your mathmatitions can't handle the absurdity of this project."], ["addmat", -2], ["rocketspec", "ductTape"]])], 99)
 fuels = Prompt("fuels", ["An engineer approaches you:", "So, uh.. What should we use for fuel?"], [Result("Nuclear would be the most powerful.", "After deciding to place a nuclear reactor within the rocket:", [["addfail", 2], ["addmoney", -2], ["rocketspec", "fuelNuclear"], ["setpart", "Mnuclear"]]), Result("How about we design a rocket specific fuel?", "After deciding to design rocket fuel..", [["addfail", -5], ["addmon", -2], ["addIfactor", 0.1], ["rocketspec", "fuelRocket"], ["setpart", "Mnormal"]]), Result("Car fuel, we need to save money", "After deciding to use car fuel...", [["addflav", "Some people belive you aren't taking this job seriously"], ["subpop", 2],["addfail", -2], ["addmoney", -4], ["rocketspec", "fuelCar"], ["setpart", "Mcar"]])], 99)
 
 #Bad ideas -- 
@@ -547,7 +547,7 @@ class Player(object):
 		self.netMoneyHistory = []
 		self.netMoneyMean = 0
 		#ship type stuff
-		self.material = PMI
+		self.material = PMIron
 		self.booster = PBnormal
 		self.main = PMnormal
 		self.chassis = PCnormal
@@ -728,10 +728,15 @@ def addQuestion(possiblequestions, requirements, question):
 			if i[0] <= i[2].daysSince and i[2].daysSince >= 1:
 				matches += 1
 
-	if matches == len(requirements) and question.daysSince >= question.cooldown:
+	if matches == len(requirements):
 		if not question in possiblequestions:
-			possiblequestions.append(question)
-			printDebug("Adding: "+question.name)
+			if question in player.questionsAnswered and question.daysSince >= question.cooldown:
+				possiblequestions.append(question)
+				printDebug("Adding: "+question.name)
+			if not question in player.questionsAnswered:
+				possiblequestions.append(question)
+				printDebug("Adding: "+question.name)
+				
 	else:
 		if question in possiblequestions:
 			possiblequestions.remove(question)
@@ -810,9 +815,7 @@ while running:
 	player.time = player.baseTime
 	for q in player.questionsAnswered:
 		q.daysSince +=1
-		if q.daysSince >= q.cooldown:
-			if q not in possiblequestions:
-				possiblequestions.append(q)
+		
 			
 	
 	#Before choosing an answer
