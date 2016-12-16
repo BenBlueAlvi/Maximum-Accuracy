@@ -8,6 +8,8 @@ pygame.mixer.pre_init(22050, -16, 3, 8)
 pygame.mixer.init()
 
 debug = True
+sounds = True
+
 def printDebug(stuff):
 	global debug
 	if debug:
@@ -26,8 +28,9 @@ TEAL = (0, 255, 255)
 
 
 pygame.init()
-font = pygame.font.SysFont('Calibri', 15, True, False)
-achiveFont = pygame.font.SysFont('Calibri', 10, True, False)
+font = pygame.font.SysFont('Calibri', 15, True)
+achiveFont = pygame.font.SysFont('Calibri', 10, True)
+largeFont = pygame.font.SysFont('Calibri', 30, True)
 
 size = (700, 700)
 gScreen = pygame.display.set_mode(size)
@@ -58,6 +61,9 @@ capstrip1 = getImg("capstrip1")
 vertstrip = getImg("vertstrip")
 capstrip2 = getImg("capstrip2")
 achiveBox = getImg("achives/achiveBox")
+#Launch stuff
+launchpad = getImg("backgrounds/launchpad")
+#sounds
 explosion = pygame.mixer.Sound("Assets/soundfx/Explosion.wav")
 launch = pygame.mixer.Sound("Assets/soundfx/Launch.wav")
 select = pygame.mixer.Sound("Assets/soundfx/Blip_Select.wav")
@@ -524,6 +530,19 @@ paybackLoan = Prompt("paybackLoan", ["A bank employee approaches you,", "It's ti
 #MATERIALS AND FUELS MUST BE THE FIRST 2 QUESTIONS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 possiblequestions = [materials, fuels, hire2, overtime]	
 
+#Used for anything that moves, IE rocket on launch or particles
+class movingPart(object):
+	def __init__(self, id, pos, vel, img, duration = -1):
+		self.name = id
+		self.pos = pos
+		self.vel = vel
+		self.img = img
+		self.dur = duration
+		self.time = duration
+	def update(self):
+		self.time += 1
+		self.pos = [self.pos[0]+self.vel[0], self.pos[1]+self.vel[1]]
+
 #Player object
 class Player(object):
 	def __init__(self, mon, prog, fail, sci, eng, mat, cam):
@@ -554,10 +573,9 @@ class Player(object):
 		self.otherParts = []
 		#the images of the frame, and the compleated product
 		self.frame = frameImg(self)
-		self.ship = spaceshipimg(self)
+		self.ship = movingPart("ship", [400, 120], [0, 0], spaceshipimg(self))
 		self.questionsAnswered = []
 		self.costHistory = []
-		
 	def setpart(self, part):
 		if part == "material":
 			pass
@@ -592,7 +610,7 @@ class Player(object):
 			except:
 				printDebug("Error with: "+i)
 				self.otherParts.remove(i)
-		self.ship = spaceshipimg(self)
+		self.ship.img = spaceshipimg(self)
 		self.frame = frameImg(self)
 		printDebug("fail factor: "+str(self.impossiblilyFactor))
 		printDebug("cost: "+str(self.cost))
@@ -619,8 +637,8 @@ class Player(object):
 		newPlayer.chassis = self.chassis
 		newPlayer.otherParts = self.otherParts
 		#the images of the frame, and the compleated product
-		newPlayer.frame = frameImg(self)
-		newPlayer.ship = spaceshipimg(self)
+		newPlayer.frame = self.frame
+		newPlayer.ship = self.ship
 		newPlayer.questionsAnswered = self.questionsAnswered
 		newPlayer.costHistory = self.costHistory
 		return newPlayer
@@ -744,11 +762,16 @@ def addQuestion(possiblequestions, requirements, question):
 		else:
 			#printDebug("Requirements not met for " + question.name)
 			pass
-			
+						
 def launchResult(result):
+	global player
 	running = True
 	mouse_down = False
+	time = 0
+	player.ship.pos = [250, 320]
+	objects = [player.ship]
 	while running:
+		time += 1
 		for event in pygame.event.get(): 
 			if event.type == pygame.QUIT: 
 				done, running = True, False
@@ -757,19 +780,53 @@ def launchResult(result):
 			elif event.type == pygame.MOUSEBUTTONUP:
 				mouse_down = False
 		mouse_pos = pygame.mouse.get_pos()
-		
 		if mouse_down:
 			running = False
 			mouse_down = False
-		gScreen.fill(WHITE)
-		if result == "fail1":
-			#Blit explosion pics here
+			
+		gScreen.blit(launchpad, [0, 0])
+		gScreen.blit(player.ship.img, player.ship.pos)
+		for i in objects:
+			i.update()
+			
+		#Timer
+		if time <= 300:
+			rand = str(round((300-time)/60.00, 2))
+			print rand
+			rand = largeFont.render(rand, True, BLACK)
+		gScreen.blit(rand, [10, 660])
+		
+		if time == 300 and sounds:
+			pygame.mixer.Sound.play(launch)
+		
+		if time > 300 and (time % 10) == 0 and result not in ["fail1", "fail2"]:
+			objects[0].vel = [0, (objects[0].vel[1]-0.5)]
+		
+		#Result specific stuff
+		if time >= 300 and result == "fail1":
 			gScreen.blit(font.render("Launch Failure 1", True, BLACK), [50,50])
-		elif result == "fail2":
+			gScreen.blit(font.render("BUT NOTHING HAPPENED", True, BLACK), [100,300])
+		
+		if time >= 300 and result == "fail2":
 			gScreen.blit(font.render("Launch Failure 2", True, BLACK), [50,50])
-		elif result == "fail3":
+			gScreen.blit(font.render("KABOOM", True, BLACK), [100,300])
+			objects[0].vel = [0, 0]
+			#put it off screen
+			objects[0].pos = [700, 0]
+			if sounds and time == 300:
+				pygame.mixer.Sound.play(explosion)
+			
+		if time >= 400 and result == "fail3":
+			#explosion
 			gScreen.blit(font.render("Launch Failure 3", True, BLACK), [50,50])
-		elif result == "success":
+			gScreen.blit(font.render("KABOOM", True, BLACK), [100,100])
+			objects[0].vel = [0, 0]
+			#put it off screen
+			objects[0].pos = [700, 0]
+			if sounds and time == 400:
+				pygame.mixer.Sound.play(explosion)
+			
+		if time >= 450 and result == "success":
 			gScreen.blit(font.render("Launch Success!", True, BLACK), [50,50])
 		
 		for achive in allAchives:
@@ -777,6 +834,8 @@ def launchResult(result):
 		
 		pygame.display.update()
 		clock.tick(60)
+	player.ship.vel = [0, 0]
+	player.ship.pos = [400, 120]
 		
 
 funded = True	
@@ -891,7 +950,7 @@ while running:
 		gScreen.fill(WHITE)
 		
 		gScreen.blit(player.frame, [80, 120])
-		gScreen.blit(player.ship, [400, 120])
+		gScreen.blit(player.ship.img, player.ship.pos)
 
 		for i in range(len(theQuestion.prompt)):
 		
@@ -909,7 +968,8 @@ while running:
 				
 				if mouse_down:
 					if hitDetect(mouse_pos, mouse_pos, [50, 450 + y * 50], [650, 475 + y * 50]):
-						pygame.mixer.Sound.play(select)
+						if sounds:
+							pygame.mixer.Sound.play(select)
 						mouse_down = False
 						feedback = i.decide(player)
 						print "Question:", theQuestion.name
@@ -1074,33 +1134,28 @@ while running:
 					Atoast.get()
 				if "fuelNuclear" in player.rocketspecs and fails == 2:
 					Ahl.get()
-				pygame.mixer.Sound.play(launch)
 				player.money += 50
 				launchResult("success")
 			if launchChance > successChance and launchChance <= successChance + (rand * 1 / 3):
 				print "LAUNCH Failure 3!"
-				pygame.mixer.Sound.play(explosion)
 				if "fuelNuclear" in player.rocketspecs:
 					Anukes.get()
 				launchResult("fail3")
 			if launchChance > successChance + (rand * 1 / 3) and launchChance <= successChance + (rand * 2 / 3):
 				print "LAUNCH Failure 2!"
-				pygame.mixer.Sound.play(explosion)
 				launchResult("fail2")
 			if launchChance > successChance + (rand * 2 / 3):
 				print "LAUNCH Failure 1!"
-				pygame.mixer.Sound.play(explosion)
 				launchResult("fail1")
 			
-			
-
 			player.rocketspecs = []
 			player.fails += 1
 			player.progress, player.cost, player.failChance = 0, 1, 100 - player.fails
 			done = True
 		if hitDetect(mouse_pos, mouse_pos, [10,580], [180, 630]) and mouse_down:
 			done = True
-			pygame.mixer.Sound.play(new_day)
+			if sounds:
+				pygame.mixer.Sound.play(new_day)
 		
 		gScreen.blit(continuepic, [10, 580])
 		gScreen.blit(launchpic, [10, 640])
