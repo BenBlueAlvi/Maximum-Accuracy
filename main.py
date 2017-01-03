@@ -487,7 +487,7 @@ class Prompt(object):
 		self.prompt = prompt
 		self.results = results
 		self.cooldown = cooldown
-		self.daysSince = 0
+		self.daysSince = cooldown
 
 #Staff management
 hire1 = Prompt("hire1", ["Your advisor from the government approches you:", "I would like to suggest we hire new staff."], [Result("Sure, I'll leave it up to you.", "You manage to hire 2 new people.", [["addmoney", -4], ["addpop", 3]]), Result("Let's hire some Campaigners.", "You attempt to hire campaigners.", [["addmoney", -2], ["addcam", 2]]), Result("Let's hire some of thoose math people.", "After hiring some mathematitions people...", [["addmoney", -2], ["addmat", 2]]), Result("We need more science, we can never have enough science!", "After searching for more science.", [["addmoney", -2], ["addsci", 2], ["addflav", "Your science has increased!"]])], 4) 
@@ -748,9 +748,10 @@ allAchives = [Atoast, Anukes, Abegining, Aai, Ahl, Acaffine]
 #spec - tests if the specified spec id is in the specified player parameter spec id list, takes in a player parameter spec id list and a spec id
 #daysSince - Tests if it has been the specified integer number of days scince the specified question has been asked, takes in an integer and a Prompt
 def addQuestion(possiblequestions, requirements, question):
+	global player
 	#Matches keeps track of the number of requirements passed
 	matches = 0
-	if question.daysSince > question.cooldown:
+	if question.daysSince >= question.cooldown or not question in player.questionsAnswered:
 		for i in requirements:
 		
 			if i[1] == "greater":
@@ -787,9 +788,11 @@ def addQuestion(possiblequestions, requirements, question):
 			else:
 				#printDebug("Requirements not met for " + question.name)
 				pass
+				
+		question.daysSince = 0
 						
 def launchResult(result):
-	global player
+	
 	running = True
 	mouse_down = False
 	time = 0
@@ -920,6 +923,7 @@ while running:
 	printDebug("[][][][][][][][][][][][][][][][][] Day " + str(player.days) + " [][][][][][][][][][][][][][][][][]")
 	
 	#see if a question can be added
+
 	addQuestion(possiblequestions, [[player.money, "greater", 6], [player.rocketspecs, "notSpec", "hotel"]], hotel)
 	addQuestion(possiblequestions, [[player.money, "lesser", 4], [player.rocketspecs, "notSpec", "ToasterChassis"]], toaster)
 	addQuestion(possiblequestions, [[player.money, "lesser", 8]], bakesale)
@@ -982,6 +986,8 @@ while running:
 		if bankrupt in possiblequestions:
 			possiblequestions.remove(bankrupt)
 	
+	if len(possiblequestions) <= 2:
+		possiblequestions.append(overtime)
 	
 	
 	done, mouse_down = False, False
