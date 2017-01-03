@@ -490,7 +490,7 @@ class Prompt(object):
 
 #Staff management
 hire1 = Prompt("hire1", ["Your advisor from the government approches you:", "I would like to suggest we hire new staff."], [Result("Sure, I'll leave it up to you.", "You manage to hire 2 new people.", [["addmoney", -4], ["addpop", 3]]), Result("Let's hire some Campaigners.", "You attempt to hire campaigners.", [["addmoney", -2], ["addcam", 2]]), Result("Let's hire some of thoose math people.", "After hiring some mathematitions people...", [["addmoney", -2], ["addmat", 2]]), Result("We need more science, we can never have enough science!", "After searching for more science.", [["addmoney", -2], ["addsci", 2], ["addflav", "Your science has increased!"]])], 4) 
-hire2 = Prompt("hire2", ["A large group of papers is sitting on your desk", "They appear to all be applications for jobs"], [Result("This person has a good scientific reputation.", "A new scientist has joined your team.", [["addsci", 1]]), Result("This person seems highly caffinated, but could be a good engineer.", "A jittery engineer has joined your crew", [["addeng", 1], ["spec", "caffinate"]]),Result("How about this campaigner? He seems legitimate.", "A legit campaigner joins your team.", [["addcam", 1]]), Result("None of these people are interesting enough to be hired", "after not hiring anyone", [["addfail", 1], ["addflav", "Unhappiness increases"], ["spec", "charred"]])], 3)
+hire2 = Prompt("hire2", ["A large group of papers is sitting on your desk", "They appear to all be applications for jobs"], [Result("This person has a good scientific reputation.", "A new scientist has joined your team.", [["addsci", 1]]), Result("This person seems highly caffinated, but could be a good engineer.", "A jittery engineer has joined your crew", [["addeng", 1], ["spec", "caffinate"]]),Result("How about this campaigner? He seems legitimate.", "A legit campaigner joins your team.", [["addcam", 1]]), Result("This mathmatition looks interesting...", "A new mathmatition has joined your team.", [["addmat", 1]]), Result("None of these people are interesting enough to be hired", "after not hiring anyone", [["addfail", 1], ["addflav", "Unhappiness increases"], ["spec", "charred"]])], 3)
 #Result("Let's just focus on working today.", "after convincing your staff to work overtime..", [["overtime", 0.2]])], 2)
 overtime = Prompt("overtime", ["Some particullarly hard working engineers", "are requesting the facility stay open later tonight so they can work overtime."], [Result("I suppose we can do that", "after your staff works overtime..", [["overtime", 0.3]]), Result("I don't think that's such a good idea.", "After convincing your staff not to work overtime...", [["addmoney", 2], ["addflav", "You recive an endorsement from the local health officials."]])], 2)
 fire1 = Prompt("fire1", ["That one advisor from the government approches you:", "We have hired too many people and we are losing money", "somebody needs to get fired."], [Result("But we are getting so much done.", "After not firing anyone...", [["addfail", 2]]), Result("I'll leave it up to you.", "After that government advisor fires some people...", [["subpop", 3], ["addfail", -2]]),Result("Fire some of those engineers.", "After firing some engineers...", [["addeng", -2], ["addfail", -1]])], 6)
@@ -527,8 +527,8 @@ loan = Prompt("loan", ["It appears the lab is in dire need of money.", "Will you
 bankrupt = Prompt("bankrupt", ["The lab has gone bankrupt, you need to sell assets."], [Result("Looks like we'll have to sell the rocket", "After selling of the rocket...", [["sellRocket", 100]]), Result("I never wanted to build a rocket anyway", "After giving up on the rocket", [["addflav", "The government, dissaproving of your handling of the project,"], ["addflav", "has hired a replacement for you."], ["addflav", "You go home and get a job working in a coffee shop."], ["spec", "GiveUp"]])], 1)
 paybackLoan = Prompt("paybackLoan", ["A bank employee approaches you,", "It's time to repay that loan."], [Result("Here is your money.", "After paying back that loan...", [["addmoney", 20 * (1 +(loan.daysSince / 100))], ["spec", "PaybackLoan"]]), Result("Sorry, I don't have the money", "After not paying up...", [["addcam", -1], ["addflav", "One of the campaigners disapproves of your credit score."]])], 1)
 
-#MATERIALS AND FUELS MUST BE THE FIRST 2 QUESTIONS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-possiblequestions = [materials, fuels, hire2, overtime]	
+
+possiblequestions = [hire2, overtime]	
 
 #Used for anything that moves, IE rocket on launch or particles
 class movingPart(object):
@@ -549,7 +549,7 @@ class Player(object):
 		self.money = mon
 		self.progress = prog
 		self.failChance = fail
-		self.fails = 0
+		self.launches = 0
 		self.scientists = sci
 		self.engineers = eng
 		self.cost = 1
@@ -558,6 +558,7 @@ class Player(object):
 		self.full = 100
 		self.pop = 0
 		self.days = 0
+		self.daysSinceLaunch = 0
 		self.specs = []
 		self.rocketspecs = []
 		self.impossiblilyFactor = 1
@@ -618,7 +619,7 @@ class Player(object):
 	def buildNew(self):
 		newPlayer = Player(self.money, self.progress, self.failChance, self.scientists, self.engineers, self.maths, self.campaigners)
 		newPlayer.progress = self.progress
-		newPlayer.fails = self.fails
+		newPlayer.launches = self.launches
 		newPlayer.cost = self.cost
 		newPlayer.full = self.full
 		newPlayer.pop = self.pop
@@ -875,7 +876,8 @@ while running:
 	for q in player.questionsAnswered:
 		q.daysSince +=1
 		
-			
+	if player.launches >=1:
+		player.daysSinceLaunch += 1
 	
 	#Before choosing an answer
 	#Stat logging
@@ -886,8 +888,8 @@ while running:
 	addQuestion(possiblequestions, [[player.money, "lesser", 4], [player.rocketspecs, "notSpec", "ToasterChassis"]], toaster)
 	addQuestion(possiblequestions, [[player.money, "lesser", 8]], bakesale)
 	addQuestion(possiblequestions, [[player.money, "lesser", 1]], loan)
-	addQuestion(possiblequestions, [[player.netMoneyMean, "lesser", 0]], fire1)
-	addQuestion(possiblequestions, [[player.netMoneyMean, "lesser", 0]], fire2)
+	addQuestion(possiblequestions, [[player.netMoneyMean, "lesser", 0], [player.pop, "greater", 10]], fire1)
+	addQuestion(possiblequestions, [[player.netMoneyMean, "lesser", 0], [player.pop, "greater", 10]], fire2)
 	addQuestion(possiblequestions, [[player.money, "greater", 10], [player.netMoneyMean, "greater", 1]], hire1)
 	addQuestion(possiblequestions, [[player.money, "greater", 4], [player.netMoneyMean, "greater", 0]], hire2)
 	addQuestion(possiblequestions, [[player.netMoneyMean, "greater", 3]], adcampaign)
@@ -923,8 +925,14 @@ while running:
 		theQuestion = birthday
 		possiblequestions.append(birthday)
 
-	if player.days == 1 or player.days == 2:
-		theQuestion = possiblequestions[0]
+	if player.daysSinceLaunch == 1 or player.days == 1:
+		theQuestion = materials
+		possiblequestions.append(materials)
+	elif player.daysSinceLaunch == 2 or player.days == 2:
+		theQuestion = fuels
+		possiblequestions.append(fuels)
+		
+		
 		
 	if player.money <= -10:
 		theQuestion = bankrupt
@@ -1149,8 +1157,8 @@ while running:
 				launchResult("fail1")
 			
 			player.rocketspecs = []
-			player.fails += 1
-			player.progress, player.cost, player.failChance = 0, 1, 100 - player.fails
+			player.launches += 1
+			player.progress, player.cost, player.failChance, player.daysSinceLaunch = 0, 1, 100 - player.launches, 0
 			done = True
 		if hitDetect(mouse_pos, mouse_pos, [10,580], [180, 630]) and mouse_down:
 			done = True
