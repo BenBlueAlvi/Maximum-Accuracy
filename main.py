@@ -197,6 +197,7 @@ class Result(object):
 		self.result = result
 		self.doings = doings
 		self.feedback = [result]
+		
 	
 	def decide(self, player):
 		self.feedback = [self.result]
@@ -491,12 +492,13 @@ class Prompt(object):
 #Staff management
 hire1 = Prompt("hire1", ["Your advisor from the government approches you:", "I would like to suggest we hire new staff."], [Result("Sure, I'll leave it up to you.", "You manage to hire 2 new people.", [["addmoney", -4], ["addpop", 3]]), Result("Let's hire some Campaigners.", "You attempt to hire campaigners.", [["addmoney", -2], ["addcam", 2]]), Result("Let's hire some of thoose math people.", "After hiring some mathematitions people...", [["addmoney", -2], ["addmat", 2]]), Result("We need more science, we can never have enough science!", "After searching for more science.", [["addmoney", -2], ["addsci", 2], ["addflav", "Your science has increased!"]])], 4) 
 hire2 = Prompt("hire2", ["A large group of papers is sitting on your desk", "They appear to all be applications for jobs"], [Result("This person has a good scientific reputation.", "A new scientist has joined your team.", [["addsci", 1]]), Result("This person seems highly caffinated, but could be a good engineer.", "A jittery engineer has joined your crew", [["addeng", 1], ["spec", "caffinate"]]),Result("How about this campaigner? He seems legitimate.", "A legit campaigner joins your team.", [["addcam", 1]]), Result("This mathmatition looks interesting...", "A new mathmatition has joined your team.", [["addmat", 1]]), Result("None of these people are interesting enough to be hired", "after not hiring anyone", [["addfail", 1], ["addflav", "Unhappiness increases"], ["spec", "charred"]])], 3)
-#Result("Let's just focus on working today.", "after convincing your staff to work overtime..", [["overtime", 0.2]])], 2)
+
 overtime = Prompt("overtime", ["Some particullarly hard working engineers", "are requesting the facility stay open later tonight so they can work overtime."], [Result("I suppose we can do that", "after your staff works overtime..", [["overtime", 0.3]]), Result("I don't think that's such a good idea.", "After convincing your staff not to work overtime...", [["addmoney", 2], ["addflav", "You recive an endorsement from the local health officials."]])], 2)
 fire1 = Prompt("fire1", ["That one advisor from the government approches you:", "We have hired too many people and we are losing money", "somebody needs to get fired."], [Result("But we are getting so much done.", "After not firing anyone...", [["addfail", 2]]), Result("I'll leave it up to you.", "After that government advisor fires some people...", [["subpop", 3], ["addfail", -2]]),Result("Fire some of those engineers.", "After firing some engineers...", [["addeng", -2], ["addfail", -1]])], 6)
 #fire2 = sci, mat, none
 fire2 = Prompt("fire2", ["Your money is low, and you are loosing more.", "You need a way to stop your money"], [Result("Why don't we just hire more campaigners?", "After putting out an ad campaign:", [["addcam", 2], ["addmoney", -6], ["overtime", -.2]]), Result("How about we reduce costs?", "After using less expensive materials:", [["reduce", 1]]), Result("Why not just reduce the work hours?", "You reduce the work hours.", [["addTime", -.2], ["addflav", "Your workers are more well rested at work."], ["addIfactor", -.1]])], 10)
 #workload = increase working hours, something else
+workload = Prompt("workload", ["The rocket is behind schedual,", "you'll need to increase hours."], [Result("We are going to need to pull some serious overtime.", "After increasing work hours for all employees.", [["addTime", 1]]), Result("We have time, everything will be ok.", "After not doing anything...", [["addflav", "The rocket may not be finished in time..."]])], 5)
 
 #Money and materials
 bakesale = Prompt("bakesale", ["One of your campaigners suggests:", "We should have a bake sale to raise money."], [Result("Sure, but only if I can have some too.", "After having a bakesale", [["addmoney", 2], ["addflav", "The bake sale premotes working in the areospace industy"], ["addpop", 1]]), Result("No, I hate baked goods", "After not having a bake sale..", [["addflav", "Some people were really looking forward to that bake sale."],["subpop", 1]])], 3)
@@ -519,13 +521,13 @@ fsc = Prompt("fsc", ["Upon seeing how well the rocket is going,", "an advisor fr
 theProject = Prompt("theProject", ["The FSC has requested a transfer of some of your engineers", "to work on some kind of classified project."], [Result("Sure, as long as we benefit from this project.", "You transfer some of your engineers and scientists over...", [["addeng", -3], ["addsci", -3], ["spec", "theProject"]]), Result("No, this is too supsecious.", "After declining the FSC's offer...", [["addflav", "Nothing happends, or has it?"]])], 10)
 ai = Prompt("Ai", ["The FSC has finally completeled the project", "They have created a super intelegent AI and wish to install it", "in the lab to help progress."], [Result("YES! This is exactly what we need!", "After installing the AI in the lab...", [["spec", "AI"], ["addflav", "The AI makes complex equations easier."], ["addIfactor", -0.5]]), Result("I'm worried about the consequences of this, also rogue AIs are scary.", "After declining the FSC's offer...", [["addflav", "A saddened scientist leaves"], ["addsci", -1], ["addflav", "The FSC no longer wishes to work with you"], ["removeSpec", "JoinedFSC"]])], 99)
 shipAi = Prompt("shipAi", ["The AI, who started calling itself _____,", "wishes to install itself on the rocket."], [Result("Sure.", "After installing the AI on the rocket...", [["setpart", PEai], ["rocketspec", "shipAi"]]), Result("Nah, I don't trust you.", "After you dissapoint the AI", [["spec", "sadAI"]])], 1)
-pen = Prompt("pen", ["One of your trusted scientists exclaims:", "After doing some amazing science,", "I have discovered that it will be impossible", "to write with pen in space!", "We need to develop a space pen!"], [Result("Yes, the space pen will be a big success!", "After funding a space pen project...", [["addmoney", -3], ["spec", "spacePen"]]), Result("I'm surounded by idiots, JUST USE A PENCIL!", "After deciding to use pencils...", [["addflav", "Paper costs decrease."]])], 10)
+pen = Prompt("pen", ["One of your trusted scientists exclaims:", "After doing some amazing science,", "I have discovered that it will be impossible", "to write with pen in space!", "We need to develop a space pen!"], [Result("Yes, the space pen will be a big success!", "After funding a space pen project...", [["addmoney", -3], ["spec", "spacePen"]]), Result("I'm surounded by idiots, JUST USE A PENCIL!", "After deciding to use pencils...", [["addflav", "The scientists begin to worry about shrapnel."]])], 10)
 birthday = Prompt("birthday", ["Today is the birthday of one of your employees,", "They want to organize a party."], [Result("Lets take some time off work in celebration.", "After partying in the lounge:", [["overtime", -.2], ["addmon", -.5], ["addflav", "People are drawn to the friendly workplace."], ["addpop", 2]]), Result("Celebrate after work. It shouldn't interfere with your job.", "After postponing the party:", [["addflav", "Your employees are slacking off."], ["addfail", 2]])], -1)
 
 #Debt
 loan = Prompt("loan", ["It appears the lab is in dire need of money.", "Will you take a loan from the bank?"], [Result("Of course, with out money, it's impossible to make any progress!", "After getting a loan from the bank...", [["addmoney", 20], ["spec", "Loan"]]), Result("No, we can come back from this.", "After deciding not to get a loan...", [["addflav", "You are in dire need of money"]])], 1)
 bankrupt = Prompt("bankrupt", ["The lab has gone bankrupt, you need to sell assets."], [Result("Looks like we'll have to sell the rocket", "After selling of the rocket...", [["sellRocket", 100]]), Result("I never wanted to build a rocket anyway", "After giving up on the rocket", [["addflav", "The government, dissaproving of your handling of the project,"], ["addflav", "has hired a replacement for you."], ["addflav", "You go home and get a job working in a coffee shop."], ["spec", "GiveUp"]])], 1)
-paybackLoan = Prompt("paybackLoan", ["A bank employee approaches you,", "It's time to repay that loan."], [Result("Here is your money.", "After paying back that loan...", [["addmoney", 20 * (1 +(loan.daysSince / 100))], ["spec", "PaybackLoan"]]), Result("Sorry, I don't have the money", "After not paying up...", [["addcam", -1], ["addflav", "One of the campaigners disapproves of your credit score."]])], 1)
+paybackLoan = Prompt("paybackLoan", ["A bank employee approaches you,", "It's time to repay that loan."], [Result("Here is your money.", "After paying back that loan...", [["addmoney", -20.0 * (1.0 +(loan.daysSince / 100.0))], ["spec", "PaybackLoan"]]), Result("Sorry, I don't have the money", "After not paying up...", [["addcam", -1], ["addflav", "One of the campaigners disapproves of your credit score."]])], 1)
 
 
 possiblequestions = [hire2, overtime]	
@@ -846,6 +848,7 @@ done, running = False, True
 day = 0
 month = 1
 year = 1957 #year beginning the space race
+govFunding = 6
 while running:
 	day += 1
 	newMonth = False
@@ -875,9 +878,12 @@ while running:
 	player.time = player.baseTime
 	for q in player.questionsAnswered:
 		q.daysSince +=1
+		if q.daysSince > q.cooldown:
+			possiblequestions.append(q)
 		
 	if player.launches >=1:
 		player.daysSinceLaunch += 1
+	inspectionChance = random.randint(1,25)
 	
 	#Before choosing an answer
 	#Stat logging
@@ -888,8 +894,8 @@ while running:
 	addQuestion(possiblequestions, [[player.money, "lesser", 4], [player.rocketspecs, "notSpec", "ToasterChassis"]], toaster)
 	addQuestion(possiblequestions, [[player.money, "lesser", 8]], bakesale)
 	addQuestion(possiblequestions, [[player.money, "lesser", 1]], loan)
-	addQuestion(possiblequestions, [[player.netMoneyMean, "lesser", 0], [player.pop, "greater", 10]], fire1)
-	addQuestion(possiblequestions, [[player.netMoneyMean, "lesser", 0], [player.pop, "greater", 10]], fire2)
+	addQuestion(possiblequestions, [[player.netMoneyMean, "lesser", 0], [player.pop, "greater", 5]], fire1)
+	addQuestion(possiblequestions, [[player.netMoneyMean, "lesser", 0], [player.pop, "greater", 5]], fire2)
 	addQuestion(possiblequestions, [[player.money, "greater", 10], [player.netMoneyMean, "greater", 1]], hire1)
 	addQuestion(possiblequestions, [[player.money, "greater", 4], [player.netMoneyMean, "greater", 0]], hire2)
 	addQuestion(possiblequestions, [[player.netMoneyMean, "greater", 3]], adcampaign)
@@ -924,6 +930,10 @@ while running:
 	if day == 25 and month == 3:
 		theQuestion = birthday
 		possiblequestions.append(birthday)
+		
+		
+
+		
 
 	if player.daysSinceLaunch == 1 or player.days == 1:
 		theQuestion = materials
@@ -1077,7 +1087,7 @@ while running:
 		feedback1.append("   Your campaigners raise "+str(2*player.campaigners)+"K")
 	if funded:
 		#6 is default reduced per turn with 1 sci & math, and 2 eng
-		player.money += 6
+		player.money += govFunding
 		feedback1.append("   You gain 6K in government funding.")
 	if "privateFund1" in player.specs:
 		player.money += 4
@@ -1095,7 +1105,49 @@ while running:
 	feedback1.append("Net progress: "+str(player.progress - prePlayer.progress)+"%")
 	feedback1.append("Net money: "+str(player.money - prePlayer.money)+"K")
 	feedback1.append("Net fail chance: "+str(player.failChance - prePlayer.failChance)+"%")
+	feedback1.append("")
 	#feedback1.append("Current progress: "+str(player.progress)+"%")
+	#Inspections
+	if "Inspection" in player.specs:
+		inspectionPoints = 50
+		if player.chassis == PCtoaster:
+			inspectionPoints -= 15
+		if player.chassis == PChotel:
+			inspectionPoints -= 5
+		if player.booster == PBsilo:
+			inspectionPoints -= 10
+		if player.material == PMTape:
+			inspectionPoints -= 10
+		if PEcoffee in player.otherParts:
+			inspectionPoints -= 5
+		if "coffeeMachine" in player.rocketspecs:
+			inspectionPoints -= 5
+		if PEai in player.otherParts:
+			inspectionPoints += 20
+		if PEshield in player.otherParts:
+			inspectionPoints += 10
+		
+		feedback1.append("You got " + str(inspectionPoints) + "/" + "50 on the inspection.")
+		
+		if inspectionPoints < 25:
+			govFunding -= 2
+			
+			feedback1.append("Unsatisfied, government funding has decreased")
+		elif inspectionPoints <= 0:
+			govFunding -= 4
+			feedback1.append("disapproving of your management,")
+			feedback1.append("government funding has significantly decreased.")
+		elif inspectionPoints > 50:
+			govFunding += 2
+			feedback1.append("Inpressed with your work,")
+			feedback1.append("government funding has increased.")
+			
+		player.specs.remove("Inspection")
+	
+	if inspectionChance == 1:
+		feedback1.append("You recive a memo stating that") 
+		feedback1.append("there will be an inspection of your facility tomorrow.")
+		player.specs.append("Inspection")
 	
 	if player.money <= 0:
 		feedback1.append("You have run out of money. You might want to launch...")
