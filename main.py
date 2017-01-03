@@ -538,12 +538,21 @@ paybackLoan = Prompt("paybackLoan", ["A bank employee approaches you,", "It's ti
 
 
 possiblequestions = [hire2, overtime]	
+def getpartimg(name, quant):
+    images = []
+    print "Loading animation: "+name
+    for i in range(quant):
+        images.append(pygame.image.load('Assets/particles/{}/{}.png'.format(name, quant-i-1)))
+    return images
+splosionpic = getpartimg("splosion", 10)
 
 #Used for anything that moves, IE rocket on launch or particles
 class movingPart(object):
 	def __init__(self, id, pos, vel, img, duration = -1):
 		self.name = id
-		self.pos = pos
+		self.frame = len(img)-1
+		self.size = img[0].get_size()
+		self.pos = [pos[0]-(self.size[0]/2), pos[1]-(self.size[1]/2)]
 		self.vel = vel
 		self.img = img
 		self.dur = duration
@@ -551,6 +560,8 @@ class movingPart(object):
 	def update(self):
 		self.time += 1
 		self.pos = [self.pos[0]+self.vel[0], self.pos[1]+self.vel[1]]
+
+movingPart("kaboom", [700/2, 700/2], [0, 0], splosionpic, 10)
 
 #Player object
 class Player(object):
@@ -583,7 +594,7 @@ class Player(object):
 		self.otherParts = []
 		#the images of the frame, and the compleated product
 		self.frame = frameImg(self)
-		self.ship = movingPart("ship", [400, 120], [0, 0], spaceshipimg(self))
+		self.ship = movingPart("ship", [400, 120], [0, 0], [spaceshipimg(self)])
 		self.questionsAnswered = []
 		self.costHistory = []
 	def rebuild(self):
@@ -634,7 +645,7 @@ class Player(object):
 			except:
 				printDebug("Error with: "+i)
 				self.otherParts.remove(i)
-		self.ship.img = spaceshipimg(self)
+		self.ship.img[0] = spaceshipimg(self)
 		self.frame = frameImg(self)
 		printDebug("fail factor: "+str(self.impossiblilyFactor))
 		printDebug("cost: "+str(self.cost))
