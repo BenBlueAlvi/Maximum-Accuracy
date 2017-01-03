@@ -494,9 +494,14 @@ hire2 = Prompt("hire2", ["A large group of papers is sitting on your desk", "The
 #Result("Let's just focus on working today.", "after convincing your staff to work overtime..", [["overtime", 0.2]])], 2)
 overtime = Prompt("overtime", ["Some particullarly hard working engineers", "are requesting the facility stay open later tonight so they can work overtime."], [Result("I suppose we can do that", "after your staff works overtime..", [["overtime", 0.3]]), Result("I don't think that's such a good idea.", "After convincing your staff not to work overtime...", [["addmoney", 2], ["addflav", "You recive an endorsement from the local health officials."]])], 2)
 fire1 = Prompt("fire1", ["That one advisor from the government approches you:", "We have hired too many people and we are losing money", "somebody needs to get fired."], [Result("But we are getting so much done.", "After not firing anyone...", [["addfail", 2]]), Result("I'll leave it up to you.", "After that government advisor fires some people...", [["subpop", 3], ["addfail", -2]]),Result("Fire some of those engineers.", "After firing some engineers...", [["addeng", -2], ["addfail", -1]])], 6)
-#fire2 = sci, mat, none
 fire2 = Prompt("fire2", ["Your money is low, and you are loosing more.", "You need a way to stop your money"], [Result("Why don't we just hire more campaigners?", "After putting out an ad campaign:", [["addcam", 2], ["addmoney", -6], ["overtime", -.2]]), Result("How about we reduce costs?", "After using less expensive materials:", [["reduce", 1]]), Result("Why not just reduce the work hours?", "You reduce the work hours.", [["addTime", -.2], ["addflav", "Your workers are more well rested at work."], ["addIfactor", -.1]])], 10)
-#workload = increase working hours, something else
+workload = Prompt("workload", ["Your project is currently gaining heavy profits.", "Your resource managers would like to use it."], [
+Result("Why don't we increase work hours?", "After adding a couple hours to the workday:", [["addtime", .2], ["subpop", 1]]),
+Result("How about hiring people to use the money?", "After hiring", [["addmat", 1], ["addsci", 1]]),
+Result("If we have the money, why not use it on the rocket?", "After splurging on the rocket:", [["addmon", -8], ["addprog", 5]]), #or increase materials, idk
+Result("I think this gain in money is fine.", "After saving up:", [["addflav", "A local campaigner ____ your intrest in money."], ["addcam", 1]])
+], 2)#cooldown needs to reflect costhistory duration to prevent major loss in money
+#buyout = spend money and gain balanced sci, mat, eng, cam (you bought a smaller group)
 
 #Money and materials
 bakesale = Prompt("bakesale", ["One of your campaigners suggests:", "We should have a bake sale to raise money."], [Result("Sure, but only if I can have some too.", "After having a bakesale", [["addmoney", 2], ["addflav", "The bake sale premotes working in the areospace industy"], ["addpop", 1]]), Result("No, I hate baked goods", "After not having a bake sale..", [["addflav", "Some people were really looking forward to that bake sale."],["subpop", 1]])], 3)
@@ -518,7 +523,7 @@ spaceSoda = Prompt("spaceSoda", ["A campainer approaches you:", "Can we put some
 fsc = Prompt("fsc", ["Upon seeing how well the rocket is going,", "an advisor from the Futuristic Science Corp.", "wishes to partner with you."], [Result("Together we will do great things.", "After partnering with the FSC...", [["addflav", "The project has drasticly increased in size."], ["spec", "JoinedFSC"], ["addmoney", 20], ["addmult", 0.1]]), Result("I'm sorry, I would prefer to go alone.", "After making the mistake of not partnering with the FSC..", [["addflav", "You feel you have made a horrible mistake."]])], 99)
 theProject = Prompt("theProject", ["The FSC has requested a transfer of some of your engineers", "to work on some kind of classified project."], [Result("Sure, as long as we benefit from this project.", "You transfer some of your engineers and scientists over...", [["addeng", -3], ["addsci", -3], ["spec", "theProject"]]), Result("No, this is too supsecious.", "After declining the FSC's offer...", [["addflav", "Nothing happends, or has it?"]])], 10)
 ai = Prompt("Ai", ["The FSC has finally completeled the project", "They have created a super intelegent AI and wish to install it", "in the lab to help progress."], [Result("YES! This is exactly what we need!", "After installing the AI in the lab...", [["spec", "AI"], ["addflav", "The AI makes complex equations easier."], ["addIfactor", -0.5]]), Result("I'm worried about the consequences of this, also rogue AIs are scary.", "After declining the FSC's offer...", [["addflav", "A saddened scientist leaves"], ["addsci", -1], ["addflav", "The FSC no longer wishes to work with you"], ["removeSpec", "JoinedFSC"]])], 99)
-shipAi = Prompt("shipAi", ["The AI, who started calling itself _____,", "wishes to install itself on the rocket."], [Result("Sure.", "After installing the AI on the rocket...", [["setpart", PEai], ["rocketspec", "shipAi"]]), Result("Nah, I don't trust you.", "After you dissapoint the AI", [["spec", "sadAI"]])], 1)
+shipAi = Prompt("shipAi", ["The AI, who started calling itself xXx_1337HAXOR_xXx,", "wishes to install itself on the rocket."], [Result("Sure.", "After installing the AI on the rocket...", [["setpart", PEai], ["rocketspec", "shipAi"]]), Result("Nah, I don't trust you.", "After you dissapoint the AI", [["spec", "sadAI"]])], 1)
 pen = Prompt("pen", ["One of your trusted scientists exclaims:", "After doing some amazing science,", "I have discovered that it will be impossible", "to write with pen in space!", "We need to develop a space pen!"], [Result("Yes, the space pen will be a big success!", "After funding a space pen project...", [["addmoney", -3], ["spec", "spacePen"]]), Result("I'm surounded by idiots, JUST USE A PENCIL!", "After deciding to use pencils...", [["addflav", "Paper costs decrease."]])], 10)
 birthday = Prompt("birthday", ["Today is the birthday of one of your employees,", "They want to organize a party."], [Result("Lets take some time off work in celebration.", "After partying in the lounge:", [["overtime", -.2], ["addmon", -.5], ["addflav", "People are drawn to the friendly workplace."], ["addpop", 2]]), Result("Celebrate after work. It shouldn't interfere with your job.", "After postponing the party:", [["addflav", "Your employees are slacking off."], ["addfail", 2]])], -1)
 
@@ -576,6 +581,20 @@ class Player(object):
 		self.ship = movingPart("ship", [400, 120], [0, 0], spaceshipimg(self))
 		self.questionsAnswered = []
 		self.costHistory = []
+	def rebuild(self):
+		self.fails += 1
+		self.progress = 0
+		self.rocketspecs = []
+		self.material = PMIron
+		self.booster = PBnormal
+		self.main = PMnormal
+		self.chassis = PCnormal
+		self.otherParts = []
+		#self.netMoneyMean = 0
+		#self.netMoneyHistory = []
+		self.costHistory = []
+		self.days = 0 #this should make the questions be materials, riiight?
+		self.setpart("material")
 	def setpart(self, part):
 		if part == "material":
 			pass
@@ -810,8 +829,9 @@ def launchResult(result):
 		if time >= 300 and result == "fail2":
 			gScreen.blit(font.render("Launch Failure 2", True, BLACK), [50,50])
 			gScreen.blit(font.render("KABOOM", True, BLACK), [100,300])
+
+			#put it off screen, keep it there
 			objects[0].vel = [0, 0]
-			#put it off screen
 			objects[0].pos = [700, 0]
 			if sounds and time == 300:
 				pygame.mixer.Sound.play(explosion)
@@ -820,14 +840,21 @@ def launchResult(result):
 			#explosion
 			gScreen.blit(font.render("Launch Failure 3", True, BLACK), [50,50])
 			gScreen.blit(font.render("KABOOM", True, BLACK), [100,100])
+			if "fuelNuclear" in player.rocketspecs:
+				Anukes.get()
+
+			#put it off screen, keep it there
 			objects[0].vel = [0, 0]
-			#put it off screen
 			objects[0].pos = [700, 0]
 			if sounds and time == 400:
 				pygame.mixer.Sound.play(explosion)
 			
 		if time >= 450 and result == "success":
 			gScreen.blit(font.render("Launch Success!", True, BLACK), [50,50])
+			if "ToasterChassis" in player.rocketspecs:
+				Atoast.get()
+			if "fuelNuclear" in player.rocketspecs and fails == 2:
+				Ahl.get()
 		
 		for achive in allAchives:
 			achive.update()
@@ -888,9 +915,10 @@ while running:
 	addQuestion(possiblequestions, [[player.money, "lesser", 1]], loan)
 	addQuestion(possiblequestions, [[player.netMoneyMean, "lesser", 0]], fire1)
 	addQuestion(possiblequestions, [[player.netMoneyMean, "lesser", 0]], fire2)
+	addQuestion(possiblequestions, [[player.netMoneyMean, "greater", 3]], workload)
+	addQuestion(possiblequestions, [[player.netMoneyMean, "greater", 3]], adcampaign)
 	addQuestion(possiblequestions, [[player.money, "greater", 10], [player.netMoneyMean, "greater", 1]], hire1)
 	addQuestion(possiblequestions, [[player.money, "greater", 4], [player.netMoneyMean, "greater", 0]], hire2)
-	addQuestion(possiblequestions, [[player.netMoneyMean, "greater", 3]], adcampaign)
 	addQuestion(possiblequestions, [[player.money, "greater", 5], [player.specs, "notSpec", "sodaMachine"]], sodamachine)
 	addQuestion(possiblequestions, [[player.money, "greater", 5], [player.rocketspecs, "notSpec", "soda"]], spaceSoda)
 	addQuestion(possiblequestions, [[player.money, "greater", 5]], coffeeShipments)
@@ -1130,27 +1158,21 @@ while running:
 			rand = 100 - launchChance
 			if launchChance <= successChance:
 				print "LAUNCH SUCCESSFUL!"
-				if "ToasterChassis" in player.rocketspecs:
-					Atoast.get()
-				if "fuelNuclear" in player.rocketspecs and fails == 2:
-					Ahl.get()
 				player.money += 50
 				launchResult("success")
+				player.rebuild()
 			if launchChance > successChance and launchChance <= successChance + (rand * 1 / 3):
 				print "LAUNCH Failure 3!"
-				if "fuelNuclear" in player.rocketspecs:
-					Anukes.get()
 				launchResult("fail3")
+				player.rebuild()
 			if launchChance > successChance + (rand * 1 / 3) and launchChance <= successChance + (rand * 2 / 3):
 				print "LAUNCH Failure 2!"
 				launchResult("fail2")
+				player.rebuild()
 			if launchChance > successChance + (rand * 2 / 3):
 				print "LAUNCH Failure 1!"
 				launchResult("fail1")
-			
-			player.rocketspecs = []
-			player.fails += 1
-			player.progress, player.cost, player.failChance = 0, 1, 100 - player.fails
+
 			done = True
 		if hitDetect(mouse_pos, mouse_pos, [10,580], [180, 630]) and mouse_down:
 			done = True
