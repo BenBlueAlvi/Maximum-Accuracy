@@ -501,8 +501,9 @@ workload = Prompt("workload", ["Your project is currently gaining heavy profits.
 Result("Why don't we increase work hours?", "After adding a couple hours to the workday:", [["addtime", .2], ["subpop", 1]]),
 Result("How about hiring people to use the money?", "After hiring", [["addmat", 1], ["addsci", 1]]),
 Result("If we have the money, why not use it on the rocket?", "After splurging on the rocket:", [["addmon", -8], ["addprog", 5]]), #or increase materials, idk
-Result("I think this gain in money is fine.", "After saving up:", [["addflav", "A local campaigner ____ your intrest in money."], ["addcam", 1]])
+Result("I think this gain in money is fine.", "After saving up:", [["addflav", "A local campaigner admires your intrest in money."], ["addcam", 1]])
 ], 2)#cooldown needs to reflect costhistory duration to prevent major loss in money
+
 #buyout = spend money and gain balanced sci, mat, eng, cam (you bought a smaller group)
 
 
@@ -749,42 +750,43 @@ allAchives = [Atoast, Anukes, Abegining, Aai, Ahl, Acaffine]
 def addQuestion(possiblequestions, requirements, question):
 	#Matches keeps track of the number of requirements passed
 	matches = 0
-	for i in requirements:
-	
-		if i[1] == "greater":
-			if i[0] > i[2]:
-				matches += 1
+	if question.daysSince > question.cooldown:
+		for i in requirements:
+		
+			if i[1] == "greater":
+				if i[0] > i[2]:
+					matches += 1
+					
+			elif i[1] == "lesser":
+				if i[0] < i[2]:
+					matches += 1
 				
-		elif i[1] == "lesser":
-			if i[0] < i[2]:
-				matches += 1
-			
-		elif i[1] == "notSpec":
-			if i[2] not in i[0]:
-				matches += 1
-		elif i[1] == "spec":
-			if i[2] in i[0]:
-				matches += 1
-		elif i[1] == "daysSince":
-			if i[0] <= i[2].daysSince and i[2].daysSince >= 1:
-				matches += 1
+			elif i[1] == "notSpec":
+				if i[2] not in i[0]:
+					matches += 1
+			elif i[1] == "spec":
+				if i[2] in i[0]:
+					matches += 1
+			elif i[1] == "daysSince":
+				if i[0] <= i[2].daysSince and i[2].daysSince >= 1:
+					matches += 1
 
-	if matches == len(requirements):
-		if not question in possiblequestions:
-			if question in player.questionsAnswered and question.daysSince >= question.cooldown:
-				possiblequestions.append(question)
-				printDebug("Adding: "+question.name)
-			if not question in player.questionsAnswered:
-				possiblequestions.append(question)
-				printDebug("Adding: "+question.name)
-				
-	else:
-		if question in possiblequestions:
-			possiblequestions.remove(question)
-			printDebug("Removing: " + question.name)
+		if matches == len(requirements):
+			if not question in possiblequestions:
+				if question in player.questionsAnswered and question.daysSince >= question.cooldown:
+					possiblequestions.append(question)
+					printDebug("Adding: "+question.name)
+				if not question in player.questionsAnswered:
+					possiblequestions.append(question)
+					printDebug("Adding: "+question.name)
+					
 		else:
-			#printDebug("Requirements not met for " + question.name)
-			pass
+			if question in possiblequestions:
+				possiblequestions.remove(question)
+				printDebug("Removing: " + question.name)
+			else:
+				#printDebug("Requirements not met for " + question.name)
+				pass
 						
 def launchResult(result):
 	global player
@@ -906,8 +908,8 @@ while running:
 	player.time = player.baseTime
 	for q in player.questionsAnswered:
 		q.daysSince +=1
-		if q.daysSince > q.cooldown:
-			possiblequestions.append(q)
+		
+	
 		
 	if player.launches >=1:
 		player.daysSinceLaunch += 1
