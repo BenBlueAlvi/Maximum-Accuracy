@@ -736,6 +736,7 @@ Anukes = Achive("nukes", "Fallout", "Blow up a nuke in midair, destroying the la
 Aai = Achive("ai", "That cake is a lie", "Get some cake from a friendly AI", "cake")
 Ahl = Achive("hl3", "Half life 3 confirmed", "Succesfully launch your third rocket using a radioactive power source", "wip")
 Acaffine = Achive("caffine", "Caffinated Crew", "Build a ship with 5 caffinated additions", "coffee")
+Adownhill = Achive("downhill", "Downhill", "Horribly fail an inspection", "downhill")
 
 allAchives = [Atoast, Anukes, Abegining, Aai, Ahl, Acaffine]
 			
@@ -1150,7 +1151,7 @@ while running:
 		if player.chassis == PCtoaster:
 			inspectionPoints -= 15
 		if player.chassis == PChotel:
-			inspectionPoints -= 5
+			inspectionPoints -= 8
 		if player.booster == PBsilo:
 			inspectionPoints -= 10
 		if player.material == PMTape:
@@ -1174,6 +1175,7 @@ while running:
 			govFunding -= 4
 			feedback1.append("disapproving of your management,")
 			feedback1.append("government funding has significantly decreased.")
+			Adownhill.get()
 		elif inspectionPoints > 50:
 			govFunding += 2
 			feedback1.append("Inpressed with your work,")
