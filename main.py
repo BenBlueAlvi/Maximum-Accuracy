@@ -500,7 +500,7 @@ fire2 = Prompt("fire2", ["Your money is low, and you are loosing more.", "You ne
 workload = Prompt("workload", ["Your project is currently gaining heavy profits.", "Your resource managers would like to use it."], [
 Result("Why don't we increase work hours?", "After adding a couple hours to the workday:", [["addtime", .2], ["subpop", 1]]),
 Result("How about hiring people to use the money?", "After hiring", [["addmat", 1], ["addsci", 1]]),
-Result("If we have the money, why not use it on the rocket?", "After splurging on the rocket:", [["addmon", -8], ["addprog", 5]]), #or increase materials, idk
+Result("If we have the money, why not use it on the rocket?", "After splurging on the rocket:", [["addmoney", -8], ["addprog", 5]]), #or increase materials, idk
 Result("I think this gain in money is fine.", "After saving up:", [["addflav", "A local campaigner admires your intrest in money."], ["addcam", 1]])
 ], 2)#cooldown needs to reflect costhistory duration to prevent major loss in money
 
@@ -517,7 +517,7 @@ fuels = Prompt("fuels", ["An engineer approaches you:", "So, uh.. What should we
 coffeeShipments = Prompt("coffeeShipments", ["A group of mathmatitions have been staying up all night:", "We need more shipments of caffinated beverages!"], [Result("Of course, coffee is a necissity.", "After ordering some caffine...", [["addmoney", -1], ["spec", "caffinate"], ["overtime", 0.1]]), Result("No, too much coffee is unhealthy", "After depriving your employees of caffine...", [["addfail", 5], ["overtime", -0.1], ["addflav", "The employees are quite tired."]])], 10)
 coffee = Prompt("coffee", ["A few engineers approch you and ask:", "Can we install a coffee machine in the rocket?"], [Result("Sure, Why not?", "After installing a coffee machine on the rocket,", [["addmoney", -1], ["addprog", 1], ["addfail", 2], ["addeng", 1], ["spec", "caffinate"], ["rocketspec", "coffeeMachine"], ["setpart", PEcoffee]]), Result("NO?", "After not installing a coffee machine...", [["addfail", -1]])], 1)			
 toaster = Prompt("toaster", ["One of those hippies from science department asks:", "Hey, we're low on funds right now. I suggest we turn our chassis into a toaster."], [Result("Sure, we need to save money.", "After switching over your chassis:", [["setpart", "Ctoaster"], ["addfail", 50], ["addmat", -2], ["rocketspec", "ToasterChassis"]]), Result("We don't need to be THAT drastic..", "After reducing the size:", [["addfail", -1], ["addsci", 1]]), Result("No way.", "After denying the toaster plan:", [["addmat", 1], ["addpop", 1], ["setpart", "Cnormal"]])], 3)
-hotel = Prompt("hotel", ["The CEO of a large hotel group has approched you", "and wishes install one of his hotels on the moon.", "He bribes you with quite a bit of money."], [Result("I guess so.", "The engineers begin to load materials to build the hotel on the moon.", [["multprog", .2], ["addfail", 10], ["addmoney", 20], ["addIfactor", 4], ["rocketspec", "hotel"], ["setpart", "Chotel"], ["addspec", "privateFund1"]]), Result("No.", "After focusing on building the rocket and not business deals:", [["addprog", 5], ["addpop", 1]])], 10)
+hotel = Prompt("hotel", ["The CEO of a large hotel group has approched you", "and wishes install one of his hotels on the moon.", "He bribes you with quite a bit of money."], [Result("I guess so.", "The engineers begin to load materials to build the hotel on the moon.", [["multprog", .2], ["addfail", 10], ["addmoney", 20], ["addIfactor", 4], ["rocketspec", "hotel"], ["setpart", "Chotel"], ["spec", "privateFund1"]]), Result("No.", "After focusing on building the rocket and not business deals:", [["addprog", 5], ["addpop", 1]])], 10)
 silos = Prompt("silos", ["One very frugel lab assistant approches you:", "We don't have enough money to build the thrusters", "How about we use the silos from the sourounding farmland?"], [Result("What a wonderful idea!", "After refiting farm silos to work as thrusters...", [["addfail", 20], ["addsci", 1], ["addflav", "A hippy scientist joins your team"], ["rocketspec", "silos"], ["setpart", "Bsilo"]]), Result("Are you sane?", "After not taking the farmer's silos", [["addflav", "The farmers share some of their wages with you!"],["addmoney", 5]])], 99)
 #mtndew = Prompt("mtndew", [""])
 sodamachine = Prompt("sodamachine", ["A promising scientist asks if they can", "install a soda machine in the lab."], [Result("Sure, how much will it cost me?", "After installing a soda machine in the lab...", [["addmoney", -2], ["overtime", 0.2], ["spec", "sodaMachine"]]), Result("No, we don't have the money.", "After not installing a soda machine in the lab.", [["overtime", -0.1], ["addflav", "Your employees seem a bit slow today."]])], 10)
@@ -539,11 +539,11 @@ paybackLoan = Prompt("paybackLoan", ["A bank employee approaches you,", "It's ti
 
 possiblequestions = [hire2, overtime]	
 def getpartimg(name, quant):
-    images = []
-    print "Loading animation: "+name
-    for i in range(quant):
-        images.append(pygame.image.load('Assets/particles/{}/{}.png'.format(name, quant-i-1)))
-    return images
+	images = []
+	print "Loading animation: "+name
+	for i in range(quant):
+		images.append(pygame.image.load('Assets/particles/{}/{}.png'.format(name, quant-i-1)))
+	return images
 splosionpic = getpartimg("splosion", 10)
 
 #Used for anything that moves, IE rocket on launch or particles
@@ -558,10 +558,12 @@ class movingPart(object):
 		self.dur = duration
 		self.time = duration
 	def update(self):
-		self.time += 1
+		self.time -= 1
+		if self.time == 0:
+			self.time = 5
+			self.frame -= 1
 		self.pos = [self.pos[0]+self.vel[0], self.pos[1]+self.vel[1]]
 
-movingPart("kaboom", [700/2, 700/2], [0, 0], splosionpic, 10)
 
 #Player object
 class Player(object):
@@ -598,7 +600,7 @@ class Player(object):
 		self.questionsAnswered = []
 		self.costHistory = []
 	def rebuild(self):
-		self.fails += 1
+		self.launches += 1
 		self.progress = 0
 		self.rocketspecs = []
 		self.material = PMIron
@@ -812,8 +814,8 @@ def launchResult(result):
 	objects = [player.ship]
 	while running:
 		time += 1
-		for event in pygame.event.get(): 
-			if event.type == pygame.QUIT: 
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
 				done, running = True, False
 			elif event.type == pygame.MOUSEBUTTONDOWN:
 				mouse_down = True
@@ -825,14 +827,24 @@ def launchResult(result):
 			mouse_down = False
 			
 		gScreen.blit(launchpad, [0, 0])
-		gScreen.blit(player.ship.img, player.ship.pos)
 		for i in objects:
-			i.update()
-			
+			gScreen.blit(i.img[i.frame], i.pos)
+
+			#if not collide(i.pos, i.size, (0, 0), (screenX, screenY)):
+				#particles.remove(i)
+			if True:
+				i.pos = (i.pos[0]+i.vel[0], i.pos[1]+i.vel[1])
+				gScreen.blit(i.img[i.frame], i.pos)
+				i.time -= 1
+				if i.time == 0:
+					i.frame += 1
+					i.time = 5
+					if i.frame > i.dur and i.dur != -1:
+						objects.remove(i)
+
 		#Timer
 		if time <= 300:
 			rand = str(round((300-time)/60.00, 2))
-			print rand
 			rand = largeFont.render(rand, True, BLACK)
 		gScreen.blit(rand, [10, 660])
 		
@@ -854,8 +866,10 @@ def launchResult(result):
 			#put it off screen, keep it there
 			objects[0].vel = [0, 0]
 			objects[0].pos = [700, 0]
-			if sounds and time == 300:
-				pygame.mixer.Sound.play(explosion)
+			if time == 300:
+				objects.append(movingPart("kaboom", player.ship.pos, [0, 0], splosionpic, 10))
+				if sounds:
+					pygame.mixer.Sound.play(explosion)
 			
 		if time >= 400 and result == "fail3":
 			#explosion
@@ -867,8 +881,10 @@ def launchResult(result):
 			#put it off screen, keep it there
 			objects[0].vel = [0, 0]
 			objects[0].pos = [700, 0]
-			if sounds and time == 400:
-				pygame.mixer.Sound.play(explosion)
+			if time == 400:
+				objects.append(movingPart("kaboom", player.ship.pos, [0, 0], splosionpic, 10))
+				if sounds:
+					pygame.mixer.Sound.play(explosion)
 			
 		if time >= 450 and result == "success":
 			gScreen.blit(font.render("Launch Success!", True, BLACK), [50,50])
@@ -951,7 +967,7 @@ while running:
 	addQuestion(possiblequestions, [[player.money, "greater", 5]], coffeeShipments)
 	addQuestion(possiblequestions, [[player.money, "greater", 25], [player.specs, "spec", "JoinedFSC"]], fsc)
 	addQuestion(possiblequestions, [[player.rocketspecs, "notSpec", "coffeeMachine"], [player.money, "greater", 2]], coffee)
-	addQuestion(possiblequestions, [[player.rocketspecs, "notSpec", "silos"]], silos)
+	addQuestion(possiblequestions, [[player.rocketspecs, "notSpec", "silos"], [player.money, "lesser", 15], [player.netMoneyMean, "lesser", 0]], silos)
 	addQuestion(possiblequestions, [[player.specs, "notSpec", "spacePen"], [player.money, "greater", 5]], pen)
 	addQuestion(possiblequestions, [[10, "daysSince", fsc], [player.scientists, "greater", 2], [player.engineers, "greater", 2], [player.specs, "spec", "JoinedFSC"]], theProject)
 	addQuestion(possiblequestions, [[10, "daysSince", theProject], [player.specs, "spec", "theProject"]], ai)
@@ -1017,7 +1033,7 @@ while running:
 		gScreen.fill(WHITE)
 		
 		gScreen.blit(player.frame, [80, 120])
-		gScreen.blit(player.ship.img, player.ship.pos)
+		gScreen.blit(player.ship.img[0], player.ship.pos)
 
 		for i in range(len(theQuestion.prompt)):
 		
@@ -1128,12 +1144,12 @@ while running:
 	if player.progress < 0:
 		player.progress = 0
 	player.progress += round(player.time * ((.2*player.scientists)+1)*player.engineers*0.4, 2)
-	player.money += ((2 * player.campaigners) - (player.engineers + player.maths + player.scientists + round(player.time*player.cost*player.engineers, 1)))
+	player.money += round((0.8 * player.campaigners * player.time) - ((0.2 * player.engineers) + (0.3*player.maths) + (0.3*player.scientists) + (player.time*player.cost*player.engineers)), 1)
 	
 	feedback1 = []
 	feedback1.append("After a full day of work...")
 	if player.campaigners > 0:
-		feedback1.append("   Your campaigners raise "+str(2*player.campaigners)+"K")
+		feedback1.append("   Your campaigners raise "+str(round(2*player.campaigners * player.time, 1))+"K")
 	if funded:
 		#6 is default reduced per turn with 1 sci & math, and 2 eng
 		player.money += govFunding
@@ -1207,7 +1223,7 @@ while running:
 		player.netMoneyHistory.remove(player.netMoneyHistory[0])
 	player.netMoneyMean = round(sum(player.netMoneyHistory)) / max(len(player.netMoneyHistory), 1)
 	printDebug("Net Money mean: "+str(player.netMoneyMean))
-    
+	
 	feedback, prePlayer = feedback1, player.buildNew()
 	
 	done, mouse_down = False, False
@@ -1237,23 +1253,24 @@ while running:
 				successChance = (100 - player.failChance) * (player.progress / player.full)
 			print "success Chance:", successChance
 			launchChance = random.randint(0, 100)
+			print "launch chance:", launchChance
 			rand = 100 - launchChance
-			if launchChance <= successChance:
-				print "LAUNCH SUCCESSFUL!"
-				player.money += 50
-				launchResult("success")
+			if launchChance > successChance + (rand * 2 / 3):
+				print "LAUNCH Failure 1!"
+				launchResult("fail1")
+			if launchChance > successChance + (rand * 1 / 3) and launchChance <= successChance + (rand * 2 / 3):
+				print "LAUNCH Failure 2!"
+				launchResult("fail2")
 				player.rebuild()
 			if launchChance > successChance and launchChance <= successChance + (rand * 1 / 3):
 				print "LAUNCH Failure 3!"
 				launchResult("fail3")
 				player.rebuild()
-			if launchChance > successChance + (rand * 1 / 3) and launchChance <= successChance + (rand * 2 / 3):
-				print "LAUNCH Failure 2!"
-				launchResult("fail2")
+			if successChance >= launchChance:
+				print "LAUNCH SUCCESSFUL!"
+				player.money += 50
+				launchResult("success")
 				player.rebuild()
-			if launchChance > successChance + (rand * 2 / 3):
-				print "LAUNCH Failure 1!"
-				launchResult("fail1")
 			done = True
 		if hitDetect(mouse_pos, mouse_pos, [10,580], [180, 630]) and mouse_down:
 			done = True
