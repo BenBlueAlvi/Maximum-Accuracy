@@ -585,7 +585,7 @@ class Player(object):
 		self.specs = []
 		self.rocketspecs = []
 		self.impossiblilyFactor = 1
-		self.baseTime = 1
+		self.baseTime = 8
 		self.time = 8
 		self.overtime = 0
 		self.netMoneyHistory = []
@@ -1050,6 +1050,7 @@ while running:
 					print "Impossibility factor: ", player.impossiblilyFactor
 					print "Cost: ", player.cost
 					print "Full: ", player.full
+					print "Time: ", player.time
 		mouse_pos = pygame.mouse.get_pos()
 
 		gScreen.fill(WHITE)
@@ -1165,7 +1166,7 @@ while running:
 	
 	#Maths reduce fail chance by sqrt of maths / impossiblilyFactor per hour
 	
-	matFailReduction = round(player.time * (math.sqrt(player.maths) / player.impossiblilyFactor), 2)
+	matFailReduction = round(player.time * (math.sqrt(player.maths) / player.impossiblilyFactor) * 0.2, 2)
 	player.failChance -= matFailReduction
 	if player.failChance < 1:
 		player.failChance = 1
@@ -1184,7 +1185,7 @@ while running:
 	#scientists are paid $80 an hour
 	sciMoney = round(0.08 * player.scientists * player.time, 3)
 	#Engineers spend player.cost on the rocket per engineer per hour
-	engSpending = player.time*player.cost*player.engineers
+	engSpending = (player.time*player.cost*player.engineers*0.1)
 	# 3 campaigners will balance out 1 of each proffesion
 	
 	
