@@ -379,6 +379,7 @@ class Result(object):
 					self.feedback.append("Your employees work overtime.")
 				else:
 					self.feedback.append("Your employees spend less time working.")
+				printDebug("Modified time: "+str(player.time))
 			if o == "multprog":
 				if n < 1:
 					self.feedback.append("Your progress has reduced")
@@ -427,6 +428,7 @@ class Result(object):
 					else:
 						self.feedback.append("Your work hours have increased.")
 						player.baseTime += n
+				printDebug("New time: "+str(player.baseTime))
 			if o == "sellRocket":
 				# I uh, ZAKIAH!, fix equation please!
 				rocketgains = 0
@@ -493,20 +495,11 @@ class Prompt(object):
 #Staff management
 hire1 = Prompt("hire1", ["Your advisor from the government approches you:", "I would like to suggest we hire new staff."], [Result("Sure, I'll leave it up to you.", "You manage to hire 2 new people.", [["addmoney", -4], ["addpop", 3]]), Result("Let's hire some Campaigners.", "You attempt to hire campaigners.", [["addmoney", -2], ["addcam", 2]]), Result("Let's hire some of thoose math people.", "After hiring some mathematitions people...", [["addmoney", -2], ["addmat", 2]]), Result("We need more science, we can never have enough science!", "After searching for more science.", [["addmoney", -2], ["addsci", 2], ["addflav", "Your science has increased!"]])], 4) 
 hire2 = Prompt("hire2", ["A large group of papers is sitting on your desk", "They appear to all be applications for jobs"], [Result("This person has a good scientific reputation.", "A new scientist has joined your team.", [["addsci", 1]]), Result("This person seems highly caffinated, but could be a good engineer.", "A jittery engineer has joined your crew", [["addeng", 1], ["spec", "caffinate"]]),Result("How about this campaigner? He seems legitimate.", "A legit campaigner joins your team.", [["addcam", 1]]), Result("This mathmatition looks interesting...", "A new mathmatition has joined your team.", [["addmat", 1]]), Result("None of these people are interesting enough to be hired", "after not hiring anyone", [["addfail", 1], ["addflav", "Unhappiness increases"], ["spec", "charred"]])], 3)
-
-overtime = Prompt("overtime", ["Some particullarly hard working engineers", "are requesting the facility stay open later tonight so they can work overtime."], [Result("I suppose we can do that", "after your staff works overtime..", [["overtime", 0.3]]), Result("I don't think that's such a good idea.", "After convincing your staff not to work overtime...", [["addmoney", 2], ["addflav", "You recive an endorsement from the local health officials."]])], 2)
+overtime = Prompt("overtime", ["Some particullarly hard working engineers", "are requesting the facility stay open later tonight so they can work overtime."], [Result("I suppose we can do that", "after your staff works overtime..", [["overtime", 0.3]]), Result("I don't think that's such a good idea.", "After convincing your staff not to work overtime...", [["addmoney", 2], ["addflav", "You recive an endorsement from the local health officials."]])], 0)
 fire1 = Prompt("fire1", ["That one advisor from the government approches you:", "We have hired too many people and we are losing money", "somebody needs to get fired."], [Result("But we are getting so much done.", "After not firing anyone...", [["addfail", 2]]), Result("I'll leave it up to you.", "After that government advisor fires some people...", [["subpop", 3], ["addfail", -2]]),Result("Fire some of those engineers.", "After firing some engineers...", [["addeng", -2], ["addfail", -1]])], 6)
 fire2 = Prompt("fire2", ["Your money is low, and you are loosing more.", "You need a way to stop your money"], [Result("Why don't we just hire more campaigners?", "After putting out an ad campaign:", [["addcam", 2], ["addmoney", -6], ["overtime", -.2]]), Result("How about we reduce costs?", "After using less expensive materials:", [["reduce", 1]]), Result("Why not just reduce the work hours?", "You reduce the work hours.", [["addTime", -.2], ["addflav", "Your workers are more well rested at work."], ["addIfactor", -.1]])], 10)
-
-workload = Prompt("workload", ["Your project is currently gaining heavy profits.", "Your resource managers would like to use it."], [
-Result("Why don't we increase work hours?", "After adding a couple hours to the workday:", [["addtime", .2], ["subpop", 1]]),
-Result("How about hiring people to use the money?", "After hiring", [["addmat", 1], ["addsci", 1]]),
-Result("If we have the money, why not use it on the rocket?", "After splurging on the rocket:", [["addmoney", -8], ["addprog", 5]]), #or increase materials, idk
-Result("I think this gain in money is fine.", "After saving up:", [["addflav", "A local campaigner admires your intrest in money."], ["addcam", 1]])
-], 2)#cooldown needs to reflect costhistory duration to prevent major loss in money
-
+workload = Prompt("workload", ["Your project is currently gaining heavy profits.", "Your resource managers would like to use it."], [Result("Why don't we increase work hours?", "After adding a couple hours to the workday:", [["addTime", .2], ["subpop", 1]]), Result("How about hiring people to use the money?", "After hiring", [["addmat", 1], ["addsci", 1]]), Result("If we have the money, why not use it on the rocket?", "After splurging on the rocket:", [["addmoney", -8], ["addprog", 5]]), Result("I think this gain in money is fine.", "After saving up:", [["addflav", "A local campaigner admires your intrest in money."], ["addcam", 1]])], 2)#cooldown needs to reflect costhistory duration to prevent major loss in money
 #buyout = spend money and gain balanced sci, mat, eng, cam (you bought a smaller group)
-
 
 #Money and materials
 bakesale = Prompt("bakesale", ["One of your campaigners suggests:", "We should have a bake sale to raise money."], [Result("Sure, but only if I can have some too.", "After having a bakesale", [["addmoney", 2], ["addflav", "The bake sale premotes working in the areospace industy"], ["addpop", 1]]), Result("No, I hate baked goods", "After not having a bake sale..", [["addflav", "Some people were really looking forward to that bake sale."],["subpop", 1]])], 3)
@@ -756,8 +749,9 @@ allAchives = [Atoast, Anukes, Abegining, Aai, Ahl, Acaffine]
 #lesser - equivelent to < sign, takes in a player parameter that is an integer and an integer
 #spec - tests if the specified spec id is in the specified player parameter spec id list, takes in a player parameter spec id list and a spec id
 #daysSince - Tests if it has been the specified integer number of days scince the specified question has been asked, takes in an integer and a Prompt
-def addQuestion(possiblequestions, requirements, question):
+def addQuestion(requirements, question):
 	global player
+	global possiblequestions
 	#Matches keeps track of the number of requirements passed
 	matches = 0
 	if question.daysSince >= question.cooldown or not question in player.questionsAnswered:
@@ -889,7 +883,7 @@ def launchResult(result, skipable = False):
 			gScreen.blit(font.render("Launch Success!", True, BLACK), [50,50])
 			if "ToasterChassis" in player.rocketspecs:
 				Atoast.get()
-			if "fuelNuclear" in player.rocketspecs and fails == 2:
+			if "fuelNuclear" in player.rocketspecs and player.launches == 2:
 				Ahl.get()
 		if time == 460:
 			objects[0].pos = [700, 0]
@@ -943,8 +937,6 @@ while running:
 	for q in player.questionsAnswered:
 		q.daysSince +=1
 		
-	
-		
 	if player.launches >=1:
 		player.daysSinceLaunch += 1
 	inspectionChance = random.randint(1,25)
@@ -954,28 +946,28 @@ while running:
 	printDebug("[][][][][][][][][][][][][][][][][] Day " + str(player.days) + " [][][][][][][][][][][][][][][][][]")
 	
 	#see if a question can be added
-
-	addQuestion(possiblequestions, [[player.money, "greater", 6], [player.rocketspecs, "notSpec", "hotel"]], hotel)
-	addQuestion(possiblequestions, [[player.money, "lesser", 4], [player.rocketspecs, "notSpec", "ToasterChassis"]], toaster)
-	addQuestion(possiblequestions, [[player.money, "lesser", 8]], bakesale)
-	addQuestion(possiblequestions, [[player.money, "lesser", 1]], loan)
-	addQuestion(possiblequestions, [[player.netMoneyMean, "greater", 3]], workload)
-	addQuestion(possiblequestions, [[player.netMoneyMean, "greater", 3]], adcampaign)
-	addQuestion(possiblequestions, [[player.netMoneyMean, "lesser", 0]], fire1)
-	addQuestion(possiblequestions, [[player.netMoneyMean, "lesser", 0]], fire2)
-	addQuestion(possiblequestions, [[player.money, "greater", 10], [player.netMoneyMean, "greater", 1]], hire1)
-	addQuestion(possiblequestions, [[player.money, "greater", 4], [player.netMoneyMean, "greater", 0]], hire2)
-	addQuestion(possiblequestions, [[player.money, "greater", 5], [player.specs, "notSpec", "sodaMachine"]], sodamachine)
-	addQuestion(possiblequestions, [[player.money, "greater", 5], [player.rocketspecs, "notSpec", "soda"]], spaceSoda)
-	addQuestion(possiblequestions, [[player.money, "greater", 5]], coffeeShipments)
-	addQuestion(possiblequestions, [[player.money, "greater", 25], [player.specs, "spec", "JoinedFSC"]], fsc)
-	addQuestion(possiblequestions, [[player.rocketspecs, "notSpec", "coffeeMachine"], [player.money, "greater", 2]], coffee)
-	addQuestion(possiblequestions, [[player.rocketspecs, "notSpec", "silos"], [player.money, "lesser", 15], [player.netMoneyMean, "lesser", 0]], silos)
-	addQuestion(possiblequestions, [[player.specs, "notSpec", "spacePen"], [player.money, "greater", 5]], pen)
-	addQuestion(possiblequestions, [[10, "daysSince", fsc], [player.scientists, "greater", 2], [player.engineers, "greater", 2], [player.specs, "spec", "JoinedFSC"]], theProject)
-	addQuestion(possiblequestions, [[10, "daysSince", theProject], [player.specs, "spec", "theProject"]], ai)
-	addQuestion(possiblequestions, [[17, "daysSince", ai], [player.specs, "notSpec", "shipAi"]], shipAi)
-	addQuestion(possiblequestions, [[10, "daysSince", loan], [player.specs, "notSpec", "PaybackLoan"]], paybackLoan)
+	addQuestion([[player.money, "lesser", 4], [player.rocketspecs, "notSpec", "ToasterChassis"]], toaster)
+	addQuestion([[player.money, "lesser", 8]], bakesale)
+	addQuestion([[player.money, "lesser", 1]], loan)
+	addQuestion([[player.money, "greater", 6], [player.rocketspecs, "notSpec", "hotel"]], hotel)
+	addQuestion([[player.money, "greater", 10], [player.netMoneyMean, "greater", 1]], hire1)
+	addQuestion([[player.money, "greater", 4], [player.netMoneyMean, "greater", 0]], hire2)
+	addQuestion([[player.money, "greater", 5], [player.specs, "notSpec", "sodaMachine"]], sodamachine)
+	addQuestion([[player.money, "greater", 5], [player.rocketspecs, "notSpec", "soda"]], spaceSoda)
+	addQuestion([[player.money, "greater", 5]], coffeeShipments)
+	addQuestion([[player.money, "greater", 25], [player.specs, "notSpec", "JoinedFSC"]], fsc)
+	addQuestion([[player.netMoneyMean, "greater", 3]], workload)
+	addQuestion([[player.netMoneyMean, "greater", 3]], adcampaign)
+	addQuestion([[player.netMoneyMean, "lesser", 0]], fire1)
+	addQuestion([[player.netMoneyMean, "lesser", 0]], fire2)
+	addQuestion([[player.rocketspecs, "notSpec", "coffeeMachine"], [player.money, "greater", 2]], coffee)
+	addQuestion([[player.rocketspecs, "notSpec", "silos"], [player.money, "lesser", 15], [player.netMoneyMean, "lesser", 0]], silos)
+	addQuestion([[player.specs, "notSpec", "spacePen"], [player.money, "greater", 5]], pen)
+	addQuestion([[10, "daysSince", fsc], [player.scientists, "greater", 2], [player.engineers, "greater", 2], [player.specs, "spec", "JoinedFSC"]], theProject)
+	addQuestion([[10, "daysSince", theProject], [player.specs, "spec", "theProject"]], ai)
+	addQuestion([[17, "daysSince", ai], [player.specs, "notSpec", "shipAi"]], shipAi)
+	addQuestion([[10, "daysSince", loan], [player.specs, "notSpec", "PaybackLoan"]], paybackLoan)
+	addQuestion([], overtime)
 	
 	theQuestion = possiblequestions[random.randint(0, len(possiblequestions) - 1)]
 	
@@ -1017,10 +1009,6 @@ while running:
 		if bankrupt in possiblequestions:
 			possiblequestions.remove(bankrupt)
 	
-	if len(possiblequestions) <= 2:
-		possiblequestions.append(overtime)
-	
-	
 	done, mouse_down = False, False
 	while not done:
 
@@ -1042,6 +1030,7 @@ while running:
 					print "Impossibility factor: ", player.impossiblilyFactor
 					print "Cost: ", player.cost
 					print "Full: ", player.full
+					print "Time: ", player.time
 		mouse_pos = pygame.mouse.get_pos()
 
 		gScreen.fill(WHITE)
@@ -1167,7 +1156,7 @@ while running:
 	if funded:
 		#6 is default reduced per turn with 1 sci & math, and 2 eng
 		player.money += govFunding
-		feedback1.append("   You gain 4K in government funding.")
+		feedback1.append("   You gain "+str(govFunding)+"K in government funding.")
 	if "privateFund1" in player.specs:
 		player.money += 4
 		feedback1.append("   You gain 4K from private sectors.")
@@ -1176,7 +1165,6 @@ while running:
 	feedback1.append("Your engineers spend "+str(round(player.time*player.engineers*player.cost, 1))+"K")
 	player.costHistory.append(round(player.time*player.engineers*player.cost, 1))
 	feedback1.append("Your mathematitions reduce chance of failiure by "+str(round(player.time * math.sqrt(player.maths) / player.impossiblilyFactor, 2))+"%")
-	
 	
 	feedback1.append("")
 	feedback1 += feedback
@@ -1235,7 +1223,7 @@ while running:
 	player.netMoneyHistory.append(player.money - prePlayer.money)
 	if len(player.netMoneyHistory) >= 5:
 		player.netMoneyHistory.remove(player.netMoneyHistory[0])
-	player.netMoneyMean = round(sum(player.netMoneyHistory)) / max(len(player.netMoneyHistory), 1)
+	player.netMoneyMean = round(sum(player.netMoneyHistory) / len(player.netMoneyHistory), 1)
 	printDebug("Net Money mean: "+str(player.netMoneyMean))
 	
 	feedback, prePlayer = feedback1, player.buildNew()
