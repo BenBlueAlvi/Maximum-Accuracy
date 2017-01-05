@@ -1,6 +1,7 @@
 import random
 import math
 import pygame
+from pygame.locals import *
 
 clock = pygame.time.Clock()
 
@@ -149,16 +150,16 @@ class shipPart(object):
 #part variables start with P, part types are B (booster), M (main), C (chassis), E (extras), materials have M with a T (tape), I (iron), N (nano)
 #frames and materials
 Pframe = getImg("parts/Scaffold")
-PMTape = shipPart("Tape", -.2, 0, 0.5, getImg("parts/matTape"))
+PMTape = shipPart("Tape", -.2, -2, 0.5, getImg("parts/matTape"))
 PMIron = shipPart("Iron", 0, 0, 0, getImg("parts/mainMatIron"))
 PMNano = shipPart("Nano", 0.5, 10, -0.2, getImg("parts/matNano"))
 #Boosters
 PBnormal = shipPart("Normal", 0.2, 30, 0, getImg("parts/boosterNormal"))
 PBsilo = shipPart("Silo", 0.1, 28, 0.4, getImg("parts/boosterSilo"))
 #Mains
-PMnuclear = shipPart("Nuclear", 0.5, 60, 0.1, getImg("parts/mainNuclear"))
+PMnuclear = shipPart("Nuclear", 0.5, 65, -0.1, getImg("parts/mainNuclear"))
 PMnormal = shipPart("Normal", 0.4, 50, 0, getImg("parts/mainNorm"))
-PMcar = shipPart("Car", 0.3, 40, 0.1, getImg("parts/mainCar"))
+PMcar = shipPart("Car", 0.3, 40, 0.2, getImg("parts/mainCar"))
 #Chassis
 PCtoaster = shipPart("Toaster", 0.1, 4, 1, getImg("parts/chassisToaster"))
 PCnormal = shipPart("Normal", 0.4, 20, 0, getImg("parts/chassisNormal"))
@@ -513,6 +514,8 @@ Result("I think this gain in money is fine.", "After saving up:", [["addflav", "
 
 
 #Money and materials
+#schedual = Prompt("schedual", ["One of your scientists approches you:", "The rocket is currently behind schedual", "we need to increase work hours."], [Result("Add 3 hours to the workday.")])
+sellPen = Prompt("sellPen", ["Suddenly, an idea strikes you.", "You could sell the space pen for a profit!"], [Result("Let's do it!", "After setting up a factories...", [["addmoney", -7], ["spec", "sellPen"]]), Result("Nah, we need to keep it a secret", "After hiding the space pen in a box...", [["addflav", "Your rivals are ignorant."]])], 99)
 bakesale = Prompt("bakesale", ["One of your campaigners suggests:", "We should have a bake sale to raise money."], [Result("Sure, but only if I can have some too.", "After having a bakesale", [["addmoney", 2], ["addflav", "The bake sale premotes working in the areospace industy"], ["addpop", 1]]), Result("No, I hate baked goods", "After not having a bake sale..", [["addflav", "Some people were really looking forward to that bake sale."],["subpop", 1]])], 3)
 adcampaign = Prompt("adcampaign", ["One of your mathmatitions suggests", "an add campaign to hire people."], [Result("Yeah, we need the staff", "After creating an amazing ad campaign...", [["addmoney", -4], ["addpop", 4]]), Result("No, we don't have enough money.", "After not creating an amazing ad campaign...", [["addflav", "Nothing changes"]])], 5)
 materials = Prompt("materials", ["One of your scientists approaches you:", "We need to discuss our materials."], [Result("How about all carbon fiber?", "After using hi-tech materials:", [["addfail", -4], ["rocketspec", "hi-tech"], ["setMat", PMNano]]), Result("Why not normal materials, like steel?", "After deciding to use standard materials:", [["addflav", "Engineers are attracted to the ease of their jobs."], ["addeng", 1], ["rocketspec", "steel"], ["setMat", PMIron]]), Result("Lets think cheap. Duct-tape cheap.", "After deciding to use low-cost materials:", [["setMat", PMTape], ["addfail", 20], ["addflav", "Some of your mathmatitions can't handle the absurdity of this project."], ["addmat", -2], ["rocketspec", "ductTape"]])], 99)
@@ -555,20 +558,13 @@ splosionpic = getpartimg("splosion", 10)
 class movingPart(object):
 	def __init__(self, id, pos, vel, img, duration = -1):
 		self.name = id
-		self.frame = len(img)-1
+		self.frame = 0
 		self.size = img[0].get_size()
 		self.pos = [pos[0]-(self.size[0]/2), pos[1]-(self.size[1]/2)]
 		self.vel = vel
 		self.img = img
 		self.dur = duration
 		self.time = duration
-	def update(self):
-		self.time -= 1
-		if self.time == 0:
-			self.time = 5
-			self.frame -= 1
-		self.pos = [self.pos[0]+self.vel[0], self.pos[1]+self.vel[1]]
-
 
 #Player object
 class Player(object):
@@ -688,6 +684,7 @@ class Player(object):
 
 player = Player(18, 0, 100, 1, 2, 1, 0)
 prePlayer = player.buildNew()
+player.ship.pos = [400, 120]
 
 class Achive(object):
 	def __init__(self, Id, name, desc, img):
@@ -811,7 +808,7 @@ def addQuestion(possiblequestions, requirements, question):
 				
 		question.daysSince = 0
 						
-def launchResult(result):
+def launchResult(result, skipable = False):
 	
 	running = True
 	mouse_down = False
@@ -827,8 +824,9 @@ def launchResult(result):
 				mouse_down = True
 			elif event.type == pygame.MOUSEBUTTONUP:
 				mouse_down = False
+		
 		mouse_pos = pygame.mouse.get_pos()
-		if mouse_down:
+		if mouse_down and skipable:
 			running = False
 			mouse_down = False
 			
@@ -836,16 +834,16 @@ def launchResult(result):
 		for i in objects:
 			gScreen.blit(i.img[i.frame], i.pos)
 
-			#if not collide(i.pos, i.size, (0, 0), (screenX, screenY)):
+			#if not hitDetect(i.pos, (i.pos[0]+i.size[0], i.pos[1]+i.size[1]), (0, 0), (700, 700)):
 				#particles.remove(i)
 			if True:
 				i.pos = (i.pos[0]+i.vel[0], i.pos[1]+i.vel[1])
-				gScreen.blit(i.img[i.frame], i.pos)
+				#gScreen.blit(i.img[i.frame], i.pos)
 				i.time -= 1
 				if i.time == 0:
 					i.frame += 1
 					i.time = 5
-					if i.frame > i.dur and i.dur != -1:
+					if i.frame >= i.dur and i.dur != -1:
 						objects.remove(i)
 
 		#Timer
@@ -864,18 +862,20 @@ def launchResult(result):
 		if time >= 300 and result == "fail1":
 			gScreen.blit(font.render("Launch Failure 1", True, BLACK), [50,50])
 			gScreen.blit(font.render("BUT NOTHING HAPPENED", True, BLACK), [100,300])
+			skipable = True
 		
 		if time >= 300 and result == "fail2":
 			gScreen.blit(font.render("Launch Failure 2", True, BLACK), [50,50])
 			gScreen.blit(font.render("KABOOM", True, BLACK), [100,300])
+			if time == 300:
+				objects.append(movingPart("kaboom", (player.ship.pos[0]+100, player.ship.pos[1]+120), [0, 0], splosionpic, 10))
+				skipable = True
+				if sounds:
+					pygame.mixer.Sound.play(explosion)
 
 			#put it off screen, keep it there
 			objects[0].vel = [0, 0]
 			objects[0].pos = [700, 0]
-			if time == 300:
-				objects.append(movingPart("kaboom", player.ship.pos, [0, 0], splosionpic, 10))
-				if sounds:
-					pygame.mixer.Sound.play(explosion)
 			
 		if time >= 400 and result == "fail3":
 			#explosion
@@ -883,14 +883,15 @@ def launchResult(result):
 			gScreen.blit(font.render("KABOOM", True, BLACK), [100,100])
 			if "fuelNuclear" in player.rocketspecs:
 				Anukes.get()
+			if time == 400:
+				objects.append(movingPart("kaboom", (player.ship.pos[0]+100, player.ship.pos[1]+120), [0, 0], splosionpic, 10))
+				skipable = True
+				if sounds:
+					pygame.mixer.Sound.play(explosion)
 
 			#put it off screen, keep it there
 			objects[0].vel = [0, 0]
 			objects[0].pos = [700, 0]
-			if time == 400:
-				objects.append(movingPart("kaboom", player.ship.pos, [0, 0], splosionpic, 10))
-				if sounds:
-					pygame.mixer.Sound.play(explosion)
 			
 		if time >= 450 and result == "success":
 			gScreen.blit(font.render("Launch Success!", True, BLACK), [50,50])
@@ -898,12 +899,16 @@ def launchResult(result):
 				Atoast.get()
 			if "fuelNuclear" in player.rocketspecs and fails == 2:
 				Ahl.get()
+		if time == 460:
+			objects[0].pos = [700, 0]
+			skipable = True
 		
 		for achive in allAchives:
 			achive.update()
 		
 		pygame.display.update()
 		clock.tick(60)
+	objects = []
 	player.ship.vel = [0, 0]
 	player.ship.pos = [400, 120]
 		
@@ -915,7 +920,7 @@ done, running = False, True
 day = 0
 month = 1
 year = 1957 #year beginning the space race
-govFunding = 6
+govFunding = 4
 while running:
 	day += 1
 	newMonth = False
@@ -957,7 +962,7 @@ while running:
 	printDebug("[][][][][][][][][][][][][][][][][] Day " + str(player.days) + " [][][][][][][][][][][][][][][][][]")
 	
 	#see if a question can be added
-
+	
 	addQuestion(possiblequestions, [[player.money, "greater", 6], [player.rocketspecs, "notSpec", "hotel"]], hotel)
 	addQuestion(possiblequestions, [[player.money, "lesser", 4], [player.rocketspecs, "notSpec", "ToasterChassis"]], toaster)
 	addQuestion(possiblequestions, [[player.money, "lesser", 8]], bakesale)
@@ -1034,6 +1039,17 @@ while running:
 				mouse_down = True
 			elif event.type == pygame.MOUSEBUTTONUP:
 				mouse_down = False
+			elif event.type == pygame.KEYDOWN and debug:
+				if event.key == K_1:
+					launchResult("fail1", True)
+				elif event.key == K_2:
+					launchResult("fail2", True)
+				elif event.key == K_3:
+					launchResult("fail3", True)
+				elif event.key == K_4:
+					print "Impossibility factor: ", player.impossiblilyFactor
+					print "Cost: ", player.cost
+					print "Full: ", player.full
 		mouse_pos = pygame.mouse.get_pos()
 
 		gScreen.fill(WHITE)
@@ -1158,6 +1174,7 @@ while running:
 	# 0.4% progress is made per engie per hour per 5 scientists
 	# Meaning in an average work day, 
 	player.progress += round(player.time * ((.2*player.scientists)+1)*player.engineers*0.4, 2)
+
 	#Campaigners raise $70 an hour
 	camMoney = round(0.07 * player.campaigners * player.time, 3)
 	#engies are paid $50 an hour
@@ -1177,10 +1194,11 @@ while running:
 	feedback1.append("After a full day of work...")
 	if player.campaigners > 0:
 		feedback1.append("   Your campaigners raise "+str(camMoney)+"K")
+
 	if funded:
 		#6 is default reduced per turn with 1 sci & math, and 2 eng
 		player.money += govFunding
-		feedback1.append("   You gain 6K in government funding.")
+		feedback1.append("   You gain 4K in government funding.")
 	if "privateFund1" in player.specs:
 		player.money += 4
 		feedback1.append("   You gain 4K from private sectors.")
@@ -1189,8 +1207,6 @@ while running:
 	feedback1.append("Your engineers spend "+str(engSpending)+"K")
 	player.costHistory.append(engSpending)
 	feedback1.append("Your mathematitions reduce chance of failiure by "+str(matFailReduction)+"%")
-	
-	
 	feedback1.append("")
 	feedback1 += feedback
 	feedback1.append("")
