@@ -1,6 +1,7 @@
 import random
 import math
 import pygame
+from pygame.locals import *
 
 clock = pygame.time.Clock()
 
@@ -550,20 +551,13 @@ splosionpic = getpartimg("splosion", 10)
 class movingPart(object):
 	def __init__(self, id, pos, vel, img, duration = -1):
 		self.name = id
-		self.frame = len(img)-1
+		self.frame = 0
 		self.size = img[0].get_size()
 		self.pos = [pos[0]-(self.size[0]/2), pos[1]-(self.size[1]/2)]
 		self.vel = vel
 		self.img = img
 		self.dur = duration
 		self.time = duration
-	def update(self):
-		self.time -= 1
-		if self.time == 0:
-			self.time = 5
-			self.frame -= 1
-		self.pos = [self.pos[0]+self.vel[0], self.pos[1]+self.vel[1]]
-
 
 #Player object
 class Player(object):
@@ -682,6 +676,7 @@ class Player(object):
 
 player = Player(18, 0, 100, 1, 2, 1, 0)
 prePlayer = player.buildNew()
+player.ship.pos = [400, 120]
 
 class Achive(object):
 	def __init__(self, Id, name, desc, img):
@@ -830,16 +825,16 @@ def launchResult(result):
 		for i in objects:
 			gScreen.blit(i.img[i.frame], i.pos)
 
-			#if not collide(i.pos, i.size, (0, 0), (screenX, screenY)):
+			#if not hitDetect(i.pos, (i.pos[0]+i.size[0], i.pos[1]+i.size[1]), (0, 0), (700, 700)):
 				#particles.remove(i)
 			if True:
 				i.pos = (i.pos[0]+i.vel[0], i.pos[1]+i.vel[1])
-				gScreen.blit(i.img[i.frame], i.pos)
+				#gScreen.blit(i.img[i.frame], i.pos)
 				i.time -= 1
 				if i.time == 0:
 					i.frame += 1
 					i.time = 5
-					if i.frame > i.dur and i.dur != -1:
+					if i.frame >= i.dur and i.dur != -1:
 						objects.remove(i)
 
 		#Timer
@@ -862,14 +857,14 @@ def launchResult(result):
 		if time >= 300 and result == "fail2":
 			gScreen.blit(font.render("Launch Failure 2", True, BLACK), [50,50])
 			gScreen.blit(font.render("KABOOM", True, BLACK), [100,300])
+			if time == 300:
+				objects.append(movingPart("kaboom", (player.ship.pos[0]+100, player.ship.pos[1]+120), [0, 0], splosionpic, 10))
+				if sounds:
+					pygame.mixer.Sound.play(explosion)
 
 			#put it off screen, keep it there
 			objects[0].vel = [0, 0]
 			objects[0].pos = [700, 0]
-			if time == 300:
-				objects.append(movingPart("kaboom", player.ship.pos, [0, 0], splosionpic, 10))
-				if sounds:
-					pygame.mixer.Sound.play(explosion)
 			
 		if time >= 400 and result == "fail3":
 			#explosion
@@ -877,14 +872,14 @@ def launchResult(result):
 			gScreen.blit(font.render("KABOOM", True, BLACK), [100,100])
 			if "fuelNuclear" in player.rocketspecs:
 				Anukes.get()
+			if time == 400:
+				objects.append(movingPart("kaboom", (player.ship.pos[0]+100, player.ship.pos[1]+120), [0, 0], splosionpic, 10))
+				if sounds:
+					pygame.mixer.Sound.play(explosion)
 
 			#put it off screen, keep it there
 			objects[0].vel = [0, 0]
 			objects[0].pos = [700, 0]
-			if time == 400:
-				objects.append(movingPart("kaboom", player.ship.pos, [0, 0], splosionpic, 10))
-				if sounds:
-					pygame.mixer.Sound.play(explosion)
 			
 		if time >= 450 and result == "success":
 			gScreen.blit(font.render("Launch Success!", True, BLACK), [50,50])
@@ -1028,6 +1023,13 @@ while running:
 				mouse_down = True
 			elif event.type == pygame.MOUSEBUTTONUP:
 				mouse_down = False
+			elif event.type == pygame.KEYDOWN:
+				if event.key == K_1:
+					launchResult("fail1")
+				elif event.key == K_2:
+					launchResult("fail2")
+				elif event.key == K_3:
+					launchResult("fail3")
 		mouse_pos = pygame.mouse.get_pos()
 
 		gScreen.fill(WHITE)
