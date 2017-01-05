@@ -190,6 +190,9 @@ def hitDetect(p1, p2, p3, p4):
 	if p2[0] > p3[0] and p1[0] < p4[0] and p2[1] > p3[1] and p1[1] < p4[1]:
 		return True
 		
+
+	
+		
 class Result(object):
 	#doings is list of operations, operations is a tuple of the operation and the number
 	def __init__(self, desc, result, doings):
@@ -414,6 +417,8 @@ class Result(object):
 				#self.feedback.append("Your project has shrunk.")
 				player.setpart("material")
 			if o == "addTime":
+			#player.time = (player.time + <amount you want to increment>) * 1.125 - (((player.time + <amount you want to increment>) - 8) * 0.125)
+			#
 				if n < 0:
 					if player.baseTime + n < 0:
 						self.feedback.append("Your work hours cannot shrink any more.")
@@ -421,7 +426,7 @@ class Result(object):
 						self.feedback.append("Your work hours have shrunk.")
 						player.baseTime += n
 				else:
-					if player.baseTime + n > 3:
+					if player.baseTime + n > 24:
 						self.feedback.append("You cannot go above a 24 hour workday.")
 					else:
 						self.feedback.append("Your work hours have increased.")
@@ -585,7 +590,8 @@ class Player(object):
 		self.rocketspecs = []
 		self.impossiblilyFactor = 1
 		self.baseTime = 1
-		self.time = 1
+		self.time = 8
+		self.overtime = 0
 		self.netMoneyHistory = []
 		self.netMoneyMean = 0
 		#ship type stuff
@@ -1138,18 +1144,39 @@ while running:
 	#Abegining.get()
 	if "AI" in player.specs:
 		Aai.get()
-	player.failChance -= round(player.time * math.sqrt(player.maths) / player.impossiblilyFactor, 2)
+	#overtime
+	
+	
+	#Maths reduce fail chance by sqrt of maths / impossiblilyFactor per hour
+	
+	matFailReduction = round(player.time * (math.sqrt(player.maths) / player.impossiblilyFactor), 2)
+	player.failChance -= matFailReduction
 	if player.failChance < 1:
 		player.failChance = 1
 	if player.progress < 0:
 		player.progress = 0
+	# 0.4% progress is made per engie per hour per 5 scientists
+	# Meaning in an average work day, 
 	player.progress += round(player.time * ((.2*player.scientists)+1)*player.engineers*0.4, 2)
-	player.money += round((0.8 * player.campaigners * player.time) - ((0.2 * player.engineers) + (0.3*player.maths) + (0.3*player.scientists) + (player.time*player.cost*player.engineers)), 1)
+	#Campaigners raise $70 an hour
+	camMoney = round(0.07 * player.campaigners * player.time, 3)
+	#engies are paid $50 an hour
+	engMoney = round(0.05 * player.engineers * player.time, 3)
+	#maths are paid $80 an hour
+	matMoney = round(0.08 * player.maths * player.time, 3)
+	#scientists are paid $80 an hour
+	sciMoney = round(0.08 * player.scientists * player.time, 3)
+	#Engineers spend player.cost on the rocket per engineer per hour
+	engSpending = player.time*player.cost*player.engineers
+	# 3 campaigners will balance out 1 of each proffesion
+	
+	
+	player.money += camMoney - (engMoney + matMoney + sciMoney + engSpending)
 	
 	feedback1 = []
 	feedback1.append("After a full day of work...")
 	if player.campaigners > 0:
-		feedback1.append("   Your campaigners raise "+str(round(2*player.campaigners * player.time, 1))+"K")
+		feedback1.append("   Your campaigners raise "+str(camMoney)+"K")
 	if funded:
 		#6 is default reduced per turn with 1 sci & math, and 2 eng
 		player.money += govFunding
@@ -1158,10 +1185,10 @@ while running:
 		player.money += 4
 		feedback1.append("   You gain 4K from private sectors.")
 		
-	feedback1.append("You pay your employees "+str(player.maths+player.scientists+player.engineers)+"K")
-	feedback1.append("Your engineers spend "+str(round(player.time*player.engineers*player.cost, 1))+"K")
-	player.costHistory.append(round(player.time*player.engineers*player.cost, 1))
-	feedback1.append("Your mathematitions reduce chance of failiure by "+str(round(player.time * math.sqrt(player.maths) / player.impossiblilyFactor, 2))+"%")
+	feedback1.append("You pay your employees "+str(engMoney+matMoney+sciMoney)+"K")
+	feedback1.append("Your engineers spend "+str(engSpending)+"K")
+	player.costHistory.append(engSpending)
+	feedback1.append("Your mathematitions reduce chance of failiure by "+str(matFailReduction)+"%")
 	
 	
 	feedback1.append("")
