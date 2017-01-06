@@ -946,9 +946,9 @@ while running:
 	printDebug("[][][][][][][][][][][][][][][][] Day " + str(player.days) + " [][][][][][][][][][][][][][][][][]")
 	
 	#see if a question can be added
-	addQuestion([[player.money, "lesser", 4], [player.rocketspecs, "notSpec", "ToasterChassis"]], toaster)
-	addQuestion([[player.money, "lesser", 8]], bakesale)
-	addQuestion([[player.money, "lesser", 1]], loan)
+	addQuestion([[player.money, "lesser", 10], [player.rocketspecs, "notSpec", "ToasterChassis"]], toaster)
+	addQuestion([[player.money, "lesser", 12]], bakesale)
+	addQuestion([[player.money, "lesser", 5]], loan)
 	addQuestion([[player.money, "greater", 6], [player.rocketspecs, "notSpec", "hotel"]], hotel)
 	addQuestion([[player.money, "greater", 10], [player.netMoneyMean, "greater", 1]], hire1)
 	addQuestion([[player.money, "greater", 4], [player.netMoneyMean, "greater", 0]], hire2)
@@ -1141,30 +1141,42 @@ while running:
 	#Abegining.get()
 	if "AI" in player.specs:
 		Aai.get()
+
+	#player.money += round((0.8 * player.campaigners * player.time) - ((0.2 * player.engineers) + (0.3*player.maths) + (0.3*player.scientists) + (player.time*player.cost*player.engineers)), 1)
+	#player.money += round((0.1 * player.time) * (8*player.campaigners - player.engineers*(2 + 10 * player.cost) - 3*(player.maths + player.scientists) -1), 1)
+	feedback1 = []
+	feedback1.append("After a full day of work...")
+	if player.campaigners > 0:
+		feedback1.append("   Your campaigners raise "+str(round(0.8*player.campaigners * player.time, 1))+"K")
+		player.money += round(0.8*player.campaigners * player.time, 1)
+	if funded:
+		player.money += govFunding
+		feedback1.append("   You gain "+str(govFunding)+"K in government funding.")
+	if "hotel" in player.rocketspecs:
+		player.money += 4
+		feedback1.append("   You gain 4K from private sectors.")
+		
+	feedback1.append("You pay your employees "+str(round(0.3*player.time*(player.maths+player.scientists)+0.2*player.engineers, 1))+"K")
+	player.money -= round(player.time*(0.3*(player.maths+player.scientists)+0.2*player.engineers+0.1), 1)
+
 	player.failChance -= round(player.time * math.sqrt(player.maths) / player.impossiblilyFactor, 2)
 	if player.failChance < 1:
 		player.failChance = 1
 	if player.progress < 0:
 		player.progress = 0
+	
+	rand = 0
 	player.progress += round(player.time * ((.2*player.scientists)+1)*player.engineers*0.4, 2)
-	#player.money += round((0.8 * player.campaigners * player.time) - ((0.2 * player.engineers) + (0.3*player.maths) + (0.3*player.scientists) + (player.time*player.cost*player.engineers)), 1)
-	player.money += round((0.1 * player.time) * (8*player.campaigners - player.engineers*(2 + 10 * player.cost) - 3*(player.maths + player.scientists) -1), 1)
-	feedback1 = []
-	feedback1.append("After a full day of work...")
-	if player.campaigners > 0:
-		feedback1.append("   Your campaigners raise "+str(round(0.8*player.campaigners * player.time, 1))+"K")
-	if funded:
-		#6 is default reduced per turn with 1 sci & math, and 2 eng
-		player.money += govFunding
-		feedback1.append("   You gain "+str(govFunding)+"K in government funding.")
-	if "privateFund1" in player.specs:
-		player.money += 4
-		feedback1.append("   You gain 4K from private sectors.")
-		
-	feedback1.append("You pay your employees "+str(0.3*(player.maths+player.scientists)+0.2*player.engineers)+"K")
-	feedback1.append("Your engineers spend "+str(round(player.time*player.engineers*player.cost, 1))+"K")
-	player.costHistory.append(round(player.time*player.engineers*player.cost, 1))
-	feedback1.append("Your mathematitions reduce chance of failiure by "+str(round(player.time * math.sqrt(player.maths) / player.impossiblilyFactor, 2))+"%")
+	if player.progress/player.full >= 1.2:
+		player.progress = 1.2*player.full
+		rand = round(player.time * math.sqrt(0.6*(player.scientists+player.engineers)) / (player.impossiblilyFactor*2), 2)
+		feedback1.append("Your engineers and scientists help reduce fail chance.")
+	else:
+		feedback1.append("Your engineers spend "+str(round(player.time*player.engineers*player.cost, 1))+"K")
+		player.money -= player.time*player.cost*player.engineers
+		player.costHistory.append(round(player.time*player.engineers*player.cost, 1))
+
+	feedback1.append("Your mathematitions reduce chance of failiure by "+str(round(player.time * math.sqrt(player.maths) / player.impossiblilyFactor, 2)+rand)+"%")
 	
 	feedback1.append("")
 	feedback1 += feedback
