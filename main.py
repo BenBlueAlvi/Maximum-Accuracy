@@ -500,7 +500,7 @@ workload = Prompt("workload", ["Your project is currently gaining heavy profits.
 
 #Money and materials
 bakesale = Prompt("bakesale", ["One of your campaigners suggests:", "We should have a bake sale to raise money."], [Result("Sure, but only if I can have some too.", "After having a bakesale", [["addmoney", 2], ["addflav", "The bake sale premotes working in the areospace industy"], ["addpop", 1]]), Result("No, I hate baked goods", "After not having a bake sale..", [["addflav", "Some people were really looking forward to that bake sale."],["subpop", 1]])], 3)
-adcampaign = Prompt("adcampaign", ["One of your mathmatitions suggests", "an add campaign to hire people."], [Result("Yeah, we need the staff", "After creating an amazing ad campaign...", [["addmoney", -4], ["addpop", 4]]), Result("No, we don't have enough money.", "After not creating an amazing ad campaign...", [["addflav", "Nothing changes"]])], 5)
+adcampaign = Prompt("adcampaign", ["One of your mathmatitions suggests", "an ad campaign to hire people."], [Result("Yeah, we need the staff", "After creating an amazing ad campaign...", [["addmoney", -4], ["addpop", 4]]), Result("No, we don't have enough money.", "After not creating an amazing ad campaign...", [["addflav", "Nothing changes"]])], 5)
 materials = Prompt("materials", ["One of your scientists approaches you:", "We need to discuss our materials."], [Result("How about all carbon fiber?", "After using hi-tech materials:", [["addfail", -4], ["rocketspec", "hi-tech"], ["setMat", PMNano]]), Result("Why not normal materials, like steel?", "After deciding to use standard materials:", [["addflav", "Engineers are attracted to the ease of their jobs."], ["addeng", 1], ["rocketspec", "steel"], ["setMat", PMIron]]), Result("Lets think cheap. Duct-tape cheap.", "After deciding to use low-cost materials:", [["setMat", PMTape], ["addfail", 20], ["addflav", "Some of your mathmatitions can't handle the absurdity of this project."], ["addmat", -2], ["rocketspec", "ductTape"]])], 99)
 fuels = Prompt("fuels", ["An engineer approaches you:", "So, uh.. What should we use for fuel?"], [Result("Nuclear would be the most powerful.", "After deciding to place a nuclear reactor within the rocket:", [["addfail", 2], ["addmoney", -2], ["rocketspec", "fuelNuclear"], ["setpart", "Mnuclear"]]), Result("How about we design a rocket specific fuel?", "After deciding to design rocket fuel..", [["addfail", -5], ["addmon", -2], ["addIfactor", 0.1], ["rocketspec", "fuelRocket"], ["setpart", "Mnormal"]]), Result("Car fuel, we need to save money", "After deciding to use car fuel...", [["addflav", "Some people belive you aren't taking this job seriously"], ["subpop", 2],["addfail", -2], ["addmoney", -4], ["rocketspec", "fuelCar"], ["setpart", "Mcar"]])], 99)
 
@@ -734,9 +734,10 @@ Abegining = Achive("begining", "Day 1", "you win nothing, because it's impossibl
 Atoast = Achive("toaster", "It could run on a toaster", "Succesfully launch a spaceship with a toaster chassis", "wip")
 Anukes = Achive("nukes", "Fallout", "Blow up a nuke in midair, destroying the lab", "wip")
 Aai = Achive("ai", "That cake is a lie", "Get some cake from a friendly AI", "cake")
-Ahl = Achive("hl3", "Half life 3 confirmed", "Succesfully launch your third rocket using a radioactive power source", "wip")
+Ahl = Achive("hl3", "Half life 3 confirmed", "Succesfully launch your third rocket using a radioactive power source", "hl3")
 Acaffine = Achive("caffine", "Caffinated Crew", "Build a ship with 5 caffinated additions", "coffee")
 Adownhill = Achive("downhill", "Downhill", "Horribly fail an inspection", "downhill")
+Arats = Achive("rats", "Rat-stronauts", "Launch rats into space", "rats")
 
 allAchives = [Atoast, Anukes, Abegining, Aai, Ahl, Acaffine]
 			
@@ -880,10 +881,12 @@ def launchResult(result, skipable = False):
 			
 		if time >= 450 and result == "success":
 			gScreen.blit(font.render("Launch Success!", True, BLACK), [50,50])
-			if "ToasterChassis" in player.rocketspecs:
-				Atoast.get()
-			if "fuelNuclear" in player.rocketspecs and player.launches == 2:
+			if PErats in player.otherparts:
+				Arats.get()
+			if player.main == PMnuclear and player.launches == 2:
 				Ahl.get()
+			if player.chassis == PCtoaster:
+				Atoast.get()
 		if time == 460:
 			objects[0].pos = [700, 0]
 			skipable = True
@@ -1245,7 +1248,7 @@ while running:
 		gScreen.fill(WHITE)
 		gScreen.blit(end_of_day_pic, [190, 90])
 		for i in range(len(feedback)):
-			gScreen.blit(font.render(feedback[i], True, BLACK), [200, 100+(i*20)])
+			gScreen.blit(font.render(feedback[i], True, BLACK), [220, 120+(i*20)])
 		
 		for event in pygame.event.get(): 
 			if event.type == pygame.QUIT: 
