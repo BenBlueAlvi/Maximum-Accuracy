@@ -939,8 +939,7 @@ while running:
 	for q in player.questionsAnswered:
 		q.daysSince +=1
 		
-	if player.launches >=1:
-		player.daysSinceLaunch += 1
+	player.daysSinceLaunch += 1
 	inspectionChance = random.randint(1,25)
 	
 	#Before choosing an answer
@@ -996,10 +995,10 @@ while running:
 
 		
 
-	if player.daysSinceLaunch == 1 or player.days == 1:
+	if player.daysSinceLaunch == 1:
 		theQuestion = materials
 		possiblequestions.append(materials)
-	elif player.daysSinceLaunch == 2 or player.days == 2:
+	elif player.daysSinceLaunch == 2:
 		theQuestion = fuels
 		possiblequestions.append(fuels)
 		
