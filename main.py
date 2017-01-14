@@ -881,7 +881,7 @@ def launchResult(result, skipable = False):
 			
 		if time >= 450 and result == "success":
 			gScreen.blit(font.render("Launch Success!", True, BLACK), [50,50])
-			if PErats in player.otherparts:
+			if PErats in player.otherParts:
 				Arats.get()
 			if player.main == PMnuclear and player.launches == 2:
 				Ahl.get()
@@ -1168,7 +1168,7 @@ while running:
 		player.progress = 0
 	
 	rand = 0
-	player.progress += round(player.time * ((.2*player.scientists)+1)*player.engineers*0.4, 2)
+	player.progress += round(player.time * ((.3*player.scientists)+1)*player.engineers*0.4, 2)
 	if player.progress/player.full >= 1.2:
 		player.progress = 1.2*player.full
 		rand = round(player.time * math.sqrt(0.6*(player.scientists+player.engineers)) / (player.impossiblilyFactor*2), 2)
