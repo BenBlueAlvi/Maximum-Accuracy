@@ -226,6 +226,16 @@ class Result(object):
 				else:
 					player.money += n
 					self.feedback.append("You gain $"+str(n)+"K")
+			elif o == "multmoney":
+				if n < 1:
+					
+					player.money *= n
+					self.feedback.append("Your money decreases by "+str(n * 100)+"%")
+				else:
+					
+					player.money *= n
+					self.feedback.append("Your money increases by "+str((n - 1) * 100)+"%")
+				
 			elif o == "addfail":
 				if n < 0:
 					self.feedback.append("Estamates show that the chance of faliure has decreased by "+str(-n)+"%")
@@ -516,7 +526,7 @@ silos = Prompt("silos", ["One very frugel lab assistant approches you:", "We don
 sodamachine = Prompt("sodamachine", ["A promising scientist asks if they can", "install a soda machine in the lab."], [Result("Sure, how much will it cost me?", "After installing a soda machine in the lab...", [["addmoney", -2], ["overtime", 0.2], ["spec", "sodaMachine"]]), Result("No, we don't have the money.", "After not installing a soda machine in the lab.", [["overtime", -0.1], ["addflav", "Your employees seem a bit slow today."]])], 10)
 spaceSoda = Prompt("spaceSoda", ["A campainer approaches you:", "Can we put some coffee in the rocket?"], [Result("Of course, the extra sugar will help us do more research!", "After adding some soda to the rocket plans...", [["addmoney", -1], ["addfail", 3], ["addprog", 1], ["rocketspec", "soda"], ["spec", "caffinate"], ["setpart", PEcoffee]]), Result("No, soda is unhealthy and will make the astronauts ill.", "After proritizing the health of your astronauts...", [["addfail", -1], ["addmat", 1], ["addflav", "A mathmatition joins due to reports of a healthy climate."]])], 10)
 rats = Prompt("rats", ["Your janitor, Scruffy, has informed you of an infestation of rats."], [Result("Who cares about some rats?", "After letting the rats go loose:", [["addfail", 15], ["subpop", 4], ["addspec", "rats"], ["setpart", PErats]]), Result("We can deal with it ourselves.", "After prying apart your ship in search for rats...", [["multprog", 0.8], ["addfail", 10]]), Result("This is a job for professionals.", "After the professionals arrive:", [["addmoney", -4], ["overtime", -0.5]])], 25)
-
+scamers = Prompt("scams", ["Unfortunatly, it seems that one of those 'legit'", "campaigners you hired was a scamer.", "They have taken quite a large amount of money from the lab's account."], [Result("Crap! Fire them immediatly!", "after firing a 'legit' scamer..", [["multmoney", 0.5], ["addcam", -1]]), Result("No, that money went to work on the rocket, I'm sure.", "after the money goes to work on the rocket...", [["multmoney", 0.4]])], 20)
 
 #interesting ideas
 fsc = Prompt("fsc", ["Upon seeing how well the rocket is going,", "an advisor from the Futuristic Science Corp.", "wishes to partner with you."], [Result("Together we will do great things.", "After partnering with the FSC...", [["addflav", "The project has drasticly increased in size."], ["spec", "JoinedFSC"], ["addmoney", 20], ["setpart", PEfsc1]]), Result("I'm sorry, I would prefer to go alone.", "After making the mistake of not partnering with the FSC..", [["addflav", "You feel you have made a horrible mistake."]])], 99)
@@ -961,6 +971,7 @@ while running:
 	addQuestion([[player.money, "greater", 25], [player.specs, "notSpec", "JoinedFSC"]], fsc)
 	addQuestion([[player.netMoneyMean, "greater", 3]], workload)
 	addQuestion([[player.netMoneyMean, "greater", 3]], adcampaign)
+	addQuestion([[player.netMoneyMean, "greater", 3], [player.money, "greater", 100], [player.campaigners, "greater", 2]], scamers)
 	addQuestion([[player.netMoneyMean, "lesser", 0], [player.daysSinceLaunch, "greater", 3]], fire1)
 	addQuestion([[player.netMoneyMean, "lesser", 0], [player.daysSinceLaunch, "greater", 3]], fire2)
 	addQuestion([[player.rocketspecs, "notSpec", "coffeeMachine"], [player.money, "greater", 2]], coffee)
@@ -1193,11 +1204,11 @@ while running:
 	#feedback1.append("Current progress: "+str(player.progress)+"%")
 	#Inspections
 	if "Inspection" in player.specs:
-		inspectionPoints = 50
+		inspectionPoints = 75
 		if player.chassis == PCtoaster:
 			inspectionPoints -= 15
 		if player.chassis == PChotel:
-			inspectionPoints -= 8
+			inspectionPoints -= 10
 		if player.booster == PBsilo:
 			inspectionPoints -= 10
 		if player.material == PMTape:
@@ -1206,23 +1217,27 @@ while running:
 			inspectionPoints -= 5
 		if "coffeeMachine" in player.rocketspecs:
 			inspectionPoints -= 5
+		if "coffeeMachine" in player.rocketspecs:
+			inspectionPoints -= 5
+		if "rats" in player.specs:
+			inspectionPoints -= 15
 		if PEai in player.otherParts:
 			inspectionPoints += 20
 		if PEshield in player.otherParts:
 			inspectionPoints += 10
 		
-		feedback1.append("You got " + str(inspectionPoints) + "/" + "50 on the inspection.")
+		feedback1.append("You got " + str(inspectionPoints) + "/" + "75 on the inspection.")
 		
-		if inspectionPoints < 25:
+		if inspectionPoints < 37:
 			govFunding -= 2
 			
 			feedback1.append("Unsatisfied, government funding has decreased")
-		elif inspectionPoints <= 0:
+		elif inspectionPoints <= 5:
 			govFunding -= 4
 			feedback1.append("disapproving of your management,")
 			feedback1.append("government funding has significantly decreased.")
 			Adownhill.get()
-		elif inspectionPoints > 50:
+		elif inspectionPoints > 75:
 			govFunding += 2
 			feedback1.append("Inpressed with your work,")
 			feedback1.append("government funding has increased.")
@@ -1246,11 +1261,21 @@ while running:
 	feedback, prePlayer = feedback1, player.buildNew()
 	
 	done, mouse_down = False, False
+	clipboard_y = -600
+	clipboard_vel = 11.8
 	while not done and running:
 		gScreen.fill(WHITE)
-		gScreen.blit(end_of_day_pic, [190, 90])
+		clipboard = pygame.Surface([500, 600])
+		clipboard.blit(end_of_day_pic, [0, 0])
 		for i in range(len(feedback)):
-			gScreen.blit(font.render(feedback[i], True, BLACK), [220, 120+(i*20)])
+			clipboard.blit(font.render(feedback[i], True, BLACK), [30, 30+(i*20)])
+		gScreen.blit(clipboard, [190, clipboard_y])
+		if not clipboard_y >= 90:
+			clipboard_y += clipboard_vel
+		if not clipboard_vel <= 0:
+			clipboard_vel -= 0.1
+		else:
+			clipboard_vel = 0
 		
 		for event in pygame.event.get(): 
 			if event.type == pygame.QUIT: 
