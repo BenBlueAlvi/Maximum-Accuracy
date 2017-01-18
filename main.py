@@ -1243,11 +1243,21 @@ while running:
 	feedback, prePlayer = feedback1, player.buildNew()
 	
 	done, mouse_down = False, False
+	clipboard_y = -600
+	clipboard_vel = 11.8
 	while not done and running:
 		gScreen.fill(WHITE)
-		gScreen.blit(end_of_day_pic, [190, 90])
+		clipboard = pygame.Surface([500, 600])
+		clipboard.blit(end_of_day_pic, [0, 0])
 		for i in range(len(feedback)):
-			gScreen.blit(font.render(feedback[i], True, BLACK), [220, 120+(i*20)])
+			clipboard.blit(font.render(feedback[i], True, BLACK), [30, 30+(i*20)])
+		gScreen.blit(clipboard, [190, clipboard_y])
+		if not clipboard_y >= 90:
+			clipboard_y += clipboard_vel
+		if not clipboard_vel <= 0:
+			clipboard_vel -= 0.1
+		else:
+			clipboard_vel = 0
 		
 		for event in pygame.event.get(): 
 			if event.type == pygame.QUIT: 
