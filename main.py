@@ -527,6 +527,7 @@ sodamachine = Prompt("sodamachine", ["A promising scientist asks if they can", "
 spaceSoda = Prompt("spaceSoda", ["A campainer approaches you:", "Can we put some coffee in the rocket?"], [Result("Of course, the extra sugar will help us do more research!", "After adding some soda to the rocket plans...", [["addmoney", -1], ["addfail", 3], ["addprog", 1], ["rocketspec", "soda"], ["spec", "caffinate"], ["setpart", PEcoffee]]), Result("No, soda is unhealthy and will make the astronauts ill.", "After proritizing the health of your astronauts...", [["addfail", -1], ["addmat", 1], ["addflav", "A mathmatition joins due to reports of a healthy climate."]])], 10)
 rats = Prompt("rats", ["Your janitor, Scruffy, has informed you of an infestation of rats."], [Result("Who cares about some rats?", "After letting the rats go loose:", [["addfail", 15], ["subpop", 4], ["addspec", "rats"], ["setpart", PErats]]), Result("We can deal with it ourselves.", "After prying apart your ship in search for rats...", [["multprog", 0.8], ["addfail", 10]]), Result("This is a job for professionals.", "After the professionals arrive:", [["addmoney", -4], ["overtime", -0.5]])], 25)
 scamers = Prompt("scams", ["Unfortunatly, it seems that one of those 'legit'", "campaigners you hired was a scamer.", "They have taken quite a large amount of money from the lab's account."], [Result("Crap! Fire them immediatly!", "after firing a 'legit' scamer..", [["multmoney", 0.5], ["addcam", -1]]), Result("No, that money went to work on the rocket, I'm sure.", "after the money goes to work on the rocket...", [["multmoney", 0.4]])], 20)
+chemicalSpill = Prompt("chemicals", ["One of your more incompetent scientists", "has spills some particularly volitile chemicals", "all over the science work station.", "Somehow."], [Result("Welp, call in the cleanup crews!", "After a quite expensive cleanup...", [["addfail", 20], ["addmoney", -25]]), Result("We neither have the money nor the time to spend on cleanup! Work out of your houses if you have to!", "After the scientist begin working from home...", [["addfail", -30], ["spec", "chemSpill"]])], 99)
 
 #interesting ideas
 fsc = Prompt("fsc", ["Upon seeing how well the rocket is going,", "an advisor from the Futuristic Science Corp.", "wishes to partner with you."], [Result("Together we will do great things.", "After partnering with the FSC...", [["addflav", "The project has drasticly increased in size."], ["spec", "JoinedFSC"], ["addmoney", 20], ["setpart", PEfsc1]]), Result("I'm sorry, I would prefer to go alone.", "After making the mistake of not partnering with the FSC..", [["addflav", "You feel you have made a horrible mistake."]])], 99)
@@ -969,9 +970,10 @@ while running:
 	addQuestion([[player.money, "greater", 5], [player.rocketspecs, "notSpec", "soda"]], spaceSoda)
 	addQuestion([[player.money, "greater", 5]], coffeeShipments)
 	addQuestion([[player.money, "greater", 25], [player.specs, "notSpec", "JoinedFSC"]], fsc)
+	addQuestion([[player.money, "greater", 30], [player.specs, "notSpec", "chemSpill"]], chemicalSpill)
 	addQuestion([[player.netMoneyMean, "greater", 3]], workload)
 	addQuestion([[player.netMoneyMean, "greater", 3]], adcampaign)
-	addQuestion([[player.netMoneyMean, "greater", 3], [player.money, "greater", 100], [player.campaigners, "greater", 2]], scamers)
+	addQuestion([[player.netMoneyMean, "greater", 4], [player.money, "greater", 100], [player.campaigners, "greater", 2]], scamers)
 	addQuestion([[player.netMoneyMean, "lesser", 0], [player.daysSinceLaunch, "greater", 3]], fire1)
 	addQuestion([[player.netMoneyMean, "lesser", 0], [player.daysSinceLaunch, "greater", 3]], fire2)
 	addQuestion([[player.rocketspecs, "notSpec", "coffeeMachine"], [player.money, "greater", 2]], coffee)
