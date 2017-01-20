@@ -525,7 +525,7 @@ silos = Prompt("silos", ["One very frugel lab assistant approches you:", "We don
 #mtndew = Prompt("mtndew", [""])
 sodamachine = Prompt("sodamachine", ["A promising scientist asks if they can", "install a soda machine in the lab."], [Result("Sure, how much will it cost me?", "After installing a soda machine in the lab...", [["addmoney", -2], ["overtime", 0.2], ["spec", "sodaMachine"]]), Result("No, we don't have the money.", "After not installing a soda machine in the lab.", [["overtime", -0.1], ["addflav", "Your employees seem a bit slow today."]])], 10)
 spaceSoda = Prompt("spaceSoda", ["A campainer approaches you:", "Can we put some coffee in the rocket?"], [Result("Of course, the extra sugar will help us do more research!", "After adding some soda to the rocket plans...", [["addmoney", -1], ["addfail", 3], ["addprog", 1], ["rocketspec", "soda"], ["spec", "caffinate"], ["setpart", PEcoffee]]), Result("No, soda is unhealthy and will make the astronauts ill.", "After proritizing the health of your astronauts...", [["addfail", -1], ["addmat", 1], ["addflav", "A mathmatition joins due to reports of a healthy climate."]])], 10)
-rats = Prompt("rats", ["Your janitor, Scruffy, has informed you of an infestation of rats."], [Result("Who cares about some rats?", "After letting the rats go loose:", [["addfail", 15], ["subpop", 4], ["addspec", "rats"], ["setpart", PErats]]), Result("We can deal with it ourselves.", "After prying apart your ship in search for rats...", [["multprog", 0.8], ["addfail", 10]]), Result("This is a job for professionals.", "After the professionals arrive:", [["addmoney", -4], ["overtime", -0.5]])], 25)
+rats = Prompt("rats", ["Your janitor, Scruffy, has informed you of an infestation of rats."], [Result("Who cares about some rats?", "After letting the rats go loose:", [["addfail", 15], ["subpop", 4], ["spec", "rats"], ["setpart", PErats]]), Result("We can deal with it ourselves.", "After prying apart your ship in search for rats...", [["multprog", 0.8], ["addfail", 10]]), Result("This is a job for professionals.", "After the professionals arrive:", [["addmoney", -4], ["overtime", -0.5]])], 25)
 scamers = Prompt("scams", ["Unfortunatly, it seems that one of those 'legit'", "campaigners you hired was a scamer.", "They have taken quite a large amount of money from the lab's account."], [Result("Crap! Fire them immediatly!", "after firing a 'legit' scamer..", [["multmoney", 0.5], ["addcam", -1]]), Result("No, that money went to work on the rocket, I'm sure.", "after the money goes to work on the rocket...", [["multmoney", 0.4]])], 20)
 chemicalSpill = Prompt("chemicals", ["One of your more incompetent scientists", "has spills some particularly volitile chemicals", "all over the science work station.", "Somehow."], [Result("Welp, call in the cleanup crews!", "After a quite expensive cleanup...", [["addfail", 20], ["addmoney", -25]]), Result("We neither have the money nor the time to spend on cleanup! Work out of your houses if you have to!", "After the scientist begin working from home...", [["addfail", -30], ["spec", "chemSpill"]])], 99)
 
@@ -1171,8 +1171,11 @@ while running:
 		player.money += govFunding
 		feedback1.append("   You gain "+str(govFunding)+"K in government funding.")
 	if "hotel" in player.rocketspecs:
+		player.money += 2
+		feedback1.append("   You gain 2K from private sectors.")
+	if "JoinedFSC" in player.specs:
 		player.money += 4
-		feedback1.append("   You gain 4K from private sectors.")
+		feedback1.append("   You gain 4K from the FSC")
 		
 	feedback1.append("You pay your employees "+str(round(0.3*player.time*(player.maths+player.scientists)+0.2*player.engineers, 1))+"K")
 	player.money -= round(player.time*(0.3*(player.maths+player.scientists)+0.2*player.engineers+0.1), 1)
@@ -1264,7 +1267,7 @@ while running:
 	
 	done, mouse_down = False, False
 	clipboard_y = -600
-	clipboard_vel = 11.8
+	clipboard_vel = 25
 	while not done and running:
 		gScreen.fill(WHITE)
 		clipboard = pygame.Surface([500, 600])
@@ -1274,10 +1277,12 @@ while running:
 		gScreen.blit(clipboard, [190, clipboard_y])
 		if not clipboard_y >= 90:
 			clipboard_y += clipboard_vel
-		if not clipboard_vel <= 0:
-			clipboard_vel -= 0.1
-		else:
+		if not clipboard_vel <= 0 and clipboard_y > -250:
+			clipboard_vel -= 1
+		if clipboard_vel < 0:
 			clipboard_vel = 0
+		if clipboard_y > 90:
+			clipboard_y = 90
 		
 		for event in pygame.event.get(): 
 			if event.type == pygame.QUIT: 
