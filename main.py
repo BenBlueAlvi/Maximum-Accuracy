@@ -140,38 +140,43 @@ def textbox(size, text, Font):
 	return textbox
 
 class shipPart(object):
-	def __init__(self, name, cost, percent, fail, image):
+	def __init__(self, name, cost, percent, fail, image, dispOut = True):
 		self.name = name
 		self.cost = cost
 		self.perc = percent
 		self.fail = fail
 		self.img = image
+		self.dispOut = dispOut
 
 #part variables start with P, part types are B (booster), M (main), C (chassis), E (extras), materials have M with a T (tape), I (iron), N (nano)
 #frames and materials
 Pframe = getImg("parts/Scaffold")
+PMNone = shipPart("None", 0, 500, 100, getImg("parts/blank"))
 PMTape = shipPart("Tape", -.2, -2, 0.5, getImg("parts/matTape"))
 PMIron = shipPart("Iron", 0, 0, 0, getImg("parts/mainMatIron"))
 PMNano = shipPart("Nano", 0.5, 10, -0.2, getImg("parts/matNano"))
 #Boosters
+PBnone = shipPart("none", 0, 0, 0.5, getImg("parts/blank"))
 PBnormal = shipPart("Normal", 0.2, 30, 0, getImg("parts/boosterNormal"))
 PBsilo = shipPart("Silo", 0.1, 28, 0.4, getImg("parts/boosterSilo"))
 #Mains
+PMnone = shipPart("none", 0, 500, 500, getImg("parts/blank"))
 PMnuclear = shipPart("Nuclear", 0.5, 65, -0.1, getImg("parts/mainNuclear"))
 PMnormal = shipPart("Normal", 0.4, 50, 0, getImg("parts/mainNorm"))
 PMcar = shipPart("Car", 0.3, 40, 0.2, getImg("parts/mainCar"))
 #Chassis
+PCnone = shipPart("None", 0, 0, 10, getImg("parts/blank"))
 PCtoaster = shipPart("Toaster", 0.1, 4, 1, getImg("parts/chassisToaster"))
 PCnormal = shipPart("Normal", 0.4, 20, 0, getImg("parts/chassisNormal"))
 PChotel = shipPart("Hotel", 0.4, 100, 1, getImg("parts/chassisHotel"))
 PCscience = shipPart("Sci", 0.5, 35, 0.2, getImg("parts/chassisSci")) #launch successfully, get bonuses in future
 #Extras
-PEai = shipPart("AI", 0.6, 35, -0.6, getImg("parts/extraAi"))
+PEai = shipPart("AI", 0.6, 35, -0.6, getImg("parts/extraAi"), False)
 PEfsc1 = shipPart("frc1", 0, 5, 0, getImg("parts/blank"))
 PEshield = shipPart("shielding", 0, 4, -0.1, getImg("parts/extraShield"))
-PEscience = shipPart("sci", 0.1, 5, 0.1, getImg("parts/extraSci")) #launch successfully, get minor bonuses in future
+PEscience = shipPart("sci", 0.1, 5, 0.1, getImg("parts/extraSci"), False) #launch successfully, get minor bonuses in future
 PElasers = shipPart("lasers", 0.5, 20, 0.8, getImg("parts/extraLasers"))
-PEcoffee = shipPart("coffee", 0, 1, 0.1, getImg("parts/coffee"))
+PEcoffee = shipPart("coffee", 0, 1, 0.1, getImg("parts/coffee"), False)
 PErats = shipPart("rats", 0, 0, 0.4, getImg("parts/rats"))
 
 #takes in materials
@@ -190,6 +195,9 @@ def spaceshipimg(pl):
 	thisship.blit(pl.booster.img, [140, 60])
 	thisship.blit(pl.main.img, [60, 100])
 	thisship.blit(pl.chassis.img, [70, 0])
+	for i in pl.otherParts:
+		if i.dispOut:
+			thisship.blit(i.img, [0, 0])
 	return thisship
 
 def hitDetect(p1, p2, p3, p4):
@@ -514,7 +522,7 @@ bakesale = Prompt("bakesale", ["One of your campaigners suggests:", "We should h
 adcampaign = Prompt("adcampaign", ["One of your mathmatitions suggests", "an ad campaign to hire people."], [Result("Yeah, we need the staff", "After creating an amazing ad campaign...", [["addmoney", -4], ["addpop", 4]]), Result("No, we don't have enough money.", "After not creating an amazing ad campaign...", [["addflav", "Nothing changes"]])], 5)
 materials = Prompt("materials", ["One of your scientists approaches you:", "We need to discuss our materials."], [Result("How about all carbon fiber?", "After using hi-tech materials:", [["addfail", -4], ["rocketspec", "hi-tech"], ["setMat", PMNano]]), Result("Why not normal materials, like steel?", "After deciding to use standard materials:", [["addflav", "Engineers are attracted to the ease of their jobs."], ["addeng", 1], ["rocketspec", "steel"], ["setMat", PMIron]]), Result("Lets think cheap. Duct-tape cheap.", "After deciding to use low-cost materials:", [["setMat", PMTape], ["addfail", 20], ["addflav", "Some of your mathmatitions can't handle the absurdity of this project."], ["addmat", -2], ["rocketspec", "ductTape"]])], 99)
 fuels = Prompt("fuels", ["An engineer approaches you:", "So, uh.. What should we use for fuel?"], [Result("Nuclear would be the most powerful.", "After deciding to place a nuclear reactor within the rocket:", [["addfail", 2], ["rocketspec", "fuelNuclear"], ["setpart", "Mnuclear"]]), Result("How about we design a rocket specific fuel?", "After deciding to design rocket fuel..", [["addfail", -5], ["addIfactor", 0.1], ["rocketspec", "fuelRocket"], ["setpart", "Mnormal"]]), Result("Car fuel, we need to save money", "After deciding to use car fuel...", [["addflav", "Some people belive you aren't taking this job seriously"], ["subpop", 2], ["addfail", -2], ["rocketspec", "fuelCar"], ["setpart", "Mcar"]])], 99)
-extras = Prompt("Parts", [""], [Result("We could add some heat shielding for liftoff", "After adding shielding to the plans:", [["setpart", PEshield], ["addmoney", -1]]), Result("How about we add a science station? for science?", "After adding science tools to the ship...", [["setpart", PEscience], ["addfail", 3]]), Result("Let's put lasers on it! pew, pew...", "After implementing the Laser plan...", [["subpop", 2], ["addeng", 1], ["multprog", 0.9], ["setpart", PElasers]]), Result("Why do we need to add any more?", "After doing nothing...", [["addflav", "The day progresses as normal."]])], 2)
+extras = Prompt("Parts", ["Some scientists suggest adding utility parts onto the ship."], [Result("We could add some heat shielding for liftoff", "After adding shielding to the plans:", [["setpart", PEshield], ["addmoney", -1]]), Result("How about we add a science station? for science?", "After adding science tools to the ship...", [["setpart", PEscience], ["addfail", 3]]), Result("Let's put lasers on it! pew, pew...", "After implementing the Laser plan...", [["subpop", 2], ["addeng", 1], ["multprog", 0.9], ["setpart", PElasers]]), Result("Why do we need to add any more?", "After doing nothing...", [["addflav", "The day progresses as normal."]])], 2)
 
 #Bad ideas -- 
 coffeeShipments = Prompt("coffeeShipments", ["A group of mathmatitions have been staying up all night:", "We need more shipments of caffinated beverages!"], [Result("Of course, coffee is a necissity.", "After ordering some caffine...", [["addmoney", -1], ["spec", "caffinate"], ["overtime", 0.1]]), Result("No, too much coffee is unhealthy", "After depriving your employees of caffine...", [["addfail", 5], ["overtime", -0.1], ["addflav", "The employees are quite tired."]])], 10)
@@ -531,7 +539,7 @@ chemicalSpill = Prompt("chemicals", ["One of your more incompetent scientists", 
 #interesting ideas
 fsc = Prompt("fsc", ["Upon seeing how well the rocket is going,", "an advisor from the Futuristic Science Corp.", "wishes to partner with you."], [Result("Together we will do great things.", "After partnering with the FSC...", [["addflav", "The project has drasticly increased in size."], ["spec", "JoinedFSC"], ["addmoney", 20], ["setpart", PEfsc1]]), Result("I'm sorry, I would prefer to go alone.", "After making the mistake of not partnering with the FSC..", [["addflav", "You feel you have made a horrible mistake."]])], 99)
 theProject = Prompt("theProject", ["The FSC has requested a transfer of some of your engineers", "to work on some kind of classified project."], [Result("Sure, as long as we benefit from this project.", "You transfer some of your engineers and scientists over...", [["addeng", -3], ["addsci", -3], ["spec", "theProject"]]), Result("No, this is too supsecious.", "After declining the FSC's offer...", [["addflav", "Nothing happends, or has it?"]])], 10)
-ai = Prompt("Ai", ["The FSC has finally completeled the project", "They have created a super intelegent AI and wish to install it", "in the lab to help progress."], [Result("YES! This is exactly what we need!", "After installing the AI in the lab...", [["spec", "AI"], ["addflav", "The AI makes complex equations easier."], ["addIfactor", -0.5]]), Result("I'm worried about the consequences of this, also rogue AIs are scary.", "After declining the FSC's offer...", [["addflav", "A saddened scientist leaves"], ["addsci", -1], ["addflav", "The FSC no longer wishes to work with you"], ["removeSpec", "JoinedFSC"]])], 99)
+ai = Prompt("Ai", ["The FSC has finally completeled the project", "They have created a super intelligent AI and wish to install it", "in the lab to help progress."], [Result("YES! This is exactly what we need!", "After installing the AI in the lab...", [["spec", "AI"], ["addflav", "The AI makes complex equations easier."], ["addIfactor", -0.5]]), Result("I'm worried about the consequences of this, also rogue AIs are scary.", "After declining the FSC's offer...", [["addflav", "A saddened scientist leaves"], ["addsci", -1], ["addflav", "The FSC no longer wishes to work with you"], ["removeSpec", "JoinedFSC"]])], 99)
 shipAi = Prompt("shipAi", ["The AI, who started calling itself xXx_1337HAXOR_xXx,", "wishes to install itself on the rocket."], [Result("Sure.", "After installing the AI on the rocket...", [["setpart", PEai], ["rocketspec", "shipAi"]]), Result("Nah, I don't trust you.", "After you dissapoint the AI", [["spec", "sadAI"]])], 1)
 pen = Prompt("pen", ["One of your trusted scientists exclaims:", "After doing some amazing science,", "I have discovered that it will be impossible", "to write with pen in space!", "We need to develop a space pen!"], [Result("Yes, the space pen will be a big success!", "After funding a space pen project...", [["addmoney", -3], ["spec", "spacePen"]]), Result("I'm surounded by idiots, JUST USE A PENCIL!", "After deciding to use pencils...", [["addflav", "Paper costs decrease."]])], 10)
 birthday = Prompt("birthday", ["Today is the birthday of one of your employees,", "They want to organize a party."], [Result("Lets take some time off work in celebration.", "After partying in the lounge:", [["overtime", -.2], ["addmon", -.5], ["addflav", "People are drawn to the friendly workplace."], ["addpop", 2]]), Result("Celebrate after work. It shouldn't interfere with your job.", "After postponing the party:", [["addflav", "Your employees are slacking off."], ["addfail", 2]])], -1)
@@ -587,10 +595,10 @@ class Player(object):
 		self.netMoneyHistory = []
 		self.netMoneyMean = 0
 		#ship type stuff
-		self.material = PMIron
-		self.booster = PBnormal
-		self.main = PMnormal
-		self.chassis = PCnormal
+		self.material = PMNone
+		self.booster = PBnone
+		self.main = PMnone
+		self.chassis = PCnone
 		self.otherParts = []
 		#the images of the frame, and the compleated product
 		self.frame = frameImg(self)
@@ -601,10 +609,10 @@ class Player(object):
 		self.launches += 1
 		self.progress = 0
 		self.rocketspecs = []
-		self.material = PMIron
-		self.booster = PBnormal
-		self.main = PMnormal
-		self.chassis = PCnormal
+		self.material = PMNone
+		self.booster = PBnone
+		self.main = PMnone
+		self.chassis = PCnone
 		self.otherParts = []
 		#self.netMoneyMean = 0
 		#self.netMoneyHistory = []
@@ -743,7 +751,7 @@ class Achive(object):
 #start all achivements with A to prevent overlapping variables.
 
 Abegining = Achive("begining", "Day 1", "you win nothing, because it's impossible to get this achivement", "wip")
-Atoast = Achive("toaster", "It could run on a toaster", "Succesfully launch a spaceship with a toaster chassis", "wip")
+Atoast = Achive("toaster", "It could run on a toaster", "Succesfully launch a spaceship with a toaster chassis", "toaster")
 Anukes = Achive("nukes", "Fallout", "Blow up a nuke in midair, destroying the lab", "wip")
 Aai = Achive("ai", "That cake is a lie", "Get some cake from a friendly AI", "cake")
 Ahl = Achive("hl3", "Half life 3 confirmed", "Succesfully launch your third rocket using a radioactive power source", "hl3")
@@ -973,7 +981,7 @@ while running:
 	addQuestion([[player.money, "greater", 30], [player.specs, "notSpec", "chemSpill"]], chemicalSpill)
 	addQuestion([[player.netMoneyMean, "greater", 3]], workload)
 	addQuestion([[player.netMoneyMean, "greater", 3]], adcampaign)
-	addQuestion([[player.netMoneyMean, "greater", 4], [player.money, "greater", 100], [player.campaigners, "greater", 2]], scamers)
+	addQuestion([[player.netMoneyMean, "greater", 4], [player.money, "greater", 100], [player.campaigners, "greater", 2], [random.randint(1, 2), "greater", 1]], scamers)
 	addQuestion([[player.netMoneyMean, "lesser", 0], [player.daysSinceLaunch, "greater", 3]], fire1)
 	addQuestion([[player.netMoneyMean, "lesser", 0], [player.daysSinceLaunch, "greater", 3]], fire2)
 	addQuestion([[player.rocketspecs, "notSpec", "coffeeMachine"], [player.money, "greater", 2]], coffee)
@@ -1220,9 +1228,7 @@ while running:
 		if PEcoffee in player.otherParts:
 			inspectionPoints -= 5
 		if "coffeeMachine" in player.rocketspecs:
-			inspectionPoints -= 5
-		if "coffeeMachine" in player.rocketspecs:
-			inspectionPoints -= 5
+			inspectionPoints -= 10
 		if "rats" in player.specs:
 			inspectionPoints -= 15
 		if PEai in player.otherParts:
@@ -1267,12 +1273,13 @@ while running:
 	done, mouse_down = False, False
 	clipboard_y = -600
 	clipboard_vel = 25
+	clipboard = pygame.Surface([500, 600], pygame.SRCALPHA, 32).convert_alpha()
+	clipboard.blit(end_of_day_pic, [0, 0])
+	for i in range(len(feedback)):
+		clipboard.blit(font.render(feedback[i], True, BLACK), [30, 30+(i*20)])
+
 	while not done and running:
 		gScreen.fill(WHITE)
-		clipboard = pygame.Surface([500, 600])
-		clipboard.blit(end_of_day_pic, [0, 0])
-		for i in range(len(feedback)):
-			clipboard.blit(font.render(feedback[i], True, BLACK), [30, 30+(i*20)])
 		gScreen.blit(clipboard, [190, clipboard_y])
 		if not clipboard_y >= 90:
 			clipboard_y += clipboard_vel
@@ -1322,11 +1329,11 @@ while running:
 				launchResult("success")
 				player.rebuild()
 			done = True
-		if hitDetect(mouse_pos, mouse_pos, [10,580], [180, 630]) and mouse_down:
+		elif hitDetect(mouse_pos, mouse_pos, [10,580], [180, 630]) and mouse_down:
 			done = True
 			if sounds:
 				pygame.mixer.Sound.play(new_day)
-		
+
 		gScreen.blit(continuepic, [10, 580])
 		gScreen.blit(launchpic, [10, 640])
 		
