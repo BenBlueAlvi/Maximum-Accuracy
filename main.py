@@ -385,7 +385,14 @@ class Result(object):
 					player.campaigners -= camHired
 				if n == -1:
 					self.feedback.append("You have no employees remaining.")
-			
+			elif o == "addwages":
+				
+				if n > 0:
+					player.wages += n
+					self.feedback.append("Your employees are paid more.")
+				else:
+					player.wages -= n
+					self.feedback.append("Your employees are paid less.")
 			
 			elif o == "overtime":
 				player.time += n
@@ -515,6 +522,7 @@ overtime = Prompt("overtime", ["Some particullarly hard working engineers", "are
 fire1 = Prompt("fire1", ["That one advisor from the government approches you:", "We have hired too many people and we are losing money", "somebody needs to get fired."], [Result("But we are getting so much done.", "After not firing anyone...", [["addfail", 2]]), Result("I'll leave it up to you.", "After that government advisor fires some people...", [["subpop", 3], ["addfail", -2]]),Result("Fire some of those engineers.", "After firing some engineers...", [["addeng", -2], ["addfail", -1]])], 6)
 fire2 = Prompt("fire2", ["Your money is low, and you are losing more.", "You need a way to stop your money"], [Result("Why don't we just hire more campaigners?", "After putting out an ad campaign:", [["addcam", 2], ["addmoney", -6], ["overtime", -.2]]), Result("How about we reduce costs?", "After using less expensive materials:", [["reduce", 1]]), Result("Why not just reduce the work hours?", "You reduce the work hours.", [["addTime", -.2], ["addflav", "Your workers are more well rested at work."], ["addIfactor", -.1]])], 10)
 workload = Prompt("workload", ["Your project is currently gaining heavy profits.", "Your resource managers would like to use it."], [Result("Why don't we increase work hours?", "After adding a couple hours to the workday:", [["addTime", .2], ["subpop", 1]]), Result("How about hiring people to use the money?", "After hiring", [["addmat", 1], ["addsci", 1]]), Result("If we have the money, why not use it on the rocket?", "After splurging on the rocket:", [["addmoney", -8], ["addprog", 5]]), Result("I think this gain in money is fine.", "After saving up:", [["addflav", "A local campaigner admires your intrest in money."], ["addcam", 1]])], 2)#cooldown needs to reflect costhistory duration to prevent major loss in money
+strike = Prompt("strike", ["Several of your employees are complaining about", "poor wages. They've gone on strike."], [Result("FIRE THEM ALL!!!", "After firing much of your staff.", [["subpop", 5]]), Result("Fine, increase the wages.", "After increasing wages...", [["addwages", 0.5]])], 30)
 #buyout = spend money and gain balanced sci, mat, eng, cam (you bought a smaller group)
 
 #Money and materials
@@ -535,6 +543,7 @@ spaceSoda = Prompt("spaceSoda", ["A campainer approaches you:", "Can we put some
 rats = Prompt("rats", ["Your janitor, Scruffy, has informed you of an infestation of rats."], [Result("Who cares about some rats?", "After letting the rats go loose:", [["addfail", 15], ["subpop", 4], ["spec", "rats"], ["setpart", PErats]]), Result("We can deal with it ourselves.", "After prying apart your ship in search for rats...", [["multprog", 0.8], ["addfail", 10]]), Result("This is a job for professionals.", "After the professionals arrive:", [["addmoney", -4], ["overtime", -0.5]])], 25)
 scamers = Prompt("scams", ["Unfortunatly, it seems that one of those 'legit'", "campaigners you hired was a scamer.", "They have taken quite a large amount of money from the lab's account."], [Result("Crap! Fire them immediatly!", "after firing a 'legit' scamer..", [["multmoney", 0.5], ["addcam", -1]]), Result("No, that money went to work on the rocket, I'm sure.", "after the money goes to work on the rocket...", [["multmoney", 0.4]])], 20)
 chemicalSpill = Prompt("chemicals", ["One of your more incompetent scientists", "has spills some particularly volitile chemicals", "all over the science work station.", "Somehow."], [Result("Welp, call in the cleanup crews!", "After a quite expensive cleanup...", [["addfail", 20], ["addmoney", -25]]), Result("We neither have the money nor the time to spend on cleanup! Work out of your houses if you have to!", "After the scientist begin working from home...", [["addfail", -30], ["spec", "chemSpill"]])], 99)
+
 
 #interesting ideas
 fsc = Prompt("fsc", ["Upon seeing how well the rocket is going,", "an advisor from the Futuristic Science Corp.", "wishes to partner with you."], [Result("Together we will do great things.", "After partnering with the FSC...", [["addflav", "The project has drasticly increased in size."], ["spec", "JoinedFSC"], ["addmoney", 20], ["setpart", PEfsc1]]), Result("I'm sorry, I would prefer to go alone.", "After making the mistake of not partnering with the FSC..", [["addflav", "You feel you have made a horrible mistake."]])], 99)
@@ -605,6 +614,7 @@ class Player(object):
 		self.ship = movingPart("ship", [400, 120], [0, 0], [spaceshipimg(self)])
 		self.questionsAnswered = []
 		self.costHistory = []
+		self.wages = 1
 	def rebuild(self):
 		self.launches += 1
 		self.progress = 0
@@ -988,10 +998,12 @@ while running:
 	addQuestion([[player.rocketspecs, "notSpec", "silos"], [player.money, "lesser", 15], [player.netMoneyMean, "lesser", 0]], silos)
 	addQuestion([[player.specs, "notSpec", "spacePen"], [player.money, "greater", 5]], pen)
 	addQuestion([[player.specs, "notSpec", "rats"]], rats)
+	addQuestion([[player.pop, "greater", 7]], strike)
 	addQuestion([[10, "daysSince", fsc], [player.scientists, "greater", 2], [player.engineers, "greater", 2], [player.specs, "spec", "JoinedFSC"]], theProject)
 	addQuestion([[10, "daysSince", theProject], [player.specs, "spec", "theProject"]], ai)
 	addQuestion([[17, "daysSince", ai], [player.specs, "notSpec", "shipAi"]], shipAi)
 	addQuestion([[10, "daysSince", loan], [player.specs, "notSpec", "PaybackLoan"]], paybackLoan)
+	
 	addQuestion([], overtime)
 	
 	theQuestion = possiblequestions[random.randint(0, len(possiblequestions) - 1)]
@@ -1172,8 +1184,9 @@ while running:
 	feedback1 = []
 	feedback1.append("After a full day of work...")
 	if player.campaigners > 0:
-		feedback1.append("   Your campaigners raise "+str(round(0.8*player.campaigners * player.time, 1))+"K")
-		player.money += round(0.8*player.campaigners * player.time, 1)
+		camMoney = round(0.8*player.campaigners * player.time, 1)
+		feedback1.append("   Your campaigners raise "+str(camMoney)+"K")
+		player.money += camMoney
 	if funded and govFunding > 0:
 		player.money += govFunding
 		feedback1.append("   You gain "+str(govFunding)+"K in government funding.")
@@ -1184,27 +1197,31 @@ while running:
 		player.money += 4
 		feedback1.append("   You gain 4K from the FSC")
 		
-	feedback1.append("You pay your employees "+str(round(0.3*player.time*(player.maths+player.scientists)+0.2*player.engineers, 1))+"K")
-	player.money -= round(player.time*(0.3*(player.maths+player.scientists)+0.2*player.engineers+0.1), 1)
-
-	player.failChance -= round(player.time * math.sqrt(player.maths) / player.impossiblilyFactor, 2)
+	employeePay = round(player.time*(0.3*(player.maths+player.scientists) * player.wages+0.2*player.engineers * player.wages+0.1), 1)	
+	feedback1.append("You pay your employees "+str(employeePay)+"K")
+	player.money -= employeePay
+	
+	failReduction = round(player.time * math.sqrt(player.maths) / player.impossiblilyFactor, 2)
+	player.failChance -= failReduction
 	if player.failChance < 1:
 		player.failChance = 1
 	if player.progress < 0:
 		player.progress = 0
 	
 	rand = 0
-	player.progress += round(player.time * ((.3*player.scientists)+1)*player.engineers*0.4, 2)
+	rocketProgress = round(player.time * ((.3*player.scientists)+1)*player.engineers*0.4, 2)
+	player.progress += rocketProgress
 	if player.progress/player.full >= 1.2:
 		player.progress = 1.2*player.full
 		rand = round(player.time * math.sqrt(0.6*(player.scientists+player.engineers)) / (player.impossiblilyFactor*2), 2)
 		feedback1.append("Your engineers and scientists help reduce fail chance.")
 	else:
-		feedback1.append("Your engineers spend "+str(round(player.time*player.engineers*player.cost, 1))+"K")
-		player.money -= player.time*player.cost*player.engineers
-		player.costHistory.append(round(player.time*player.engineers*player.cost, 1))
+		engSpending = round(player.time*player.engineers*player.cost, 1)
+		feedback1.append("Your engineers spend "+str(engSpending)+"K")
+		player.money -= engSpending
+		player.costHistory.append(engSpending)
 
-	feedback1.append("Your mathematitions reduce chance of failiure by "+str(round(player.time * math.sqrt(player.maths) / player.impossiblilyFactor, 2)+rand)+"%")
+	feedback1.append("Your mathematitions reduce chance of failiure by "+str(failReduction+rand)+"%")
 	
 	feedback1.append("")
 	feedback1 += feedback
@@ -1272,15 +1289,17 @@ while running:
 	
 	done, mouse_down = False, False
 	clipboard_y = -600
-	clipboard_vel = 25
+	clipboard_vel = 26
 	clipboard = pygame.Surface([500, 600], pygame.SRCALPHA, 32).convert_alpha()
 	clipboard.blit(end_of_day_pic, [0, 0])
+	
 	for i in range(len(feedback)):
 		clipboard.blit(font.render(feedback[i], True, BLACK), [30, 30+(i*20)])
 
 	while not done and running:
 		gScreen.fill(WHITE)
 		gScreen.blit(clipboard, [190, clipboard_y])
+
 		if not clipboard_y >= 90:
 			clipboard_y += clipboard_vel
 		if not clipboard_vel <= 0 and clipboard_y > -250:
