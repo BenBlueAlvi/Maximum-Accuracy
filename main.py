@@ -538,6 +538,7 @@ strike = Prompt("strike", ["Several of your employees are complaining about", "p
 #buyout = spend money and gain balanced sci, mat, eng, cam (you bought a smaller group)
 
 #Money and materials
+sellPen = Prompt("sellPen", ["Suddenly, an idea strikes you.", "You could sell the space pen for a profit!"], [Result("Let's do it!", "After setting up a factories...", [["addmoney", -7], ["spec", "sellPen"]]), Result("Nah, we need to keep it a secret", "After hiding the space pen in a box...", [["addflav", "Your rivals are ignorant."]])], 99)
 bakesale = Prompt("bakesale", ["One of your campaigners suggests:", "We should have a bake sale to raise money."], [Result("Sure, but only if I can have some too.", "After having a bakesale", [["addmoney", 2], ["addflav", "The bake sale premotes working in the areospace industy"], ["addpop", 1]]), Result("No, I hate baked goods", "After not having a bake sale..", [["addflav", "Some people were really looking forward to that bake sale."],["subpop", 1]])], 3)
 adcampaign = Prompt("adcampaign", ["One of your mathmatitions suggests", "an ad campaign to hire people."], [Result("Yeah, we need the staff", "After creating an amazing ad campaign...", [["addmoney", -4], ["addpop", 4]]), Result("No, we don't have enough money.", "After not creating an amazing ad campaign...", [["addflav", "Nothing changes"]])], 5)
 materials = Prompt("materials", ["One of your scientists approaches you:", "We need to discuss our materials."], [Result("How about all carbon fiber?", "After using hi-tech materials:", [["addfail", -4], ["rocketspec", "hi-tech"], ["setMat", PMNano]]), Result("Why not normal materials, like steel?", "After deciding to use standard materials:", [["addflav", "Engineers are attracted to the ease of their jobs."], ["addeng", 1], ["rocketspec", "steel"], ["setMat", PMIron]]), Result("Lets think cheap. Duct-tape cheap.", "After deciding to use low-cost materials:", [["setMat", PMTape], ["addfail", 20], ["addflav", "Some of your mathmatitions can't handle the absurdity of this project."], ["addmat", -2], ["rocketspec", "ductTape"]])], 99)
@@ -1060,6 +1061,7 @@ while running:
 	addQuestion([[player.rocketspecs, "notSpec", "coffeeMachine"], [player.money, "greater", 2]], coffee)
 	addQuestion([[player.rocketspecs, "notSpec", "silos"], [player.money, "lesser", 15], [player.netMoneyMean, "lesser", 0]], silos)
 	addQuestion([[player.specs, "notSpec", "spacePen"], [player.money, "greater", 5]], pen)
+	addQuestion([[player.specs, "notSpec", "sellPen"], [player.money, "greater", 7]], sellPen)
 	addQuestion([[player.specs, "notSpec", "rats"]], rats)
 	addQuestion([[player.pop, "greater", 7]], strike)
 	addQuestion([[10, "daysSince", fsc], [player.scientists, "greater", 2], [player.engineers, "greater", 2], [player.specs, "spec", "JoinedFSC"]], theProject)
