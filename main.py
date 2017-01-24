@@ -530,6 +530,7 @@ bakesale = Prompt("bakesale", ["One of your campaigners suggests:", "We should h
 adcampaign = Prompt("adcampaign", ["One of your mathmatitions suggests", "an ad campaign to hire people."], [Result("Yeah, we need the staff", "After creating an amazing ad campaign...", [["addmoney", -4], ["addpop", 4]]), Result("No, we don't have enough money.", "After not creating an amazing ad campaign...", [["addflav", "Nothing changes"]])], 5)
 materials = Prompt("materials", ["One of your scientists approaches you:", "We need to discuss our materials."], [Result("How about all carbon fiber?", "After using hi-tech materials:", [["addfail", -4], ["rocketspec", "hi-tech"], ["setMat", PMNano]]), Result("Why not normal materials, like steel?", "After deciding to use standard materials:", [["addflav", "Engineers are attracted to the ease of their jobs."], ["addeng", 1], ["rocketspec", "steel"], ["setMat", PMIron]]), Result("Lets think cheap. Duct-tape cheap.", "After deciding to use low-cost materials:", [["setMat", PMTape], ["addfail", 20], ["addflav", "Some of your mathmatitions can't handle the absurdity of this project."], ["addmat", -2], ["rocketspec", "ductTape"]])], 99)
 fuels = Prompt("fuels", ["An engineer approaches you:", "So, uh.. What should we use for fuel?"], [Result("Nuclear would be the most powerful.", "After deciding to place a nuclear reactor within the rocket:", [["addfail", 2], ["rocketspec", "fuelNuclear"], ["setpart", "Mnuclear"]]), Result("How about we design a rocket specific fuel?", "After deciding to design rocket fuel..", [["addfail", -5], ["addIfactor", 0.1], ["rocketspec", "fuelRocket"], ["setpart", "Mnormal"]]), Result("Car fuel, we need to save money", "After deciding to use car fuel...", [["addflav", "Some people belive you aren't taking this job seriously"], ["subpop", 2], ["addfail", -2], ["rocketspec", "fuelCar"], ["setpart", "Mcar"]])], 99)
+target = Prompt("target", ["A scientist asks:", "So, what are we aiming for here?"], [Result("Breaking the atmosphere.", "After aiming for space...", [["setpart", PTtospace]]), Result("Orbit", "After aiming for orbit...", [["setpart", PTorbit]]), Result("The moon!", "After aiming for the moon...", [[PTmoon]])],99)
 extras = Prompt("Parts", ["Some scientists suggest adding utility parts onto the ship."], [Result("We could add some heat shielding for liftoff", "After adding shielding to the plans:", [["setpart", PEshield], ["addmoney", -1]]), Result("How about we add a science station? for science?", "After adding science tools to the ship...", [["setpart", PEscience], ["addfail", 3]]), Result("Let's put lasers on it! pew, pew...", "After implementing the Laser plan...", [["subpop", 2], ["addeng", 1], ["multprog", 0.9], ["setpart", PElasers]]), Result("Why do we need to add any more?", "After doing nothing...", [["addflav", "The day progresses as normal."]])], 2)
 
 #Bad ideas -- 
@@ -1036,7 +1037,9 @@ while running:
 	elif player.daysSinceLaunch == 2:
 		theQuestion = fuels
 		possiblequestions.append(fuels)
-		
+	elif player.daysSinceLaunch == 3:
+		theQuestion = target
+		possiblequestions.append(target)
 		
 		
 	if player.money <= -10:
