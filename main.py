@@ -179,6 +179,10 @@ PElasers = shipPart("lasers", 0.5, 20, 0.8, getImg("parts/extraLasers"))
 PEcoffee = shipPart("coffee", 0, 1, 0.1, getImg("parts/coffee"), False)
 PErats = shipPart("rats", 0, 0, 0.4, getImg("parts/rats"))
 
+PTtospace = shipPart("space", 20, 0, 0, getImg("parts/Tspace"))
+PTorbit = shipPart("orbit", 60, 20, 1, getImg("parts/Torbit"))
+PTmoon = shipPart("moon", 200, 100, 3, getImg("parts/Tmoon"))
+
 #takes in materials
 def frameImg(player):
 	thisship = pygame.Surface((200, 240), pygame.SRCALPHA, 32).convert_alpha()
