@@ -171,6 +171,7 @@ PCtoaster = shipPart("Toaster", 0.1, 4, 1, getImg("parts/chassisToaster"))
 PCnormal = shipPart("Normal", 0.4, 50, 0, getImg("parts/chassisNormal"))
 PChotel = shipPart("Hotel", 0.4, 200, 1, getImg("parts/chassisHotel"))
 PCscience = shipPart("Sci", 0.5, 60, 0.2, getImg("parts/chassisSci")) #launch successfully, get bonuses in future
+PClander = shipPart("lander", 0.5, 70, 0.5, getImg("parts/chassislander"))
 #Extras
 PEai = shipPart("AI", 0.6, 35, -0.6, getImg("parts/extraAi"), False)
 PEfsc1 = shipPart("frc1", 0, 5, 0, getImg("parts/blank"))
