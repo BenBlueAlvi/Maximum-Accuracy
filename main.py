@@ -610,6 +610,8 @@ class Player(object):
 		self.pop = 0
 		self.days = 0
 		self.daysSinceLaunch = 0
+		self.spaceboosters = 0
+		self.spaceboost = 0
 		self.specs = []
 		self.rocketspecs = []
 		self.impossiblilyFactor = 1
@@ -936,10 +938,46 @@ def launchResult(result, skipable = False):
 
 		if time == 460:
 			objects[0].pos = [700, 0]
+			#get rewarded
 			if (player.target.name == "space" and goneSpace) or (player.target.name == "orbit" and goneOrbit) or (player.target.name == "moon" and goneMoon):
 				player.money += player.target.cost/2
 			else:
 				player.money += player.target.cost
+
+			#add effects of rocket
+			if player.target.name == "space":
+				if player.chassis.name == "Sci":
+					player.spaceboost += 0.5
+				else:
+					player.spaceboost += 0.1
+				for i in player.otherParts:
+					if i.name == "sci":
+						player.spaceboost += 0.1
+				goneSpace = True
+
+			if player.target.name == "orbit":
+				if player.chassis.name == "Sci":
+					player.spaceboosters += 0.4
+					player.spaceboost += 1
+				else:
+					player.spaceboosters += 0.1
+				for i in player.otherParts:
+					if i.name == "sci":
+						player.spaceboosters += 0.1
+				goneOrbit = True
+
+			if player.target.name == "moon":
+				if player.chassis.name == "Sci":
+					player.spaceboost += 5
+				else:
+					player.spaceboost += 1
+				for i in player.otherParts:
+					if i.name == "sci":
+						player.spaceboost += 0.2
+						if player.chassis.name == "lander":
+							player.spaceboosters += 0.2
+				goneMoon = True
+
 			skipable = True
 		
 		for achive in allAchives:
@@ -992,6 +1030,8 @@ while running:
 		
 	player.daysSinceLaunch += 1
 	inspectionChance = random.randint(1,25)
+	if random.randint(0, 5) == 1:
+		player.spaceboost += player.spaceboosters
 	
 	#Before choosing an answer
 	#Stat logging
@@ -1094,6 +1134,8 @@ while running:
 					print "Cost: ", player.cost
 					print "Full: ", player.full
 					print "Time: ", player.time
+					print "Boost: ", player.spaceboost
+					print "Boosters: ", player.spaceboosters
 		mouse_pos = pygame.mouse.get_pos()
 
 		gScreen.fill(WHITE)
