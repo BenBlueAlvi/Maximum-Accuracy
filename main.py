@@ -548,8 +548,8 @@ extras = Prompt("Parts", ["Some scientists suggest adding utility parts onto the
 
 #Bad ideas -- 
 coffeeShipments = Prompt("coffeeShipments", ["A group of mathmatitions have been staying up all night:", "We need more shipments of caffinated beverages!"], [Result("Of course, coffee is a necissity.", "After ordering some caffine...", [["addmoney", -1], ["spec", "caffinate"], ["overtime", 0.1]]), Result("No, too much coffee is unhealthy", "After depriving your employees of caffine...", [["addfail", 5], ["overtime", -0.1], ["addflav", "The employees are quite tired."]])], 10)
-coffee = Prompt("coffee", ["A few engineers approch you and ask:", "Can we install a coffee machine in the rocket?"], [Result("Sure, Why not?", "After installing a coffee machine on the rocket,", [["addmoney", -1], ["addprog", 1], ["addfail", 2], ["addeng", 1], ["spec", "caffinate"], ["rocketspec", "coffeeMachine"], ["setpart", PEcoffee]]), Result("NO?", "After not installing a coffee machine...", [["addfail", -1]])], 1)			
-toaster = Prompt("toaster", ["One of those hippies from science department asks:", "Hey, we're low on funds right now. I suggest we turn our chassis into a toaster."], [Result("Sure, we need to save money.", "After switching over your chassis:", [["setpart", "Ctoaster"], ["addfail", 50], ["addmat", -2], ["rocketspec", "ToasterChassis"]]), Result("We don't need to be THAT drastic..", "After reducing the size:", [["addfail", -1], ["addsci", 1]]), Result("No way.", "After denying the toaster plan:", [["addmat", 1], ["addpop", 1], ["setpart", "Cnormal"]])], 3)
+coffee = Prompt("coffee", ["A few engineers approch you and ask:", "Can we install a coffee machine in the rocket?"], [Result("Sure, Why not?", "After installing a coffee machine on the rocket,", [["addmoney", -1], ["addprog", 1], ["addfail", 2], ["addeng", 1], ["spec", "caffinate"], ["rocketspec", "coffeeMachine"], ["setpart", PEcoffee]]), Result("NO?", "After not installing a coffee machine...", [["addfail", -1]])], 9)			
+toaster = Prompt("toaster", ["One of those hippies from science department asks:", "Hey, we're low on funds right now. I suggest we turn our chassis into a toaster."], [Result("Sure, we need to save money.", "After switching over your chassis:", [["setpart", "Ctoaster"], ["addfail", 50], ["addmat", -2], ["rocketspec", "ToasterChassis"]]), Result("We don't need to be THAT drastic..", "After reducing the size:", [["addfail", -1], ["addsci", 1]]), Result("No way.", "After denying the toaster plan:", [["addmat", 1], ["addpop", 1], ["setpart", "Cnormal"]])], 7)
 hotel = Prompt("hotel", ["The CEO of a large hotel group has approched you", "and wishes install one of his hotels on the moon.", "He bribes you with quite a bit of money."], [Result("I guess so.", "The engineers begin to load materials to build the hotel on the moon.", [["multprog", .2], ["addfail", 10], ["addmoney", 20], ["addIfactor", 4], ["rocketspec", "hotel"], ["setpart", "Chotel"], ["spec", "privateFund1"]]), Result("No.", "After focusing on building the rocket and not business deals:", [["addprog", 5], ["addpop", 1]])], 10)
 silos = Prompt("silos", ["One very frugel lab assistant approches you:", "We don't have enough money to build the thrusters", "How about we use the silos from the sourounding farmland?"], [Result("What a wonderful idea!", "After refiting farm silos to work as thrusters...", [["addfail", 20], ["addsci", 1], ["addflav", "A hippy scientist joins your team"], ["rocketspec", "silos"], ["setpart", "Bsilo"]]), Result("Are you sane?", "After not taking the farmer's silos", [["addflav", "The farmers share some of their wages with you!"],["addmoney", 5]])], 99)
 sodamachine = Prompt("sodamachine", ["A promising scientist asks if they can", "install a soda machine in the lab."], [Result("Sure, how much will it cost me?", "After installing a soda machine in the lab...", [["addmoney", -2], ["overtime", 0.2], ["spec", "sodaMachine"]]), Result("No, we don't have the money.", "After not installing a soda machine in the lab.", [["overtime", -0.1], ["addflav", "Your employees seem a bit slow today."]])], 10)
@@ -822,7 +822,9 @@ def addQuestion(requirements, question):
 			elif i[1] == "daysSince":
 				if i[0] <= i[2].daysSince and i[2].daysSince >= 1:
 					matches += 1
-
+			elif i[1] == "equals":
+				if i[0] == i[2]:
+					matches += 1
 		if matches == len(requirements):
 			if not question in possiblequestions:
 				if question in player.questionsAnswered and question.daysSince >= question.cooldown:
@@ -1046,7 +1048,7 @@ while running:
 	addQuestion([[player.money, "greater", 5], [player.specs, "notSpec", "sodaMachine"]], sodamachine)
 	addQuestion([[player.money, "greater", 5], [player.rocketspecs, "notSpec", "soda"]], spaceSoda)
 	addQuestion([[player.money, "greater", 5]], coffeeShipments)
-	addQuestion([[player.money, "greater", 6], [player.rocketspecs, "notSpec", "hotel"]], hotel)
+	addQuestion([[player.money, "greater", 6], [player.rocketspecs, "notSpec", "hotel"], [player.target, "equals", PTmoon]], hotel)
 	addQuestion([[player.money, "greater", 10], [player.netMoneyMean, "greater", -0.5]], extras)
 	addQuestion([[player.money, "greater", 25], [player.specs, "notSpec", "JoinedFSC"]], fsc)
 	addQuestion([[player.money, "greater", 30], [player.specs, "notSpec", "chemSpill"]], chemicalSpill)
@@ -1064,6 +1066,7 @@ while running:
 	addQuestion([[10, "daysSince", theProject], [player.specs, "spec", "theProject"]], ai)
 	addQuestion([[17, "daysSince", ai], [player.specs, "notSpec", "shipAi"]], shipAi)
 	addQuestion([[10, "daysSince", loan], [player.specs, "notSpec", "PaybackLoan"]], paybackLoan)
+	
 	
 	addQuestion([], overtime)
 	
