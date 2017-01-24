@@ -158,19 +158,19 @@ PMIron = shipPart("Iron", 0, 0, 0, getImg("parts/mainMatIron"))
 PMNano = shipPart("Nano", 0.5, 10, -0.2, getImg("parts/matNano"))
 #Boosters
 PBnone = shipPart("none", 0, 0, 0.5, getImg("parts/blank"))
-PBnormal = shipPart("Normal", 0.2, 30, 0, getImg("parts/boosterNormal"))
-PBsilo = shipPart("Silo", 0.1, 28, 0.4, getImg("parts/boosterSilo"))
+PBnormal = shipPart("Normal", 0.2, 60, -0.5, getImg("parts/boosterNormal"))
+PBsilo = shipPart("Silo", 0.1, 28, -0.1, getImg("parts/boosterSilo"))
 #Mains
 PMnone = shipPart("none", 0, 500, 500, getImg("parts/blank"))
-PMnuclear = shipPart("Nuclear", 0.5, 65, -0.1, getImg("parts/mainNuclear"))
-PMnormal = shipPart("Normal", 0.4, 50, 0, getImg("parts/mainNorm"))
+PMnuclear = shipPart("Nuclear", 0.5, 75, -0.2, getImg("parts/mainNuclear"))
+PMnormal = shipPart("Normal", 0.4, 60, 0, getImg("parts/mainNorm"))
 PMcar = shipPart("Car", 0.3, 40, 0.2, getImg("parts/mainCar"))
 #Chassis
 PCnone = shipPart("None", 0, 0, 10, getImg("parts/blank"))
 PCtoaster = shipPart("Toaster", 0.1, 4, 1, getImg("parts/chassisToaster"))
-PCnormal = shipPart("Normal", 0.4, 20, 0, getImg("parts/chassisNormal"))
-PChotel = shipPart("Hotel", 0.4, 100, 1, getImg("parts/chassisHotel"))
-PCscience = shipPart("Sci", 0.5, 35, 0.2, getImg("parts/chassisSci")) #launch successfully, get bonuses in future
+PCnormal = shipPart("Normal", 0.4, 50, 0, getImg("parts/chassisNormal"))
+PChotel = shipPart("Hotel", 0.4, 200, 1, getImg("parts/chassisHotel"))
+PCscience = shipPart("Sci", 0.5, 60, 0.2, getImg("parts/chassisSci")) #launch successfully, get bonuses in future
 #Extras
 PEai = shipPart("AI", 0.6, 35, -0.6, getImg("parts/extraAi"), False)
 PEfsc1 = shipPart("frc1", 0, 5, 0, getImg("parts/blank"))
@@ -180,9 +180,12 @@ PElasers = shipPart("lasers", 0.5, 20, 0.8, getImg("parts/extraLasers"))
 PEcoffee = shipPart("coffee", 0, 1, 0.1, getImg("parts/coffee"), False)
 PErats = shipPart("rats", 0, 0, 0.4, getImg("parts/rats"))
 
-PTtospace = shipPart("space", 20, 0, 0, getImg("parts/Tspace"))
+PTspace = shipPart("space", 20, 0, 0, getImg("parts/Tspace"))
 PTorbit = shipPart("orbit", 60, 20, 1, getImg("parts/Torbit"))
 PTmoon = shipPart("moon", 200, 100, 3, getImg("parts/Tmoon"))
+goneSpace = False
+goneOrbit = False
+goneMoon = False
 
 #takes in materials
 def frameImg(player):
@@ -498,6 +501,9 @@ class Result(object):
 				player.setpart("material")
 			elif o == "setpart":
 				player.setpart(n)
+			elif o == "settarget":
+				player.target = n
+				player.setpart("material")
 			else:
 				printDebug("Unrecognized result: "+str(o)+" :on result: "+str(self.desc))
 
@@ -610,6 +616,7 @@ class Player(object):
 		self.netMoneyHistory = []
 		self.netMoneyMean = 0
 		#ship type stuff
+		self.target = PTspace
 		self.material = PMNone
 		self.booster = PBnone
 		self.main = PMnone
@@ -625,6 +632,7 @@ class Player(object):
 		self.launches += 1
 		self.progress = 0
 		self.rocketspecs = []
+		self.target = PTspace
 		self.material = PMNone
 		self.booster = PBnone
 		self.main = PMnone
@@ -658,9 +666,9 @@ class Player(object):
 			printDebug("Unknown part applied: "+str(part))
 			self.otherParts.append(part)
 		
-		self.impossiblilyFactor = 1+self.booster.fail+self.main.fail+self.chassis.fail+self.material.fail
+		self.impossiblilyFactor = 1+self.booster.fail+self.main.fail+self.chassis.fail+self.material.fail+self.target.fail
+		self.full = self.booster.perc + self.main.perc + self.chassis.perc + self.material.perc +self.target.fail
 		self.cost = self.booster.cost + self.main.cost + self.chassis.cost + self.material.cost
-		self.full = self.booster.perc + self.main.perc + self.chassis.perc + self.material.perc
 		for i in self.otherParts:
 			try:
 				self.impossiblilyFactor += i.fail
@@ -923,8 +931,13 @@ def launchResult(result, skipable = False):
 				Ahl.get()
 			if player.chassis == PCtoaster:
 				Atoast.get()
+
 		if time == 460:
 			objects[0].pos = [700, 0]
+			if (player.target.name == "space" and goneSpace) or (player.target.name == "orbit" and goneOrbit) or (player.target.name == "moon" and goneMoon):
+				player.money += player.target.cost/2
+			else:
+				player.money += player.target.cost
 			skipable = True
 		
 		for achive in allAchives:
