@@ -559,7 +559,7 @@ hire1 = Prompt("hire1", ["Your advisor from the government approches you:", "I w
 hire2 = Prompt("hire2", ["A large group of papers is sitting on your desk", "They appear to all be applications for jobs"], [Result("This person has a good scientific reputation.", "A new scientist has joined your team.", [["addsci", 1]]), Result("This person seems highly caffinated, but could be a good engineer.", "A jittery engineer has joined your crew", [["addeng", 1], ["spec", "caffinate"]]),Result("How about this campaigner? He seems legitimate.", "A legit campaigner joins your team.", [["addcam", 1]]), Result("This mathmatition looks interesting...", "A new mathmatition has joined your team.", [["addmat", 1]]), Result("None of these people are interesting enough to be hired", "after not hiring anyone", [["addfail", 1], ["addflav", "Unhappiness increases"], ["spec", "charred"]])], 3)
 overtime = Prompt("overtime", ["Some particullarly hard working engineers", "are requesting the facility stay open later tonight so they can work overtime."], [Result("I suppose we can do that", "after your staff works overtime..", [["overtime", 0.3]]), Result("I don't think that's such a good idea.", "After convincing your staff not to work overtime...", [["addmoney", 2], ["addflav", "You recive an endorsement from the local health officials."]])], 0)
 fire1 = Prompt("fire1", ["That one advisor from the government approches you:", "We have hired too many people and we are losing money", "somebody needs to get fired."], [Result("But we are getting so much done.", "After not firing anyone...", [["addfail", 2]]), Result("I'll leave it up to you.", "After that government advisor fires some people...", [["subpop", 3], ["addfail", -2]]),Result("Fire some of those engineers.", "After firing some engineers...", [["addeng", -2], ["addfail", -1]])], 6)
-fire2 = Prompt("fire2", ["Your money is low, and you are losing more.", "You need a way to stop your money"], [Result("Why don't we just hire more campaigners?", "After putting out an ad campaign:", [["addcam", 2], ["addmoney", -6], ["overtime", -.2]]), Result("How about we reduce costs?", "After using less expensive materials:", [["reduce", 1]]), Result("Why not just reduce the work hours?", "You reduce the work hours.", [["addTime", -.2], ["addflav", "Your workers are more well rested at work."], ["addIfactor", -.1]])], 10)
+fire2 = Prompt("fire2", ["Your money is low, and you are losing more.", "You need a way to stop your money"], [Result("Why don't we just hire more campaigners?", "After putting out an ad campaign:", [["addcam", 2], ["addmoney", -3], ["overtime", -.2]]), Result("How about we reduce costs?", "After using less expensive materials:", [["reduce", 1]]), Result("Why not just reduce the work hours?", "You reduce the work hours.", [["addTime", -.2], ["addflav", "Your workers are more well rested at work."], ["addIfactor", -.1]])], 10)
 workload = Prompt("workload", ["Your project is currently gaining heavy profits.", "Your resource managers would like to use it."], [Result("Why don't we increase work hours?", "After adding a couple hours to the workday:", [["addTime", .2], ["subpop", 1]]), Result("How about hiring people to use the money?", "After hiring", [["addmat", 1], ["addsci", 1]]), Result("If we have the money, why not use it on the rocket?", "After splurging on the rocket:", [["addmoney", -8], ["addprog", 5]]), Result("I think this gain in money is fine.", "After saving up:", [["addflav", "A local campaigner admires your intrest in money."], ["addcam", 1]])], 2)#cooldown needs to reflect costhistory duration to prevent major loss in money
 strike = Prompt("strike", ["Several of your employees are complaining about", "poor wages. They've gone on strike."], [Result("FIRE THEM ALL!!!", "After firing much of your staff.", [["subpop", 5]]), Result("Fine, increase the wages.", "After increasing wages...", [["addwages", 0.5]])], 30)
 #buyout = spend money and gain balanced sci, mat, eng, cam (you bought a smaller group)
@@ -571,13 +571,14 @@ adcampaign = Prompt("adcampaign", ["One of your mathmatitions suggests", "an ad 
 materials = Prompt("materials", ["One of your scientists approaches you:", "We need to discuss our materials."], [Result("How about all carbon fiber?", "After using hi-tech materials:", [["addfail", -4], ["rocketspec", "hi-tech"], ["setMat", PMNano]]), Result("Why not normal materials, like steel?", "After deciding to use standard materials:", [["addflav", "Engineers are attracted to the ease of their jobs."], ["addeng", 1], ["rocketspec", "steel"], ["setMat", PMIron]]), Result("Lets think cheap. Duct-tape cheap.", "After deciding to use low-cost materials:", [["setMat", PMTape], ["addfail", 20], ["addflav", "Some of your mathmatitions can't handle the absurdity of this project."], ["addmat", -2], ["rocketspec", "ductTape"]])], 99)
 fuels = Prompt("fuels", ["An engineer approaches you:", "So, uh.. What should we use for fuel?"], [Result("Nuclear would be the most powerful.", "After deciding to place a nuclear reactor within the rocket:", [["addfail", 2], ["rocketspec", "fuelNuclear"], ["setpart", "Mnuclear"]]), Result("How about we design a rocket specific fuel?", "After deciding to design rocket fuel..", [["addfail", -5], ["addIfactor", 0.1], ["rocketspec", "fuelRocket"], ["setpart", "Mnormal"]]), Result("Car fuel, we need to save money", "After deciding to use car fuel...", [["addflav", "Some people belive you aren't taking this job seriously"], ["subpop", 2], ["addfail", -2], ["rocketspec", "fuelCar"], ["setpart", "Mcar"]])], 99)
 target = Prompt("target", ["A scientist asks:", "So, what are we aiming for here?"], [Result("Breaking the atmosphere.", "After aiming for space...", [["settarget", PTspace], ["setpart", "Cnormal"]]), Result("Orbit", "After aiming for orbit...", [["settarget", PTorbit],["setpart", "Cnormal"]]), Result("The moon!", "After aiming for the moon...", [["settarget", PTmoon],["setpart", "Cnormal"]])],99)
-lander = Prompt("lander", ["Thinking to yourself, you realize you need a lander to land on the moon."], [Result("Yes", "After begining work on a lander...", [["setpart", PClander]]), Result("Nah, we'll just have them parashute in from orbit.", "After investing in parashutes...", [["addflav", "Astronaughts now recive skydive training."]])], 99)
-extras = Prompt("Parts", ["Some scientists suggest adding utility parts onto the ship."], [Result("We could add some heat shielding for liftoff", "After adding shielding to the plans:", [["setpart", PEshield], ["addmoney", -1]]), Result("How about we add a science station? for science?", "After adding science tools to the ship...", [["setpart", PEscience], ["addfail", 3]]), Result("Let's put lasers on it! pew, pew...", "After implementing the Laser plan...", [["subpop", 2], ["addeng", 1], ["multprog", 0.9], ["setpart", PElasers]]), Result("Why do we need to add any more?", "After doing nothing...", [["addflav", "The day progresses as normal."]])], 2)
+lander = Prompt("lander", ["Thinking to yourself, you realize you need a lander to land on the moon."], [Result("Yes", "After begining work on a lander...", [["setpart", "Clander"]]), Result("Nah, we'll just have them parashute in from orbit.", "After investing in parashutes...", [["addflav", "Astronaughts now recive skydive training."]])], 99)
+extras = Prompt("Parts", ["Some scientists suggest adding utility parts onto the ship."], [Result("We could add some heat shielding for liftoff", "After adding shielding to the plans:", [["setpart", PEshield], ["addmoney", -1]]), Result("How about we add something to preform tests in space?", "After adding science tools to the ship...", [["setpart", PEscience], ["addfail", 2]]), Result("Let's put lasers on it! pew, pew...", "After implementing the Laser plan...", [["subpop", 2], ["addeng", 1], ["multprog", 0.9], ["setpart", PElasers]]), Result("Why do we need to add any more?", "After doing nothing...", [["addflav", "The day progresses as normal."]])], 6)
+sciencestation = Prompt("scistation", ["sci station"], [Result("Yes", "After changing to a science station:", [["setpart", "Cscience"]]), Result("No", "After continuing as is:", [["addflav", "The day continues as normal."]])], 5)
 
 #Bad ideas -- 
-coffeeShipments = Prompt("coffeeShipments", ["A group of mathmatitions have been staying up all night:", "We need more shipments of caffinated beverages!"], [Result("Of course, coffee is a necissity.", "After ordering some caffine...", [["addmoney", -1], ["spec", "caffinate"], ["overtime", 0.1]]), Result("No, too much coffee is unhealthy", "After depriving your employees of caffine...", [["addfail", 5], ["overtime", -0.1], ["addflav", "The employees are quite tired."]])], 10)
+coffeeShipments = Prompt("coffeeShipments", ["A group of mathmatitions have been staying up all night:", "We need more shipments of caffinated beverages!"], [Result("Of course, coffee is a necissity.", "After ordering some caffine...", [["addmoney", -1], ["spec", "caffinate"], ["overtime", 0.1]]), Result("No, too much coffee is unhealthy", "After depriving your employees of caffine...", [["addfail", 2], ["overtime", -0.1], ["addflav", "The employees are quite tired."]])], 10)
 coffee = Prompt("coffee", ["A few engineers approch you and ask:", "Can we install a coffee machine in the rocket?"], [Result("Sure, Why not?", "After installing a coffee machine on the rocket,", [["addmoney", -1], ["addprog", 1], ["addfail", 2], ["addeng", 1], ["spec", "caffinate"], ["rocketspec", "coffeeMachine"], ["setpart", PEcoffee]]), Result("NO?", "After not installing a coffee machine...", [["addfail", -1]])], 9)			
-toaster = Prompt("toaster", ["One of those hippies from science department asks:", "Hey, we're low on funds right now. I suggest we turn our chassis into a toaster."], [Result("Sure, we need to save money.", "After switching over your chassis:", [["setpart", "Ctoaster"], ["addfail", 50], ["addmat", -2], ["rocketspec", "ToasterChassis"]]), Result("We don't need to be THAT drastic..", "After reducing the size:", [["addfail", -1], ["addsci", 1]]), Result("No way.", "After denying the toaster plan:", [["addmat", 1], ["addpop", 1], ["setpart", "Cnormal"]])], 7)
+toaster = Prompt("toaster", ["One of those hippies from science department asks:", "Hey, we're low on funds right now. I suggest we turn our chassis into a toaster."], [Result("Sure, we need to save money.", "After switching over your chassis:", [["setpart", "Ctoaster"], ["addfail", 50], ["addmat", -2], ["rocketspec", "ToasterChassis"]]), Result("We don't need to be THAT drastic..", "After reducing the size:", [["addfail", -1], ["addsci", 1], ["setpart", "Cnormal"]]), Result("No way.", "After denying the toaster plan:", [["addmat", 1], ["addpop", 1]])], 7)
 hotel = Prompt("hotel", ["The CEO of a large hotel group has approched you", "and wishes install one of his hotels on the moon.", "He bribes you with quite a bit of money."], [Result("I guess so.", "The engineers begin to load materials to build the hotel on the moon.", [["multprog", .2], ["addfail", 10], ["addmoney", 20], ["addIfactor", 4], ["rocketspec", "hotel"], ["setpart", "Chotel"], ["spec", "privateFund1"]]), Result("No.", "After focusing on building the rocket and not business deals:", [["addprog", 5], ["addpop", 1]])], 10)
 silos = Prompt("silos", ["One very frugel lab assistant approches you:", "We don't have enough money to build the thrusters", "How about we use the silos from the sourounding farmland?"], [Result("What a wonderful idea!", "After refiting farm silos to work as thrusters...", [["addfail", 20], ["addsci", 1], ["addflav", "A hippy scientist joins your team"], ["rocketspec", "silos"], ["setpart", "Bsilo"]]), Result("Are you sane?", "After not taking the farmer's silos", [["addflav", "The farmers share some of their wages with you!"],["addmoney", 5]])], 99)
 sodamachine = Prompt("sodamachine", ["A promising scientist asks if they can", "install a soda machine in the lab."], [Result("Sure, how much will it cost me?", "After installing a soda machine in the lab...", [["addmoney", -2], ["overtime", 0.2], ["spec", "sodaMachine"]]), Result("No, we don't have the money.", "After not installing a soda machine in the lab.", [["overtime", -0.1], ["addflav", "Your employees seem a bit slow today."]])], 10)
@@ -691,6 +692,8 @@ class Player(object):
 	def setpart(self, part):
 		if part == "material":
 			pass
+		elif part == "Bnone":
+			self.booster = PBnone
 		elif part == "Bsilo":
 			self.booster = PBsilo
 		elif part == "Bnormal":
@@ -701,6 +704,10 @@ class Player(object):
 			self.main = PMnormal
 		elif part == "Mcar":
 			self.main = PMcar
+		elif part == "Cscience":
+			self.chassis = PCscience
+		elif part == "Clander":
+			self.chassis = PClander
 		elif part == "Ctoaster":
 			self.chassis = PCtoaster
 		elif part == "Cnormal":
@@ -853,7 +860,6 @@ def addQuestion(requirements, question):
 			if i[1] == "greater":
 				if i[0] > i[2]:
 					matches += 1
-					
 			elif i[1] == "lesser":
 				if i[0] < i[2]:
 					matches += 1
@@ -869,6 +875,9 @@ def addQuestion(requirements, question):
 					matches += 1
 			elif i[1] == "equals":
 				if i[0] == i[2]:
+					matches += 1
+			elif i[1] == "not":
+				if i[0] != i[2]:
 					matches += 1
 		if matches == len(requirements):
 			if not question in possiblequestions:
@@ -890,7 +899,6 @@ def addQuestion(requirements, question):
 		question.daysSince = 0
 						
 def launchResult(result, skipable = False):
-	
 	running = True
 	mouse_down = False
 	time = 0
@@ -986,6 +994,9 @@ def launchResult(result, skipable = False):
 		if time == 460:
 			objects[0].pos = [700, 0]
 			#get rewarded
+			global goneSpace
+			global goneOrbit
+			global goneMoon
 			if (player.target.name == "space" and goneSpace) or (player.target.name == "orbit" and goneOrbit) or (player.target.name == "moon" and goneMoon):
 				player.money += player.target.cost/2
 			else:
@@ -1004,13 +1015,13 @@ def launchResult(result, skipable = False):
 
 			if player.target.name == "orbit":
 				if player.chassis.name == "Sci":
-					player.spaceboosters += 0.4
+					player.spaceboosters += 5
 					player.spaceboost += 1
 				else:
-					player.spaceboosters += 0.1
+					player.spaceboosters += 1
 				for i in player.otherParts:
 					if i.name == "sci":
-						player.spaceboosters += 0.1
+						player.spaceboosters += 1
 				goneOrbit = True
 				player.specs.append("spaceStation")
 
@@ -1023,7 +1034,7 @@ def launchResult(result, skipable = False):
 					if i.name == "sci":
 						player.spaceboost += 0.2
 						if player.chassis.name == "lander":
-							player.spaceboosters += 0.2
+							player.spaceboosters += 2
 				goneMoon = True
 
 			skipable = True
@@ -1106,6 +1117,7 @@ while running:
 	addQuestion([[player.netMoneyMean, "lesser", 0], [player.daysSinceLaunch, "greater", 3]], fire2)
 	addQuestion([[player.rocketspecs, "notSpec", "coffeeMachine"], [player.money, "greater", 2]], coffee)
 	addQuestion([[player.rocketspecs, "notSpec", "silos"], [player.money, "lesser", 15], [player.netMoneyMean, "lesser", 0]], silos)
+	addQuestion([[player.chassis, "not", PCscience]], sciencestation)
 	addQuestion([[player.specs, "notSpec", "spacePen"], [player.money, "greater", 5]], pen)
 	addQuestion([[player.specs, "notSpec", "sellPen"], [player.money, "greater", 7], [10, "daysSince", pen]], sellPen)
 	addQuestion([[player.specs, "notSpec", "rats"]], rats)
@@ -1113,9 +1125,7 @@ while running:
 	addQuestion([[10, "daysSince", fsc], [player.scientists, "greater", 2], [player.engineers, "greater", 2], [player.specs, "spec", "JoinedFSC"]], theProject)
 	addQuestion([[10, "daysSince", theProject], [player.specs, "notSpec", "ai"]], ai)
 	addQuestion([[17, "daysSince", ai], [player.specs, "notSpec", "shipAi"]], shipAi)
-	addQuestion([[10, "daysSince", loan], [player.specs, "notSpec", "PaybackLoan"]], paybackLoan)
-	
-	
+	addQuestion([[10, "daysSince", loan], [player.specs, "notSpec", "PaybackLoan"]], paybackLoan)	
 	addQuestion([], overtime)
 	
 	theQuestion = possiblequestions[random.randint(0, len(possiblequestions) - 1)]
@@ -1147,7 +1157,7 @@ while running:
 	elif player.daysSinceLaunch == 3:
 		theQuestion = target
 		possiblequestions.append(target)
-	elif player.daysSinceLaunch == 4 and player.target == PTmoon :
+	elif player.daysSinceLaunch == 4 and player.target == PTmoon:
 		theQuestion = lander
 		possiblequestions.append(lander)
 		
@@ -1318,17 +1328,18 @@ while running:
 	player.money -= employeePay
 	
 	
-	for spec in player.specs:
+	'''for spec in player.specs:
 		if spec == "spaceStation":
 			if random.randint(0, 5) == 1 and player.spaceboosters != 0:
 				player.spaceboost += player.spaceboosters
 				feedback1.append("You recieve helpful lab results from your station!")
-				player.setpart("material")
-	'''
-	or this:
-	if random.randint(0, 3+player.spaceboosters) > 3:
+				player.setpart("material")'''
+	
+	if random.randint(0, 30+player.spaceboosters) > 30:
 		player.spaceboost += .1
-	'''
+		feedback1.append("You recieve helpful lab results from your station!")
+		player.setpart("material")
+	
 	rand = 0
 	rocketProgress = round(player.time * ((.3*player.scientists)+1)*player.engineers*0.4, 2)
 	player.progress += rocketProgress
