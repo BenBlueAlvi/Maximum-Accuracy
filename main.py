@@ -38,7 +38,27 @@ gScreen = pygame.display.set_mode(size)
 clock = pygame.time.Clock()
 pygame.display.set_caption("Maximum Accuracy")
 
+loadingbar_x = 0
+
+gScreen.fill(WHITE)
+loading_image = pygame.image.load("Assets/backgrounds/loading.png")
+
 def getImg(name):
+	global gScreen
+	global WHITE
+	global TEAL
+	global loadingbar_x
+	global loading_image
+	
+	loadingbar_x += 7
+	gScreen.fill(WHITE)
+	gScreen.blit(loading_image, [0,0])
+	gScreen.blit(font.render("Loading Asset: " + name , True, BLACK), [0,0])
+	pygame.draw.rect(gScreen, TEAL, [20, 20 , loadingbar_x, 50])
+	pygame.draw.rect(gScreen, GREY, [10, 20 , 10, 50])
+	pygame.draw.rect(gScreen, GREY, [670, 20 , 10, 50])
+	pygame.display.update()
+	
 	full = "Assets/"+name+".png"
 	print "Loading: "+full
 	try:
@@ -46,6 +66,8 @@ def getImg(name):
 	except pygame.error:
 		print "--File not found. Substituting"
 		return pygame.image.load("Assets/achives/wip.png")
+
+		
 
 sciencepic = getImg("science")
 progresspic = getImg("progress")
@@ -63,6 +85,9 @@ capstrip1 = getImg("capstrip1")
 vertstrip = getImg("vertstrip")
 capstrip2 = getImg("capstrip2")
 achiveBox = getImg("achives/achiveBox")
+#--------------
+
+#--------------
 #Launch stuff
 launchpad = getImg("backgrounds/launchpad")
 #sounds
@@ -70,6 +95,7 @@ explosion = pygame.mixer.Sound("Assets/soundfx/Explosion.wav")
 launch = pygame.mixer.Sound("Assets/soundfx/Launch.wav")
 select = pygame.mixer.Sound("Assets/soundfx/Blip_Select.wav")
 new_day = pygame.mixer.Sound("Assets/soundfx/New_Day.wav")
+
 class button(object):
 	def __init__(self, image, hoverimg):
 		self.image = image
@@ -149,6 +175,11 @@ class shipPart(object):
 		self.img = image
 		self.dispOut = dispOut
 
+		
+#--------------
+
+#--------------		
+
 #part variables start with P, part types are B (booster), M (main), C (chassis), E (extras), materials have M with a T (tape), I (iron), N (nano)
 #frames and materials
 Pframe = getImg("parts/Scaffold")
@@ -184,6 +215,10 @@ PErats = shipPart("rats", 0, 0, 0.4, getImg("parts/rats"))
 PTspace = shipPart("space", 20, 0, 0, getImg("parts/Tspace"))
 PTorbit = shipPart("orbit", 60, 20, 1, getImg("parts/Torbit"))
 PTmoon = shipPart("moon", 200, 100, 3, getImg("parts/Tmoon"))
+
+#--------------
+
+#--------------
 goneSpace = False
 goneOrbit = False
 goneMoon = False
@@ -573,15 +608,28 @@ loan = Prompt("loan", ["It appears the lab is in dire need of money.", "Will you
 bankrupt = Prompt("bankrupt", ["The lab has gone bankrupt, you need to sell assets."], [Result("Looks like we'll have to sell the rocket", "After selling of the rocket...", [["sellRocket", 100]]), Result("I never wanted to build a rocket anyway", "After giving up on the rocket", [["addflav", "The government, dissaproving of your handling of the project,"], ["addflav", "has hired a replacement for you."], ["addflav", "You go home and get a job working in a coffee shop."], ["spec", "GiveUp"]])], 1)
 paybackLoan = Prompt("paybackLoan", ["A bank employee approaches you,", "It's time to repay that loan."], [Result("Here is your money.", "After paying back that loan...", [["addmoney", -20.0 * (1.0 +(loan.daysSince / 100.0))], ["spec", "PaybackLoan"]]), Result("Sorry, I don't have the money", "After not paying up...", [["addcam", -1], ["addflav", "One of the campaigners disapproves of your credit score."]])], 1)
 
+#--------------
+
+#--------------
 
 possiblequestions = [hire2, overtime]	
 def getpartimg(name, quant):
+	global loadingbar_x
+	loadingbar_x += 7
+	gScreen.fill(WHITE)
+	gScreen.blit(loading_image, [0,0])
+	gScreen.blit(font.render("Loading Animation: " + name , True, BLACK), [0,0])
+	pygame.draw.rect(gScreen, TEAL, [20, 20 , loadingbar_x, 50])
+	pygame.draw.rect(gScreen, GREY, [10, 20 , 10, 50])
+	pygame.draw.rect(gScreen, GREY, [670, 20 , 10, 50])
+	pygame.display.update()
 	images = []
 	print "Loading animation: "+name
 	for i in range(quant):
 		images.append(pygame.image.load('Assets/particles/{}/{}.png'.format(name, quant-i-1)))
 	return images
 splosionpic = getpartimg("splosion", 10)
+
 
 #Used for anything that moves, IE rocket on launch or particles
 class movingPart(object):
@@ -790,6 +838,9 @@ Acaffine = Achive("caffine", "Caffinated Crew", "Build a ship with 5 caffinated 
 Adownhill = Achive("downhill", "Downhill", "Horribly fail an inspection", "downhill")
 Arats = Achive("rats", "Rat-stronauts", "Launch rats into space", "rats")
 #halfbaked
+#--------------
+
+#--------------
 
 allAchives = [Atoast, Anukes, Abegining, Aai, Ahl, Acaffine]
 			
@@ -971,6 +1022,7 @@ def launchResult(result, skipable = False):
 					if i.name == "sci":
 						player.spaceboosters += 0.1
 				goneOrbit = True
+				player.specs.append("spaceStation")
 
 			if player.target.name == "moon":
 				if player.chassis.name == "Sci":
@@ -1004,6 +1056,9 @@ day = 0
 month = 1
 year = 1957 #year beginning the space race
 govFunding = 4
+goneMoon = False
+goneOrbit = False
+goneSpace = False
 while running:
 	day += 1
 	newMonth = False
@@ -1062,11 +1117,11 @@ while running:
 	addQuestion([[player.rocketspecs, "notSpec", "coffeeMachine"], [player.money, "greater", 2]], coffee)
 	addQuestion([[player.rocketspecs, "notSpec", "silos"], [player.money, "lesser", 15], [player.netMoneyMean, "lesser", 0]], silos)
 	addQuestion([[player.specs, "notSpec", "spacePen"], [player.money, "greater", 5]], pen)
-	addQuestion([[player.specs, "notSpec", "sellPen"], [player.money, "greater", 7]], sellPen)
+	addQuestion([[player.specs, "notSpec", "sellPen"], [player.money, "greater", 7], [10, "daysSince", pen]], sellPen)
 	addQuestion([[player.specs, "notSpec", "rats"]], rats)
 	addQuestion([[player.pop, "greater", 7]], strike)
 	addQuestion([[10, "daysSince", fsc], [player.scientists, "greater", 2], [player.engineers, "greater", 2], [player.specs, "spec", "JoinedFSC"]], theProject)
-	addQuestion([[10, "daysSince", theProject], [player.specs, "spec", "theProject"]], ai)
+	addQuestion([[10, "daysSince", theProject], [player.specs, "notSpec", "ai"]], ai)
 	addQuestion([[17, "daysSince", ai], [player.specs, "notSpec", "shipAi"]], shipAi)
 	addQuestion([[10, "daysSince", loan], [player.specs, "notSpec", "PaybackLoan"]], paybackLoan)
 	
@@ -1273,10 +1328,12 @@ while running:
 	player.money -= employeePay
 	
 	
-	if random.randint(0, 5) == 1 and player.spaceboosters != 0:
-		player.spaceboost += player.spaceboosters
-		feedback1.append("You recieve helpful lab results from your station!")
-		player.setpart("material")
+	for spec in player.specs:
+		if spec == "spaceStation":
+			if random.randint(0, 5) == 1 and player.spaceboosters != 0:
+				player.spaceboost += player.spaceboosters
+				feedback1.append("You recieve helpful lab results from your station!")
+				player.setpart("material")
 	'''
 	or this:
 	if random.randint(0, 3+player.spaceboosters) > 3:
