@@ -85,9 +85,7 @@ capstrip1 = getImg("capstrip1")
 vertstrip = getImg("vertstrip")
 capstrip2 = getImg("capstrip2")
 achiveBox = getImg("achives/achiveBox")
-#--------------
 
-#--------------
 #Launch stuff
 launchpad = getImg("backgrounds/launchpad")
 #sounds
@@ -175,10 +173,7 @@ class shipPart(object):
 		self.img = image
 		self.dispOut = dispOut
 
-		
-#--------------
 
-#--------------		
 
 #part variables start with P, part types are B (booster), M (main), C (chassis), E (extras), materials have M with a T (tape), I (iron), N (nano)
 #frames and materials
@@ -216,9 +211,6 @@ PTspace = shipPart("space", 20, 0, 0, getImg("parts/Tspace"))
 PTorbit = shipPart("orbit", 60, 20, 1, getImg("parts/Torbit"))
 PTmoon = shipPart("moon", 200, 100, 3, getImg("parts/Tmoon"))
 
-#--------------
-
-#--------------
 goneSpace = False
 goneOrbit = False
 goneMoon = False
@@ -838,9 +830,7 @@ Acaffine = Achive("caffine", "Caffinated Crew", "Build a ship with 5 caffinated 
 Adownhill = Achive("downhill", "Downhill", "Horribly fail an inspection", "downhill")
 Arats = Achive("rats", "Rat-stronauts", "Launch rats into space", "rats")
 #halfbaked
-#--------------
 
-#--------------
 
 allAchives = [Atoast, Anukes, Abegining, Aai, Ahl, Acaffine]
 			
