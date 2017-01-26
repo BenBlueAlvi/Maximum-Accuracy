@@ -571,6 +571,7 @@ adcampaign = Prompt("adcampaign", ["One of your mathmatitions suggests", "an ad 
 materials = Prompt("materials", ["One of your scientists approaches you:", "We need to discuss our materials."], [Result("How about all carbon fiber?", "After using hi-tech materials:", [["addfail", -4], ["rocketspec", "hi-tech"], ["setMat", PMNano]]), Result("Why not normal materials, like steel?", "After deciding to use standard materials:", [["addflav", "Engineers are attracted to the ease of their jobs."], ["addeng", 1], ["rocketspec", "steel"], ["setMat", PMIron]]), Result("Lets think cheap. Duct-tape cheap.", "After deciding to use low-cost materials:", [["setMat", PMTape], ["addfail", 20], ["addflav", "Some of your mathmatitions can't handle the absurdity of this project."], ["addmat", -2], ["rocketspec", "ductTape"]])], 99)
 fuels = Prompt("fuels", ["An engineer approaches you:", "So, uh.. What should we use for fuel?"], [Result("Nuclear would be the most powerful.", "After deciding to place a nuclear reactor within the rocket:", [["addfail", 2], ["rocketspec", "fuelNuclear"], ["setpart", "Mnuclear"]]), Result("How about we design a rocket specific fuel?", "After deciding to design rocket fuel..", [["addfail", -5], ["addIfactor", 0.1], ["rocketspec", "fuelRocket"], ["setpart", "Mnormal"]]), Result("Car fuel, we need to save money", "After deciding to use car fuel...", [["addflav", "Some people belive you aren't taking this job seriously"], ["subpop", 2], ["addfail", -2], ["rocketspec", "fuelCar"], ["setpart", "Mcar"]])], 99)
 target = Prompt("target", ["A scientist asks:", "So, what are we aiming for here?"], [Result("Breaking the atmosphere.", "After aiming for space...", [["settarget", PTspace], ["setpart", "Cnormal"]]), Result("Orbit", "After aiming for orbit...", [["settarget", PTorbit],["setpart", "Cnormal"]]), Result("The moon!", "After aiming for the moon...", [["settarget", PTmoon],["setpart", "Cnormal"]])],99)
+boosters = Prompt("boosters", ["An engineer suggests adding boosters", "for stablization and more power for getting to space."], [Result("Yes", "After adding boosters...", [["setpart", "Bnormal"], ["addmoney", -2], ["addfail", 1.5]]), Result("Nah", "After not adding boosters...", [["addflav", "Nothing interesting happens"]])], 99)
 lander = Prompt("lander", ["Thinking to yourself, you realize you need a lander to land on the moon."], [Result("Yes", "After begining work on a lander...", [["setpart", PClander]]), Result("Nah, we'll just have them parashute in from orbit.", "After investing in parashutes...", [["addflav", "Astronaughts now recive skydive training."]])], 99)
 extras = Prompt("Parts", ["Some scientists suggest adding utility parts onto the ship."], [Result("We could add some heat shielding for liftoff", "After adding shielding to the plans:", [["setpart", PEshield], ["addmoney", -1]]), Result("How about we add a science station? for science?", "After adding science tools to the ship...", [["setpart", PEscience], ["addfail", 3]]), Result("Let's put lasers on it! pew, pew...", "After implementing the Laser plan...", [["subpop", 2], ["addeng", 1], ["multprog", 0.9], ["setpart", PElasers]]), Result("Why do we need to add any more?", "After doing nothing...", [["addflav", "The day progresses as normal."]])], 2)
 
@@ -1114,6 +1115,7 @@ while running:
 	addQuestion([[10, "daysSince", theProject], [player.specs, "notSpec", "ai"]], ai)
 	addQuestion([[17, "daysSince", ai], [player.specs, "notSpec", "shipAi"]], shipAi)
 	addQuestion([[10, "daysSince", loan], [player.specs, "notSpec", "PaybackLoan"]], paybackLoan)
+	addQuestion([[player.booster, "equals", PBnone]], boosters)
 	
 	
 	addQuestion([], overtime)
@@ -1312,6 +1314,9 @@ while running:
 	if "JoinedFSC" in player.specs:
 		player.money += 4
 		feedback1.append("   You gain 4K from the FSC")
+	if "sellPen" in player.specs:
+		player.money += 0.5
+		feedback1.append("   You gain 0.5K from the space pen sales")
 		
 	employeePay = round(player.time*(0.3*(player.maths+player.scientists) * player.wages+0.2*player.engineers * player.wages+0.1), 1)	
 	feedback1.append("You pay your employees "+str(employeePay)+"K")
@@ -1384,16 +1389,16 @@ while running:
 		feedback1.append("You got " + str(inspectionPoints) + "/" + "75 on the inspection.")
 		
 		if inspectionPoints < 37:
-			govFunding -= 2
+			govFunding -= 1
 			
 			feedback1.append("Unsatisfied, government funding has decreased")
 		elif inspectionPoints <= 5:
-			govFunding -= 4
+			govFunding -= 3.5
 			feedback1.append("disapproving of your management,")
 			feedback1.append("government funding has significantly decreased.")
 			Adownhill.get()
 		elif inspectionPoints > 75:
-			govFunding += 2
+			govFunding += 0.5
 			feedback1.append("Inpressed with your work,")
 			feedback1.append("government funding has increased.")
 			
