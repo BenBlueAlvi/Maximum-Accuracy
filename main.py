@@ -558,7 +558,7 @@ spaceSoda = Prompt("spaceSoda", ["A campainer approaches you:", "Can we put some
 rats = Prompt("rats", ["Your janitor, Scruffy, has informed you of an infestation of rats."], [Result("Who cares about some rats?", "After letting the rats go loose:", [["addfail", 15], ["subpop", 4], ["spec", "rats"], ["setpart", PErats]]), Result("We can deal with it ourselves.", "After prying apart your ship in search for rats...", [["multprog", 0.8], ["addfail", 10]]), Result("This is a job for professionals.", "After the professionals arrive:", [["addmoney", -4], ["overtime", -0.5]])], 25)
 scamers = Prompt("scams", ["Unfortunatly, it seems that one of those 'legit'", "campaigners you hired was a scamer.", "They have taken quite a large amount of money from the lab's account."], [Result("Crap! Fire them immediatly!", "after firing a 'legit' scamer..", [["multmoney", 0.5], ["addcam", -1]]), Result("No, that money went to work on the rocket, I'm sure.", "after the money goes to work on the rocket...", [["multmoney", 0.4]])], 20)
 chemicalSpill = Prompt("chemicals", ["One of your more incompetent scientists", "has spills some particularly volitile chemicals", "all over the science work station.", "Somehow."], [Result("Welp, call in the cleanup crews!", "After a quite expensive cleanup...", [["addfail", 20], ["addmoney", -25]]), Result("We neither have the money nor the time to spend on cleanup! Work out of your houses if you have to!", "After the scientist begin working from home...", [["addfail", -30], ["spec", "chemSpill"]])], 99)
-
+#orbitcrisis = Something happens to your orbiter & lose some/all spaceboosters, salvage & keep but subtract something, 
 
 #interesting ideas
 fsc = Prompt("fsc", ["Upon seeing how well the rocket is going,", "an advisor from the Futuristic Science Corp.", "wishes to partner with you."], [Result("Together we will do great things.", "After partnering with the FSC...", [["addflav", "The project has drasticly increased in size."], ["spec", "JoinedFSC"], ["addmoney", 20], ["setpart", PEfsc1]]), Result("I'm sorry, I would prefer to go alone.", "After making the mistake of not partnering with the FSC..", [["addflav", "You feel you have made a horrible mistake."]])], 99)
@@ -671,7 +671,9 @@ class Player(object):
 			printDebug("Unknown part applied: "+str(part))
 			self.otherParts.append(part)
 		
-		self.impossiblilyFactor = 1+self.booster.fail+self.main.fail+self.chassis.fail+self.material.fail+self.target.fail
+		self.impossiblilyFactor = 1+self.booster.fail+self.main.fail+self.chassis.fail+self.material.fail+self.target.fail-self.spaceboost
+		if self.impossiblilyFactor < 0.1:
+			self.impossiblilyFactor = 0.1
 		self.full = self.booster.perc + self.main.perc + self.chassis.perc + self.material.perc +self.target.fail
 		self.cost = self.booster.cost + self.main.cost + self.chassis.cost + self.material.cost
 		for i in self.otherParts:
@@ -787,6 +789,7 @@ Ahl = Achive("hl3", "Half life 3 confirmed", "Succesfully launch your third rock
 Acaffine = Achive("caffine", "Caffinated Crew", "Build a ship with 5 caffinated additions", "coffee")
 Adownhill = Achive("downhill", "Downhill", "Horribly fail an inspection", "downhill")
 Arats = Achive("rats", "Rat-stronauts", "Launch rats into space", "rats")
+#halfbaked
 
 allAchives = [Atoast, Anukes, Abegining, Aai, Ahl, Acaffine]
 			
@@ -1033,8 +1036,6 @@ while running:
 		
 	player.daysSinceLaunch += 1
 	inspectionChance = random.randint(1,25)
-	if random.randint(0, 5) == 1:
-		player.spaceboost += player.spaceboosters
 	
 	#Before choosing an answer
 	#Stat logging
@@ -1092,10 +1093,6 @@ while running:
 		theQuestion = birthday
 		possiblequestions.append(birthday)
 		
-		
-
-		
-
 	if player.daysSinceLaunch == 1:
 		theQuestion = materials
 		possiblequestions.append(materials)
@@ -1149,7 +1146,6 @@ while running:
 		gScreen.blit(player.ship.img[0], player.ship.pos)
 
 		for i in range(len(theQuestion.prompt)):
-		
 			gScreen.blit(font.render(theQuestion.prompt[i], True, BLACK), [200, 100 + i * 20])
 			
 		y = 0
@@ -1276,13 +1272,16 @@ while running:
 	feedback1.append("You pay your employees "+str(employeePay)+"K")
 	player.money -= employeePay
 	
-	failReduction = round(player.time * math.sqrt(player.maths) / player.impossiblilyFactor, 2)
-	player.failChance -= failReduction
-	if player.failChance < 1:
-		player.failChance = 1
-	if player.progress < 0:
-		player.progress = 0
 	
+	if random.randint(0, 5) == 1 and player.spaceboosters != 0:
+		player.spaceboost += player.spaceboosters
+		feedback1.append("You recieve helpful lab results from your station!")
+		player.setpart("material")
+	'''
+	or this:
+	if random.randint(0, 3+player.spaceboosters) > 3:
+		player.spaceboost += .1
+	'''
 	rand = 0
 	rocketProgress = round(player.time * ((.3*player.scientists)+1)*player.engineers*0.4, 2)
 	player.progress += rocketProgress
@@ -1296,6 +1295,13 @@ while running:
 		player.money -= engSpending
 		player.costHistory.append(engSpending)
 
+	#Fail chance
+	failReduction = round(player.time * math.sqrt(player.maths) / player.impossiblilyFactor, 2)
+	player.failChance -= failReduction + rand
+	if player.failChance < 1:
+		player.failChance = 1
+	if player.progress < 0:
+		player.progress = 0
 	feedback1.append("Your mathematitions reduce chance of failiure by "+str(failReduction+rand)+"%")
 	
 	feedback1.append("")
