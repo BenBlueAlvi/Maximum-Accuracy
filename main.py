@@ -208,8 +208,8 @@ PEcoffee = shipPart("coffee", 0, 1, 0.1, getImg("parts/coffee"), False)
 PErats = shipPart("rats", 0, 0, 0.4, getImg("parts/rats"))
 
 PTspace = shipPart("space", 20, 0, 0, getImg("parts/Tspace"))
-PTorbit = shipPart("orbit", 60, 100, 1, getImg("parts/Torbit"))
-PTmoon = shipPart("moon", 200, 200, 3, getImg("parts/Tmoon"))
+PTorbit = shipPart("orbit", 60, 100, 2, getImg("parts/Torbit"))
+PTmoon = shipPart("moon", 200, 200, 6, getImg("parts/Tmoon"))
 
 goneSpace = False
 goneOrbit = False
