@@ -249,6 +249,7 @@ class Result(object):
 		self.feedback = [result]
 	
 	def decide(self, player):
+                global prePlayer
 		self.feedback = [self.result]
 		for i in range(len(self.doings)):
 			o, n = self.doings[i][0], self.doings[i][1]
@@ -288,67 +289,39 @@ class Result(object):
 				player.failChance += n
 			elif o == "addsci":
 				sciHired = 0
-				for i in range(abs(n)):
-					if n > 0:
-						break
-					else:
+				if n < 0:
+					for x in range(abs(n)):
 						if player.scientists - 1 < 0:
 							break
 						else:
 							sciHired -= 1
-				if sciHired < 0:
-					self.feedback.append("You have lost "+str(-sciHired)+" scientists.")
-				else:
-					self.feedback.append("You hire "+str(n)+" scientists")
-					sciHired = n
 				player.scientists += sciHired
 			elif o == "addeng":
 				engHired = 0
-				for i in range(abs(n)):
-					if n > 0:
-						break
-					else:
+				if n < 0:
+					for x in range(abs(n)):
 						if player.engineers - 1 < 0:
 							break
 						else:
 							engHired -= 1
-				if engHired < 0:
-					self.feedback.append("You have lost "+str(-engHired)+" engineers.")
-				else:
-					self.feedback.append("You hire "+str(n)+" engineers")
-					engHired = n
 				player.engineers += engHired
 			elif o == "addmat":
 				matHired = 0
-				for i in range(abs(n)):
-					if n > 0:
-						break
-					else:
+				if n < 0:
+					for x in range(abs(n)):
 						if player.maths - 1 < 0:
 							break
 						else:
 							matHired -= 1
-				if matHired < 0:
-					self.feedback.append("You have lost "+str(-matHired)+" mathematitions.")
-				else:
-					self.feedback.append("You hire "+str(n)+" mathematitions")
-					matHired = n
 				player.maths += matHired
 			elif o == "addcam":
 				camHired = 0
-				for i in range(abs(n)):
-					if n > 0:
-						break
-					else:
+				if n < 0:
+					for x in range(abs(n)):
 						if player.campaigners - 1 < 0:
 							break
 						else:
 							camHired -= 1
-				if camHired < 0:
-					self.feedback.append("You have lost "+str(-camHired)+" campaigners.")
-				else:
-					self.feedback.append("You hire "+str(n)+" campaigners")
-					camHired = n
 				player.campaigners += camHired
 			elif o == "addpop":
 				sciHired = 0
@@ -408,19 +381,13 @@ class Result(object):
 					if player.scientists <= 0 and player.engineers <= 0 and player.maths <= 0 and player.campaigners <= 0:
 						n = -1
 				if sciHired > 0:
-					self.feedback.append("You lose "+str(sciHired)+" scientists")
 					player.scientists -= sciHired
 				if engHired > 0:
-					self.feedback.append("You lose "+str(engHired)+" engineers")
 					player.engineers -= engHired
 				if matHired > 0:
-					self.feedback.append("You lose "+str(matHired)+" mathematitions")
 					player.maths -= matHired
 				if camHired > 0:
-					self.feedback.append("You lose "+str(camHired)+" campaigners")
 					player.campaigners -= camHired
-				if n == -1:
-					self.feedback.append("You have no employees remaining.")
 			elif o == "addwages":
 				
 				if n > 0:
@@ -546,15 +513,42 @@ class Result(object):
 			else:
 				printDebug("Unrecognized result: "+str(o)+" :on result: "+str(self.desc))
 
-			if player.campaigners < 0:
-				player.campaigners = 0
-			if player.maths < 0:
-				player.maths = 0
-			if player.scientists < 0:
-				player.scientists = 0
-			if player.engineers < 0:
-				player.engineers = 0
-		
+		if player.campaigners < 0:
+			player.campaigners = 0
+		if player.maths < 0:
+			player.maths = 0
+		if player.scientists < 0:
+			player.scientists = 0
+		if player.engineers < 0:
+			player.engineers = 0
+
+		if player.scientists != prePlayer.scientists:
+			sciHired = player.scientists - prePlayer.scientists
+			if sciHired > 0:
+				self.feedback.append("You gain "+str(sciHired)+" scientists")
+			else:
+				self.feedback.append("You have lost "+str(-sciHired)+" scientists")
+		if player.engineers != prePlayer.engineers:
+			engHired = player.engineers - prePlayer.engineers
+			if engHired > 0:
+				self.feedback.append("You gain "+str(engHired)+" engineers")
+			else:
+				self.feedback.append("You have lost "+str(-engHired)+" engineers")
+		if player.maths != prePlayer.maths:
+			matHired = player.maths - prePlayer.maths
+			if matHired > 0:
+				self.feedback.append("You gain "+str(matHired)+" mathematitions")
+			else:
+				self.feedback.append("You have lost "+str(-matHired)+" mathematitions")
+		if player.campaigners != prePlayer.campaigners:
+			camHired = player.campaigners - prePlayer.campaigners
+			if camHired > 0:
+				self.feedback.append("You gain "+str(camHired)+" campaigners")
+			else:
+				self.feedback.append("You have lost "+str(-camHired)+" campaigners.")
+		if player.scientists <= 0 and player.engineers <= 0 and player.maths <= 0 and player.campaigners <= 0:
+			self.feedback.append("You have no employees remaining.")
+					
 		return self.feedback
 
 class Prompt(object):
@@ -1137,7 +1131,7 @@ while running:
 	addQuestion([[player.specs, "notSpec", "sellPen"], [player.money, "greater", 7], [10, "daysSince", pen]], sellPen)
 	addQuestion([[player.specs, "notSpec", "rats"]], rats)
 	addQuestion([[player.pop, "greater", 7]], strike)
-	addQuestion([[10, "daysSince", fsc], [player.scientists, "greater", 2], [player.engineers, "greater", 2], [player.specs, "spec", "JoinedFSC"]], theProject)
+	addQuestion([[10, "daysSince", fsc], [player.scientists, "greater", 2], [player.engineers, "greater", 2], [player.specs, "spec", "JoinedFSC"], [ai.daysSince, "lesser", 1]], theProject)
 	addQuestion([[8, "daysSince", theProject], [player.otherParts, "notSpec", PEai]], ai)
 	addQuestion([[10, "daysSince", ai], [player.specs, "notSpec", "shipAi"]], shipAi)
 	addQuestion([[10, "daysSince", loan], [player.specs, "notSpec", "PaybackLoan"]], paybackLoan)
@@ -1384,7 +1378,7 @@ while running:
 	feedback1.append("")
 	feedback1 += feedback
 	feedback1.append("")
-	feedback1.append("Net progress: " + str(round((player.progress/player.full)-(prePlayer.progress/prePlayer.full), 1)) + "%")
+	feedback1.append("Net progress: " + str(round(100*((player.progress/player.full)-(prePlayer.progress/prePlayer.full)), 2)) + "%")
 	feedback1.append("Net money: "+str(player.money - prePlayer.money)+"K")
 	feedback1.append("Net fail chance: "+str(player.failChance - prePlayer.failChance)+"%")
 	feedback1.append("")
