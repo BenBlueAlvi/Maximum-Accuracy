@@ -339,16 +339,12 @@ class Result(object):
 					if rand == 4:
 						camHired += 1
 				if sciHired > 0:
-					self.feedback.append("You gain "+str(sciHired)+" scientists")
 					player.scientists += sciHired
 				if engHired > 0:
-					self.feedback.append("You gain "+str(engHired)+" engineers")
 					player.engineers += engHired
 				if matHired > 0:
-					self.feedback.append("You gain "+str(matHired)+" mathematitions")
 					player.maths += matHired
 				if camHired > 0:
-					self.feedback.append("You gain "+str(camHired)+" campaigners")
 					player.campaigners += camHired		
 			elif o == "subpop":
 				sciHired = 0
@@ -546,7 +542,7 @@ class Result(object):
 				self.feedback.append("You gain "+str(camHired)+" campaigners")
 			else:
 				self.feedback.append("You have lost "+str(-camHired)+" campaigners.")
-		if player.scientists <= 0 and player.engineers <= 0 and player.maths <= 0 and player.campaigners <= 0:
+		if player.scientists <= 0 and player.engineers <= 0 and player.maths <= 0 and player.campaigners <= 0 and (prePlayer.scientists + prePlayer.engineers + prePlayer.maths + prePlayer.campaigners) > 0:
 			self.feedback.append("You have no employees remaining.")
 					
 		return self.feedback
