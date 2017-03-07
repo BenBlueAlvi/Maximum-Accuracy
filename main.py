@@ -90,6 +90,7 @@ achiveBox = getImg("achives/achiveBox")
 
 #Launch stuff
 launchpad = getImg("backgrounds/launchpad")
+backing = getImg("backgrounds/backing")
 #sounds
 explosion = pygame.mixer.Sound("Assets/soundfx/Explosion.wav")
 launch = pygame.mixer.Sound("Assets/soundfx/Launch.wav")
@@ -1214,9 +1215,9 @@ while running:
 		mouse_pos = pygame.mouse.get_pos()
 
 		gScreen.fill(WHITE)
-		
-		gScreen.blit(player.frame, [80, 120])
+		gScreen.blit(player.frame, (80, 120))
 		gScreen.blit(player.ship.img[0], player.ship.pos)
+		gScreen.blit(backing, (0, 0))
 
 		'''for i in range(len(theQuestion.prompt)):
 			gScreen.blit(font.render(theQuestion.prompt[i], True, BLACK), [200, 100 + i * 20])'''
@@ -1252,25 +1253,25 @@ while running:
 				y+= 1
 		
 		gScreen.blit(date, [10,10])
-		pygame.draw.rect(gScreen, YELLOW, [155 - 38, 60, 50, (player.money * -1) / 20])
+		pygame.draw.rect(gScreen, YELLOW, [155 - 38, 59, 50, (player.money * -1) / 20])
 		gScreen.blit(moneypic, [155 - 38, 10])
 		
-		pygame.draw.rect(gScreen, GREEN, [233 - 38, 60, 50, ((player.progress/player.full) * -100) / 2])
+		pygame.draw.rect(gScreen, GREEN, [233 - 38, 59, 50, ((player.progress/player.full) * -100) / 2])
 		gScreen.blit(progresspic, [233 - 38, 10])
 		
-		pygame.draw.rect(gScreen, RED, [311 - 38, 60, 50, (player.failChance * -1) / 2])
+		pygame.draw.rect(gScreen, RED, [311 - 38, 59, 50, ((player.failChance * -1) / 2)+2])
 		gScreen.blit(failurepic, [311 - 38, 10])
 		
-		pygame.draw.rect(gScreen, BLUE, [388 - 38, 60, 50, (player.scientists * -1)])
+		pygame.draw.rect(gScreen, BLUE, [388 - 38, 59, 50, (player.scientists * -1)])
 		gScreen.blit(sciencepic, [388 - 38, 10])
 		
-		pygame.draw.rect(gScreen, GREY, [466 -38, 60, 50, (player.engineers * -1)])
+		pygame.draw.rect(gScreen, GREY, [466 -38, 59, 50, (player.engineers * -1)])
 		gScreen.blit(engiespic, [466 -38, 10])
 		
-		pygame.draw.rect(gScreen, PURPLE, [544 - 38, 60, 50, (player.maths * -1)])
+		pygame.draw.rect(gScreen, PURPLE, [544 - 38, 59, 50, (player.maths * -1)])
 		gScreen.blit(mathspic, [544 - 38, 10])
 		
-		pygame.draw.rect(gScreen, TEAL, [622 - 38, 60, 50, (player.campaigners * -1)])
+		pygame.draw.rect(gScreen, TEAL, [622 - 38, 59, 50, (player.campaigners * -1)])
 		gScreen.blit(campainerspic, [622 - 38, 10])
 
 		gScreen.blit(font.render(str(player.money)+"K",True,BLACK), [155 - 38, 60])
