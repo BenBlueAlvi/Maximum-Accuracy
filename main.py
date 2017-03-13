@@ -79,6 +79,7 @@ engiespic = getImg("engies")
 campainerspic = getImg("campainers")
 moneypic = getImg("money")
 end_of_day_pic = getImg("backgrounds/end_of_day")
+newspaper = getImg("backgrounds/News")
 end_pic = getImg("backgrounds/end")
 continuepic = getImg("buttons/continue")
 launchpic = getImg("buttons/launch")
@@ -114,7 +115,25 @@ def bubble_sort(items):
 			if items[j] > items[j+1]:
 				items[j], items[j+1] = items[j+1], items[j] 
 	return items
+
+class DispObj(object):
+	def refresh(self):
+		if not self.simple:
+			final = pygame.Surface(self.size, pygame.SRCALPHA, 32).convert_alpha()
+			for i in self.all:
+				final.blit(i.img, i.coords)
+			self.img = final
+	#coords, img is blitable object or list of DispObj. simple is wether or not is list. size is needed if not simple.
+	def __init__(self, img, coords = (0, 0), simple = True, size = (0, 0)):
+		self.coords = coords
+		self.baseCoords = coords
+		self.img = img
+		self.all = img
+		self.simple = simple
+		self.size = size
+		self.refresh()
 	
+#takes single string, max width, font used, and color of text. returns list of dispObj
 def wraptext(text, fullline, Font, render = False, color = (0,0,0)):  #need way to force indent in string
 	Denting = True
 	max = fullline
@@ -150,12 +169,19 @@ def wraptext(text, fullline, Font, render = False, color = (0,0,0)):  #need way 
 			outtext.append(text)
 			
 	if render:
-		text = pygame.Surface((fullline, 700), pygame.SRCALPHA, 32).convert_alpha()
+		text = []
 		for i in range(len(outtext)):
 			x = outtext[i]
-			text.blit(Font.render(x, True, color),  (0, (i*size[1])))
+			text.append(DispObj(Font.render(x, True, color),  (0, (i*size[1]))))
 		outtext = text
 	return outtext
+
+news = DispObj([DispObj(newspaper),
+	DispObj(largeFont.render("Maximum Accuracy", True, (104, 94, 84)), (10, 120)), #title
+	DispObj(wraptext("Eternoc is hiring someone to guide us to the moon. HAVE A GOOD TIME LOL GO TO PAGE 69 TO SEE MORE Info", 200, font, True, (104, 94, 84)), (10, 150), False, (600, 600)) #the "someone hiring" or something
+	], (0, 0), False, (700, 700))
+
+sound = DispObj([DispObj(getImg("yesnoise")),DispObj(getImg("nonoise"))], (680, 0), False, (20, 20))
 
 def textbox(size, text, Font):
 	global capstrip1, capstrip2, vertstrip
@@ -517,7 +543,7 @@ class Result(object):
 				player.target = n
 				player.setpart("material")
 			else:
-				printDebug("Unrecognized result: "+str(o)+" :on result: "+str(self.desc))
+				printDebug("Unrecognized result: "+str(o)+" :on prompt: "+str(self.desc))
 
 		if player.campaigners < 0:
 			player.campaigners = 0
@@ -1066,7 +1092,6 @@ def launchResult(result, skipable = False):
 	player.ship.pos = [400, 120]
 	mouse_down = False
 		
-
 funded = True	
 mouse_down = False
 done, running, ending = False, True, False
@@ -1078,6 +1103,7 @@ govFunding = 4
 goneMoon = False
 goneOrbit = False
 goneSpace = False
+
 while running:
 	day += 1
 	newMonth = False
@@ -1109,6 +1135,32 @@ while running:
 		q.daysSince +=1
 		
 	player.daysSinceLaunch += 1
+
+
+	#Newspaper!
+	done = False
+	while not done:
+		for event in pygame.event.get(): 
+			if event.type == pygame.QUIT: 
+				done, running = True, False
+			elif event.type == pygame.MOUSEBUTTONDOWN:
+				mouse_down = True
+			elif event.type == pygame.MOUSEBUTTONUP:
+				mouse_down = False
+
+		if news.coords == (0, 0):
+			gScreen.fill(WHITE)
+		gScreen.blit(news.img, news.coords)
+
+		if mouse_down:
+			done = True
+			mouse_down = False
+
+		for achive in allAchives:
+			achive.update()
+		pygame.display.update()
+		clock.tick(60)
+
 	inspectionChance = random.randint(1,25)
 	
 	#Before choosing an answer
@@ -1188,8 +1240,10 @@ while running:
 		if bankrupt in possiblequestions:
 			possiblequestions.remove(bankrupt)
 	
+	thisPrompt = DispObj(wraptext(theQuestion.prompt, 300, font, True), (200, 100), False, (500, 700))
+	
 	done, mouse_down = False, False
-	while not done:
+	while not done and running:
 
 		for event in pygame.event.get(): 
 			if event.type == pygame.QUIT: 
@@ -1221,8 +1275,22 @@ while running:
 
 		'''for i in range(len(theQuestion.prompt)):
 			gScreen.blit(font.render(theQuestion.prompt[i], True, BLACK), [200, 100 + i * 20])'''
-		gScreen.blit(wraptext(theQuestion.prompt, 300, font, True), (200, 100))
 			
+		gScreen.blit(thisPrompt.img, thisPrompt.coords)
+
+		if sounds:
+			gScreen.blit(sound.all[0].img, sound.coords)
+			if mouse_down:
+				if hitDetect(mouse_pos, mouse_pos, [680, 0], [700, 20]):
+					sounds = False
+					mouse_down = False
+		else:
+			gScreen.blit(sound.all[1].img, sound.coords)
+			if mouse_down:
+				if hitDetect(mouse_pos, mouse_pos, [680, 0], [700, 20]):
+					sounds = True
+					mouse_down = False
+
 		y = 0
 		for i in theQuestion.results:
 			displayresult = True
@@ -1471,6 +1539,20 @@ while running:
 		if clipboard_y > 90:
 			clipboard_y = 90
 		
+		if sounds:
+			gScreen.blit(sound.all[0].img, sound.coords)
+			if mouse_down:
+				if hitDetect(mouse_pos, mouse_pos, [680, 0], [700, 20]):
+					sounds = False
+					mouse_down = False
+		else:
+			gScreen.blit(sound.all[1].img, sound.coords)
+			if mouse_down:
+				if hitDetect(mouse_pos, mouse_pos, [680, 0], [700, 20]):
+					sounds = True
+					mouse_down = False
+
+
 		for event in pygame.event.get(): 
 			if event.type == pygame.QUIT: 
 				done, running = True, False
