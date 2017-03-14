@@ -1,4 +1,5 @@
 >Fix "no clipboard after launch" bug, probably move to main while loop or set clipboard to function
++add launch sites & questions (city center, missile silo, outside)
 +add background screens for decisionsand getting to moon (and not just the fail)
 +achive/note images for tack board
 +story descripton
