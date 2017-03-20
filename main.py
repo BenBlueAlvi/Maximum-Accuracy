@@ -90,7 +90,6 @@ capstrip2 = getImg("capstrip2")
 achiveBox = getImg("achives/achiveBox")
 
 #Launch stuff
-launchpad = getImg("backgrounds/launchpad")
 backing = getImg("backgrounds/backing")
 #sounds
 explosion = pygame.mixer.Sound("Assets/soundfx/Explosion.wav")
@@ -242,10 +241,14 @@ PEscience = shipPart("sci", 0.1, 5, 0.1, getImg("parts/extraSci"), False) #launc
 PElasers = shipPart("lasers", 0.5, 20, 0.8, getImg("parts/extraLasers"))
 PEcoffee = shipPart("coffee", 0, 1, 0.1, getImg("parts/coffee"), False)
 PErats = shipPart("rats", 0, 0, 0.4, getImg("parts/rats"))
-
+#targets, cost is now reward money
 PTspace = shipPart("space", 20, 0, 0, getImg("parts/Tspace"))
 PTorbit = shipPart("orbit", 60, 100, 2, getImg("parts/Torbit"))
 PTmoon = shipPart("moon", 200, 200, 6, getImg("parts/Tmoon"))
+#launch sites, cost is per launch attempt, percent is time added, fail is added when launching
+Lout = shipPart("Outside", 0, -.2, -5, getImg("backgrounds/LOut"))
+Lcity = shipPart("City", 1, 0, 5, getImg("backgrounds/LCity"))
+Lsilo = shipPart("Silo", 2, 0, 0, getImg("backgrounds/LSilo"))
 
 goneSpace = False
 goneOrbit = False
@@ -285,7 +288,7 @@ class Result(object):
 		self.feedback = [result]
 	
 	def decide(self, player):
-                global prePlayer
+		global prePlayer
 		self.feedback = [self.result]
 		for i in range(len(self.doings)):
 			o, n = self.doings[i][0], self.doings[i][1]
@@ -612,7 +615,11 @@ lander = Prompt("lander", "Thinking to yourself, you realize you need a lander t
 extras = Prompt("Parts", "Some scientists suggest adding utility parts onto the ship.", [Result("We could add some heat shielding for liftoff", "After adding shielding to the plans:", [["setpart", PEshield], ["addmoney", -1]]), Result("How about we add something to preform tests in space?", "After adding science tools to the ship...", [["setpart", PEscience], ["addfail", 2]]), Result("Let's put lasers on it! pew, pew...", "After implementing the Laser plan...", [["subpop", 2], ["addeng", 1], ["multprog", 0.9], ["setpart", PElasers]]), Result("Why do we need to add any more?", "After doing nothing...", [["addflav", "The day progresses as normal."]])], 6)
 sciencestation = Prompt("scistation", "An aspiring scientist approaches you, requesting we change the focus of this launch to scientific purposes.", [Result("Yes, we can learn lots from this expadition.", "After changing to a science station:", [["setpart", "Cscience"], ["addsci", 1]]), Result("No, we don't need to add any unnessisary parts.", "After continuing as is:", [["addflav", "The day continues as normal."]])], 6)
 boosters = Prompt("boosters", "An engineer suggests adding boosters for stablization and more power for getting to space.", [Result("Yes", "After adding boosters...", [["setpart", "Bnormal"], ["addmoney", -2], ["addfail", 1.5]]), Result("Nah", "After not adding boosters...", [["addflav", "Nothing interesting happens"]])], 99)
-
+wherelaunch = Prompt("sites", "A couple of your employees approach you, pondering the benefits of different launch sites.", [
+	Result("Lets stay in the city, reduce costs and quick transportation."),
+	Result("A missile silo sounds like a good spot; a rocket is pretty much the same."),
+	Result("Why don't we splurge and buy a plot of land outside the walls and smog?")
+	], 30)
 
 #Bad ideas -- 
 coffeeShipments = Prompt("coffeeShipments", "A group of mathmatitions have been staying up all night: We need more shipments of caffinated beverages!", [Result("Of course, coffee is a necissity.", "After ordering some caffine...", [["addmoney", -1], ["spec", "caffinate"], ["overtime", 0.1]]), Result("No, too much coffee is unhealthy", "After depriving your employees of caffine...", [["addfail", 2], ["overtime", -0.1], ["addflav", "The employees are quite tired."]])], 10)
@@ -708,6 +715,7 @@ class Player(object):
 		self.main = PMnone
 		self.chassis = PCnone
 		self.otherParts = []
+		self.site = Lcity
 		#the images of the frame, and the compleated product
 		self.frame = frameImg(self)
 		self.ship = movingPart("ship", [400, 120], [0, 0], [spaceshipimg(self)])
@@ -755,6 +763,12 @@ class Player(object):
 			self.chassis = PCnormal
 		elif part == "Chotel":
 			self.chassis = PChotel
+		elif part == "Lcity":
+			self.site = Lcity
+		elif part == "Lsilo":
+			self.site = Lsilo
+		elif part == "Lout":
+			self.site = Lout
 		else:
 			printDebug("Unknown part applied: "+str(part))
 			self.otherParts.append(part)
@@ -764,6 +778,7 @@ class Player(object):
 			self.impossiblilyFactor = 0.5
 		self.full = self.booster.perc + self.main.perc + self.chassis.perc + self.material.perc +self.target.perc
 		self.cost = self.booster.cost + self.main.cost + self.chassis.cost + self.material.cost
+
 		for i in self.otherParts:
 			try:
 				self.impossiblilyFactor += i.fail
@@ -940,11 +955,14 @@ def addQuestion(requirements, question):
 		question.daysSince = 0
 						
 def launchResult(result, skipable = False):
+	global player
 	running = True
 	mouse_down = False
 	time = 0
+	player.money -= player.site.cost
 	player.ship.pos = [250, 320]
 	objects = [player.ship]
+
 	while running:
 		time += 1
 		for event in pygame.event.get():
@@ -960,7 +978,12 @@ def launchResult(result, skipable = False):
 			running = False
 			mouse_down = False
 			
-		gScreen.blit(launchpad, [0, 0])
+		if player.site == Lsilo:
+			gScreen.blit(Lcity.img, [0, 0])
+		else:
+			gScreen.blit(player.site.img, [0, 0])
+
+
 		for i in objects:
 			gScreen.blit(i.img[i.frame], i.pos)
 
@@ -975,6 +998,9 @@ def launchResult(result, skipable = False):
 					i.time = 5
 					if i.frame >= i.dur and i.dur != -1:
 						objects.remove(i)
+
+		if player.site == Lsilo:
+			gScreen.blit(Lsilo.img, [0, 0])
 
 		#Timer
 		if time <= 300:
@@ -1180,6 +1206,7 @@ while running:
 	addQuestion([[player.money, "greater", 10], [player.netMoneyMean, "greater", -0.5]], extras)
 	addQuestion([[player.money, "greater", 25], [player.specs, "notSpec", "JoinedFSC"]], fsc)
 	addQuestion([[player.money, "greater", 30], [player.specs, "notSpec", "chemSpill"]], chemicalSpill)
+	addQuestion([[player.money, "greater", 40]], wherelaunch)
 	addQuestion([[player.netMoneyMean, "greater", 3]], workload)
 	addQuestion([[player.netMoneyMean, "greater", 3]], adcampaign)
 	addQuestion([[player.netMoneyMean, "greater", 4], [player.money, "greater", 100], [player.campaigners, "greater", 2], [random.randint(1, 2), "greater", 1]], scamers)
@@ -1393,6 +1420,7 @@ while running:
 	if "AI" in player.specs:
 		Aai.get()
 
+	player.time += player.site.perc
 	#player.money += round((0.8 * player.campaigners * player.time) - ((0.2 * player.engineers) + (0.3*player.maths) + (0.3*player.scientists) + (player.time*player.cost*player.engineers)), 1)
 	#player.money += round((0.1 * player.time) * (8*player.campaigners - player.engineers*(2 + 10 * player.cost) - 3*(player.maths + player.scientists) -1), 1)
 	feedback1 = []
@@ -1567,10 +1595,11 @@ while running:
 		if hitDetect(mouse_pos, mouse_pos, [10,640], [180, 690]) and mouse_down and not "GiveUp" in player.specs:
 			
 			mouse_down = False
+
 			if player.failChance >= 100:
 				successChance = 0
 			else:		
-				successChance = (100 - player.failChance) * (player.progress / player.full)
+				successChance = (100 - (player.failChance+player.site.fail)) * (player.progress / player.full)
 			print "success Chance:", successChance
 			launchChance = random.randint(0, 100)
 			print "launch chance:", launchChance
