@@ -84,6 +84,7 @@ end_pic = getImg("backgrounds/end")
 continuepic = getImg("buttons/continue")
 launchpic = getImg("buttons/launch")
 tippic = getImg("tip")
+justwhite = getImg("white")
 capstrip1 = getImg("capstrip1")
 vertstrip = getImg("vertstrip")
 capstrip2 = getImg("capstrip2")
@@ -122,6 +123,10 @@ class DispObj(object):
 			for i in self.all:
 				final.blit(i.img, i.coords)
 			self.img = final
+		else:
+			final = pygame.Surface(self.img.get_size(), pygame.SRCALPHA, 32).convert_alpha()
+			final.blit(self.all, (0, 0))
+			self.img = final
 	#coords, img is blitable object or list of DispObj. simple is wether or not is list. size is needed if not simple.
 	def __init__(self, img, coords = (0, 0), simple = True, size = (0, 0)):
 		self.coords = coords
@@ -131,6 +136,16 @@ class DispObj(object):
 		self.simple = simple
 		self.size = size
 		self.refresh()
+	
+
+monDisp = DispObj([DispObj(justwhite), DispObj(moneypic)], [117, 10], False, (50, 50))
+progDisp = DispObj([DispObj(justwhite), DispObj(progresspic)], [195, 10], False, (50, 50))
+failDisp = DispObj([DispObj(justwhite), DispObj(failurepic)], [273, 10], False, (50, 50))
+sciDisp = DispObj([DispObj(justwhite), DispObj(sciencepic)], [350, 10], False, (50, 50))
+engDisp = DispObj([DispObj(justwhite), DispObj(engiespic)], [428, 10], False, (50, 50))
+mathDisp = DispObj([DispObj(justwhite), DispObj(mathspic)], [506, 10], False, (50, 50))
+campDisp = DispObj([DispObj(justwhite), DispObj(campainerspic)], [584, 10], False, (50, 50))
+
 	
 #takes single string, max width, font used, and color of text. returns list of dispObj
 def wraptext(text, fullline, Font, render = False, color = (0,0,0)):  #need way to force indent in string
@@ -1305,6 +1320,48 @@ while running:
 	
 	thisPrompt = DispObj(wraptext(theQuestion.prompt, 300, font, True), (200, 100), False, (500, 700))
 	
+	#Refreshing displays of stats
+	size = -1 * player.money / 20
+	monDisp.all[0].img.fill(WHITE)
+	pygame.draw.rect(monDisp.all[0].img, YELLOW, [0, 50, 49, size])
+	monDisp.refresh()
+	
+	size = ((player.progress/player.full) * -100) / 2
+	progDisp.all[0].img.fill(WHITE)
+	pygame.draw.rect(progDisp.all[0].img, GREEN, [0, 50, 49, size])
+	progDisp.refresh()
+	
+	size = ((player.failChance * -1) / 2)
+	failDisp.all[0].img.fill(WHITE)
+	color = 255
+	if size < -50: #color mod when over
+		color = 255 + (2*(size+50))
+		if color < 100:
+			color = 100
+	pygame.draw.rect(failDisp.all[0].img, (color, 0, 0), [0, 50, 49, size+2])
+	failDisp.refresh()
+	
+	size = player.scientists * -1
+	sciDisp.all[0].img.fill(WHITE)
+	pygame.draw.rect(sciDisp.all[0].img, BLUE, [0, 50, 49, size])
+	sciDisp.refresh()
+	
+	size = player.engineers * -1
+	engDisp.all[0].img.fill(WHITE)
+	pygame.draw.rect(engDisp.all[0].img, GREY, [0, 50, 49, size])
+	engDisp.refresh()
+	
+	size = player.maths * -1
+	mathDisp.all[0].img.fill(WHITE)
+	pygame.draw.rect(mathDisp.all[0].img, PURPLE, [0, 50, 49, size])
+	mathDisp.refresh()
+	
+	size = player.campaigners * -1
+	campDisp.all[0].img.fill(WHITE)
+	pygame.draw.rect(campDisp.all[0].img, TEAL, [0, 50, 49, size])
+	campDisp.refresh()
+	
+	
 	done, mouse_down = False, False
 	while not done and running:
 
@@ -1393,26 +1450,15 @@ while running:
 				y+= 1
 		
 		gScreen.blit(date, [10,10])
-		pygame.draw.rect(gScreen, YELLOW, [155 - 38, 59, 50, (player.money * -1) / 20])
-		gScreen.blit(moneypic, [155 - 38, 10])
 		
-		pygame.draw.rect(gScreen, GREEN, [233 - 38, 59, 50, ((player.progress/player.full) * -100) / 2])
-		gScreen.blit(progresspic, [233 - 38, 10])
+		gScreen.blit(monDisp.img, monDisp.coords)
+		gScreen.blit(progDisp.img, progDisp.coords)
+		gScreen.blit(failDisp.img, failDisp.coords)
+		gScreen.blit(sciDisp.img, sciDisp.coords)
+		gScreen.blit(engDisp.img, engDisp.coords)
+		gScreen.blit(mathDisp.img, mathDisp.coords)
+		gScreen.blit(campDisp.img, campDisp.coords)
 		
-		pygame.draw.rect(gScreen, RED, [311 - 38, 59, 50, ((player.failChance * -1) / 2)+2])
-		gScreen.blit(failurepic, [311 - 38, 10])
-		
-		pygame.draw.rect(gScreen, BLUE, [388 - 38, 59, 50, (player.scientists * -1)])
-		gScreen.blit(sciencepic, [388 - 38, 10])
-		
-		pygame.draw.rect(gScreen, GREY, [466 -38, 59, 50, (player.engineers * -1)])
-		gScreen.blit(engiespic, [466 -38, 10])
-		
-		pygame.draw.rect(gScreen, PURPLE, [544 - 38, 59, 50, (player.maths * -1)])
-		gScreen.blit(mathspic, [544 - 38, 10])
-		
-		pygame.draw.rect(gScreen, TEAL, [622 - 38, 59, 50, (player.campaigners * -1)])
-		gScreen.blit(campainerspic, [622 - 38, 10])
 
 		gScreen.blit(font.render(str(player.money)+"K",True,BLACK), [155 - 38, 60])
 		gScreen.blit(font.render(str(round(player.progress/player.full*100, 2))+"%",True,BLACK), [233 - 38, 60])
