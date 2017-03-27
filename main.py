@@ -290,9 +290,8 @@ class Result(object):
 	def decide(self, player):
 		global prePlayer
 		self.feedback = [self.result]
-		for i in range(len(self.doings)):
-			o, n = self.doings[i][0], self.doings[i][1]
-			
+		for i in self.doings:
+			o, n = i[0], i[1]
 			if o == "addprog":
 				if n < 0:
 					self.feedback.append("The rocket loses "+str(-n) + "% progress.")
@@ -493,8 +492,8 @@ class Result(object):
 			elif o == "sellRocket":
 				# I uh, ZAKIAH!, fix equation please!
 				rocketgains = 0
-				for i in player.costHistory:
-					rocketgains += i
+				for x in player.costHistory:
+					rocketgains += x
 				player.money += (n/100) * (rocketgains + .2 * player.progress)
 				player.progress -= n
 				player.rocketspecs = []
@@ -545,6 +544,36 @@ class Result(object):
 			elif o == "settarget":
 				player.target = n
 				player.setpart("material")
+			
+			elif o == "Mod": #modular stuff
+				if n == "city":
+					if player.site == Lcity: #already there
+						self.feedback[0] = "After changing nothing:"
+						self.doings += [["subpop", 1]]
+					else:
+						self.feedback[0] = "After moving to to the city center:"
+						self.doings += [["subpop", 3], ["multprog", .8]]
+				elif n == "silo":
+					if player.site == Lsilo: #already there
+						self.feedback[0] = "After changing nothing:"
+						feedback.append("the day progresses as normal.")
+					else:
+						self.feedback[0] = "After accepting the deal with the Silo:"
+						self.doings += [["addmoney", -8], ["multprog", .9]]
+				elif n == "out":
+					if player.site == Lout: #already there
+						self.feedback[0] = "After changing nothing:"
+						feedback.append("the day progresses as normal.")
+					else:
+						self.feedback[0] = "After buying the plot of land:"
+						self.doings += [["addmoney", -40], ["multprog", .95], ["addpop", 2]]
+				
+				else:
+					printDebug("Unrecognized modular input:"+str(n)+" :on prompt: "+str(self.desc))
+
+				
+			elif o == "Clear":
+				pass #prevent the unrecognized result. Is dealt with later
 			else:
 				printDebug("Unrecognized result: "+str(o)+" :on prompt: "+str(self.desc))
 
@@ -584,6 +613,16 @@ class Result(object):
 		if player.scientists <= 0 and player.engineers <= 0 and player.maths <= 0 and player.campaigners <= 0 and (prePlayer.scientists + prePlayer.engineers + prePlayer.maths + prePlayer.campaigners) > 0:
 			self.feedback.append("You have no employees remaining.")
 					
+		if ["Clear", 0] in self.doings: #the second number doesn't matter.
+			printDebug("Clearing results.")
+			self.result = ""
+			clearing = False
+			for i in self.doings:
+				if clearing:
+					self.doings.remove(i)
+				if i[0] == "Clear":
+					clearing == True
+					
 		return self.feedback
 
 class Prompt(object):
@@ -609,17 +648,13 @@ sellPen = Prompt("sellPen", "Suddenly, an idea strikes you. You could sell the s
 bakesale = Prompt("bakesale", "One of your campaigners suggests: We should have a bake sale to raise money.", [Result("Sure, but only if I can have some too.", "After having a bakesale", [["addmoney", 2], ["addflav", "The bake sale premotes working in the areospace industy"], ["addpop", 1]]), Result("No, I hate baked goods", "After not having a bake sale..", [["addflav", "Some people were really looking forward to that bake sale."],["subpop", 1]])], 3)
 adcampaign = Prompt("adcampaign", "One of your mathmatitions suggests an ad campaign to hire people.", [Result("Yeah, we need the staff", "After creating an amazing ad campaign...", [["addmoney", -4], ["addpop", 4]]), Result("No, we don't have enough money.", "After not creating an amazing ad campaign...", [["addflav", "Nothing changes"]])], 5)
 materials = Prompt("materials", "One of your scientists approaches you: We need to discuss our materials.", [Result("How about all carbon fiber?", "After using hi-tech materials:", [["addfail", -4], ["rocketspec", "hi-tech"], ["setMat", PMNano]]), Result("Why not normal materials, like steel?", "After deciding to use standard materials:", [["addflav", "Engineers are attracted to the ease of their jobs."], ["addeng", 1], ["rocketspec", "steel"], ["setMat", PMIron]]), Result("Lets think cheap. Duct-tape cheap.", "After deciding to use low-cost materials:", [["setMat", PMTape], ["addfail", 20], ["addflav", "Some of your mathmatitions can't handle the absurdity of this project."], ["addmat", -2], ["rocketspec", "ductTape"]])], 99)
-fuels = Prompt("fuels", "An engineer approaches you: So, uh.. What should we use for fuel?", [Result("Nuclear would be the most powerful.", "After deciding to place a nuclear reactor within the rocket:", [["addfail", 2], ["rocketspec", "fuelNuclear"], ["setpart", "Mnuclear"]]), Result("How about we design a rocket specific fuel?", "After deciding to design rocket fuel..", [["addfail", -5], ["addIfactor", 0.1], ["rocketspec", "fuelRocket"], ["setpart", "Mnormal"]]), Result("Car fuel, we need to save money", "After deciding to use car fuel...", [["addflav", "Some people belive you aren't taking this job seriously"], ["subpop", 2], ["addfail", -2], ["rocketspec", "fuelCar"], ["setpart", "Mcar"]])], 99)
-target = Prompt("target", "A scientist asks: So, what are we aiming for here?", [Result("Breaking the atmosphere.", "After aiming for space...", [["settarget", PTspace], ["setpart", "Cnormal"]]), Result("Orbit", "After aiming for orbit...", [["settarget", PTorbit],["setpart", "Cnormal"]]), Result("The moon!", "After aiming for the moon...", [["settarget", PTmoon],["setpart", "Cnormal"]])],99)
+fuels = Prompt("fuels", "An engineer approaches you: So, uh.. What should we use for fuel?", [Result("Nuclear would be the most powerful.", "After deciding to place a nuclear reactor within the rocket:", [["addfail", 2], ["rocketspec", "fuelNuclear"], ["setpart", "Mnuclear"], ["setpart", "Cnormal"]]), Result("How about we design a rocket specific fuel?", "After deciding to design rocket fuel..", [["addfail", -5], ["addIfactor", 0.1], ["rocketspec", "fuelRocket"], ["setpart", "Mnormal"], ["setpart", "Cnormal"]]), Result("Car fuel, we need to save money", "After deciding to use car fuel...", [["addflav", "Some people belive you aren't taking this job seriously"], ["subpop", 2], ["addfail", -2], ["rocketspec", "fuelCar"], ["setpart", "Mcar"], ["setpart", "Cnormal"]])], 99)
+target = Prompt("target", "A scientist asks: So, what are we aiming for here?", [Result("Breaking the atmosphere.", "After aiming for space...", [["settarget", PTspace]]), Result("Orbit", "After aiming for orbit...", [["settarget", PTorbit]]), Result("The moon!", "After aiming for the moon...", [["settarget", PTmoon]])],99)
 lander = Prompt("lander", "Thinking to yourself, you realize you need a lander to land on the moon.", [Result("Yes, that's a good idea.", "After begining work on a lander...", [["setpart", "Clander"]]), Result("Nah, we'll just have them parashute in from orbit.", "After investing in parashutes...", [["addflav", "Astronaughts now recive skydive training."]])], 99)
 extras = Prompt("Parts", "Some scientists suggest adding utility parts onto the ship.", [Result("We could add some heat shielding for liftoff", "After adding shielding to the plans:", [["setpart", PEshield], ["addmoney", -1]]), Result("How about we add something to preform tests in space?", "After adding science tools to the ship...", [["setpart", PEscience], ["addfail", 2]]), Result("Let's put lasers on it! pew, pew...", "After implementing the Laser plan...", [["subpop", 2], ["addeng", 1], ["multprog", 0.9], ["setpart", PElasers]]), Result("Why do we need to add any more?", "After doing nothing...", [["addflav", "The day progresses as normal."]])], 6)
 sciencestation = Prompt("scistation", "An aspiring scientist approaches you, requesting we change the focus of this launch to scientific purposes.", [Result("Yes, we can learn lots from this expadition.", "After changing to a science station:", [["setpart", "Cscience"], ["addsci", 1]]), Result("No, we don't need to add any unnessisary parts.", "After continuing as is:", [["addflav", "The day continues as normal."]])], 6)
 boosters = Prompt("boosters", "An engineer suggests adding boosters for stablization and more power for getting to space.", [Result("Yes", "After adding boosters...", [["setpart", "Bnormal"], ["addmoney", -2], ["addfail", 1.5]]), Result("Nah", "After not adding boosters...", [["addflav", "Nothing interesting happens"]])], 99)
-wherelaunch = Prompt("sites", "A couple of your employees approach you, pondering the benefits of different launch sites.", [
-	Result("Lets stay in the city, reduce costs and quick transportation."),
-	Result("A missile silo sounds like a good spot; a rocket is pretty much the same."),
-	Result("Why don't we splurge and buy a plot of land outside the walls and smog?")
-	], 30)
+wherelaunch = Prompt("sites", "A couple of your employees approach you, pondering the benefits of different launch sites.", [Result("Let's stay in the city, reduce costs and keep quick transportation.", "", [["Mod", "city"], ["setpart", "Lcity"], ["Clear", 0]]), Result("A missile silo sounds like a good spot; a rocket is pretty much the same.", "", [["Mod", "silo"], ["setpart", "Lsilo"], ["Clear", 0]]), Result("Why don't we splurge and buy a plot of land outside the walls and smog?", "", [["Mod", "out"], ["setpart", "Lout"], ["Clear", 0]])], 18)
 
 #Bad ideas -- 
 coffeeShipments = Prompt("coffeeShipments", "A group of mathmatitions have been staying up all night: We need more shipments of caffinated beverages!", [Result("Of course, coffee is a necissity.", "After ordering some caffine...", [["addmoney", -1], ["spec", "caffinate"], ["overtime", 0.1]]), Result("No, too much coffee is unhealthy", "After depriving your employees of caffine...", [["addfail", 2], ["overtime", -0.1], ["addflav", "The employees are quite tired."]])], 10)
@@ -1129,6 +1164,7 @@ govFunding = 4
 goneMoon = False
 goneOrbit = False
 goneSpace = False
+isNews = True
 
 while running:
 	day += 1
@@ -1164,28 +1200,29 @@ while running:
 
 
 	#Newspaper!
-	done = False
-	while not done:
-		for event in pygame.event.get(): 
-			if event.type == pygame.QUIT: 
-				done, running = True, False
-			elif event.type == pygame.MOUSEBUTTONDOWN:
-				mouse_down = True
-			elif event.type == pygame.MOUSEBUTTONUP:
+	if isNews:
+		done, mouse_down, isNews = False, False, False
+		while not done:
+			for event in pygame.event.get(): 
+				if event.type == pygame.QUIT: 
+					done, running = True, False
+				elif event.type == pygame.MOUSEBUTTONDOWN:
+					mouse_down = True
+				elif event.type == pygame.MOUSEBUTTONUP:
+					mouse_down = False
+
+			if news.coords == (0, 0):
+				gScreen.fill(WHITE)
+			gScreen.blit(news.img, news.coords)
+
+			if mouse_down:
+				done = True
 				mouse_down = False
 
-		if news.coords == (0, 0):
-			gScreen.fill(WHITE)
-		gScreen.blit(news.img, news.coords)
-
-		if mouse_down:
-			done = True
-			mouse_down = False
-
-		for achive in allAchives:
-			achive.update()
-		pygame.display.update()
-		clock.tick(60)
+			for achive in allAchives:
+				achive.update()
+			pygame.display.update()
+			clock.tick(60)
 
 	inspectionChance = random.randint(1,25)
 	
@@ -1259,7 +1296,6 @@ while running:
 		theQuestion = lander
 		possiblequestions.append(lander)
 		
-		
 	if player.money <= -10:
 		theQuestion = bankrupt
 		possiblequestions.append(bankrupt)
@@ -1279,20 +1315,29 @@ while running:
 				mouse_down = True
 			elif event.type == pygame.MOUSEBUTTONUP:
 				mouse_down = False
-			elif event.type == pygame.KEYDOWN and debug:
-				if event.key == K_1:
-					launchResult("fail1", True)
-				elif event.key == K_2:
-					launchResult("fail2", True)
-				elif event.key == K_3:
-					launchResult("fail3", True)
-				elif event.key == K_4:
-					print "Impossibility factor: ", player.impossiblilyFactor
-					print "Cost: ", player.cost
-					print "Full: ", player.full
-					print "Time: ", player.time
-					print "Boost: ", player.spaceboost
-					print "Boosters: ", player.spaceboosters
+			if event.type == pygame.KEYDOWN:
+				if debug:
+					if event.key == K_1:
+						launchResult("fail1", True)
+					if event.key == K_2:
+						launchResult("fail2", True)
+					if event.key == K_3:
+						launchResult("fail3", True)
+					if event.key == K_4:
+						print "Impossibility factor: ", player.impossiblilyFactor
+						print "Cost: ", player.cost
+						print "Full: ", player.full
+						print "Time: ", player.time
+						print "Boost: ", player.spaceboost
+						print "Boosters: ", player.spaceboosters
+					if event.key == K_d:
+						debug = False
+						print "Debug Off"
+				else:
+					if event.key == K_d:
+						debug = True
+						print "Debug On"
+					
 		mouse_pos = pygame.mouse.get_pos()
 
 		gScreen.fill(WHITE)
@@ -1441,6 +1486,9 @@ while running:
 	if "sellPen" in player.specs:
 		player.money += 0.5
 		feedback1.append("   You gain 0.5K from the space pen sales")
+	if player.site == Lsilo:
+		player.money -= 0.8
+		feedback1.append("   You pay .8K for rent.")
 		
 	employeePay = round(player.time*(0.3*(player.maths+player.scientists) * player.wages+0.2*player.engineers * player.wages+0.1), 1)	
 	feedback1.append("You pay your employees "+str(employeePay)+"K")
@@ -1605,18 +1653,18 @@ while running:
 			print "launch chance:", launchChance
 			rand = 100 - launchChance
 			if launchChance > successChance + (rand * 2 / 3):
-				print "LAUNCH Failure 1!"
+				printDebug("LAUNCH Failure 1!")
 				launchResult("fail1")
 			if launchChance > successChance + (rand * 1 / 3) and launchChance <= successChance + (rand * 2 / 3):
-				print "LAUNCH Failure 2!"
+				printDebug("LAUNCH Failure 2!")
 				launchResult("fail2")
 				player.rebuild()
 			if launchChance > successChance and launchChance <= successChance + (rand * 1 / 3):
-				print "LAUNCH Failure 3!"
+				printDebug("LAUNCH Failure 3!")
 				launchResult("fail3")
 				player.rebuild()
 			if successChance >= launchChance:
-				print "LAUNCH SUCCESSFUL!"
+				printDebug("LAUNCH SUCCESSFUL!")
 				player.money += 50
 				launchResult("success")
 				player.rebuild()
