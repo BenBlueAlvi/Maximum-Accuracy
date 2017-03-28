@@ -348,6 +348,8 @@ class Result(object):
 							break
 						else:
 							sciHired -= 1
+				else:
+					sciHired = n
 				player.scientists += sciHired
 			elif o == "addeng":
 				engHired = 0
@@ -357,6 +359,8 @@ class Result(object):
 							break
 						else:
 							engHired -= 1
+				else:
+					engHired = n
 				player.engineers += engHired
 			elif o == "addmat":
 				matHired = 0
@@ -366,6 +370,8 @@ class Result(object):
 							break
 						else:
 							matHired -= 1
+				else:
+					matHired = n
 				player.maths += matHired
 			elif o == "addcam":
 				camHired = 0
@@ -375,6 +381,8 @@ class Result(object):
 							break
 						else:
 							camHired -= 1
+				else:
+					camHired = n
 				player.campaigners += camHired
 			elif o == "addpop":
 				sciHired = 0
