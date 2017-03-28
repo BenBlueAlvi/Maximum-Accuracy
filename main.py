@@ -1652,22 +1652,32 @@ while running:
 	clipboard_vel = 26
 	clipboard = pygame.Surface([500, 600], pygame.SRCALPHA, 32).convert_alpha()
 	clipboard.blit(end_of_day_pic, [0, 0])
+	clipboard_down = False
 	
 	for i in range(len(feedback)):
 		clipboard.blit(font.render(feedback[i], True, BLACK), [30, 30+(i*20)])
-
+	
 	while not done and running:
+		print clipboard_down
 		gScreen.fill(WHITE)
 		gScreen.blit(clipboard, [190, clipboard_y])
-
-		if not clipboard_y >= 90:
-			clipboard_y += clipboard_vel
-		if not clipboard_vel <= 0 and clipboard_y > -250:
-			clipboard_vel -= 1
-		if clipboard_vel < 0:
-			clipboard_vel = 0
-		if clipboard_y > 90:
-			clipboard_y = 90
+		if not clipboard_down:
+			if not clipboard_y >= 90:
+				clipboard_y += clipboard_vel
+			if not clipboard_vel <= 0 and clipboard_y > -250:
+				clipboard_vel -= 1
+			if clipboard_vel < 0:
+				clipboard_vel = 0
+			if clipboard_y > 90:
+				clipboard_y = 90
+		else:
+			if not clipboard_y >= 1000:
+				clipboard_y += clipboard_vel
+			else:
+				done = True
+			
+			clipboard_vel += 1
+			
 		
 		if sounds:
 			gScreen.blit(sound.all[0].img, sound.coords)
@@ -1724,10 +1734,12 @@ while running:
 				player.rebuild()
 			done = True
 		elif hitDetect(mouse_pos, mouse_pos, [10,580], [180, 630]) and mouse_down:
+			clipboard_down = True
+			
+		
 			if "GiveUp" in player.specs:
 				ending = True
-			else:
-				done = True
+			
 			if sounds:
 				pygame.mixer.Sound.play(new_day)
 				
