@@ -191,11 +191,15 @@ def wraptext(text, fullline, Font, render = False, color = (0,0,0)):  #need way 
 	return outtext
 
 news = DispObj([DispObj(newspaper),
-	DispObj(largeFont.render("Maximum Accuracy", True, (104, 94, 84)), (10, 120)), #title
-	DispObj(wraptext("Eternoc is hiring someone to guide us to the moon. HAVE A GOOD TIME LOL GO TO PAGE 69 TO SEE MORE Info", 200, font, True, (104, 94, 84)), (10, 150), False, (600, 600)) #the "someone hiring" or something
+	DispObj(largeFont.render("Scientists discover world will end in 1000 days! ", True, (104, 94, 84)), (10, 120)), #title
+	DispObj(largeFont.render("Moon colony plan proposed by government!", True, (104, 94, 84)), (10, 150)), #title
+
+	DispObj(wraptext("This last ditch plan is groundbreaking as humans haven't even gone into space yet! Will we all live or all die? See papge 64 for details", 500, font, True, (104, 94, 84)), (10, 180), False, (600, 600)) 
 	], (0, 0), False, (700, 700))
 
 sound = DispObj([DispObj(getImg("yesnoise")),DispObj(getImg("nonoise"))], (680, 0), False, (20, 20))
+
+
 
 def textbox(size, text, Font):
 	global capstrip1, capstrip2, vertstrip
@@ -260,6 +264,7 @@ PErats = shipPart("rats", 0, 0, 0.4, getImg("parts/rats"))
 PTspace = shipPart("space", 20, 0, 0, getImg("parts/Tspace"))
 PTorbit = shipPart("orbit", 60, 100, 2, getImg("parts/Torbit"))
 PTmoon = shipPart("moon", 200, 200, 6, getImg("parts/Tmoon"))
+PTcolony = shipPart("colony", 300, 600, 9, getImg("parts/Tcolony"))
 #launch sites, cost is per launch attempt, percent is time added, fail is added when launching
 Lout = shipPart("Outside", 0, -.2, -5, getImg("backgrounds/LOut"))
 Lcity = shipPart("City", 1, 0, 5, getImg("backgrounds/LCity"))
@@ -672,7 +677,7 @@ bakesale = Prompt("bakesale", "One of your campaigners suggests: We should have 
 adcampaign = Prompt("adcampaign", "One of your mathmatitions suggests an ad campaign to hire people.", [Result("Yeah, we need the staff", "After creating an amazing ad campaign...", [["addmoney", -4], ["addpop", 4]]), Result("No, we don't have enough money.", "After not creating an amazing ad campaign...", [["addflav", "Nothing changes"]])], 5)
 materials = Prompt("materials", "One of your scientists approaches you: We need to discuss our materials.", [Result("How about all carbon fiber?", "After using hi-tech materials:", [["addfail", -4], ["rocketspec", "hi-tech"], ["setMat", PMNano]]), Result("Why not normal materials, like steel?", "After deciding to use standard materials:", [["addflav", "Engineers are attracted to the ease of their jobs."], ["addeng", 1], ["rocketspec", "steel"], ["setMat", PMIron]]), Result("Lets think cheap. Duct-tape cheap.", "After deciding to use low-cost materials:", [["setMat", PMTape], ["addfail", 20], ["addflav", "Some of your mathmatitions can't handle the absurdity of this project."], ["addmat", -2], ["rocketspec", "ductTape"]])], 99)
 fuels = Prompt("fuels", "An engineer approaches you: So, uh.. What should we use for fuel?", [Result("Nuclear would be the most powerful.", "After deciding to place a nuclear reactor within the rocket:", [["addfail", 2], ["rocketspec", "fuelNuclear"], ["setpart", "Mnuclear"], ["setpart", "Cnormal"]]), Result("How about we design a rocket specific fuel?", "After deciding to design rocket fuel..", [["addfail", -5], ["addIfactor", 0.1], ["rocketspec", "fuelRocket"], ["setpart", "Mnormal"], ["setpart", "Cnormal"]]), Result("Car fuel, we need to save money", "After deciding to use car fuel...", [["addflav", "Some people belive you aren't taking this job seriously"], ["subpop", 2], ["addfail", -2], ["rocketspec", "fuelCar"], ["setpart", "Mcar"], ["setpart", "Cnormal"]])], 99)
-target = Prompt("target", "A scientist asks: So, what are we aiming for here?", [Result("Breaking the atmosphere.", "After aiming for space...", [["settarget", PTspace]]), Result("Orbit", "After aiming for orbit...", [["settarget", PTorbit]]), Result("The moon!", "After aiming for the moon...", [["settarget", PTmoon]])],99)
+target = Prompt("target", "A scientist asks: So, what are we aiming for here?", [Result("Breaking the atmosphere.", "After aiming for space...", [["settarget", PTspace]]), Result("Orbit", "After aiming for orbit...", [["settarget", PTorbit]]), Result("The moon!", "After aiming for the moon...", [["settarget", PTmoon]]), Result("The moon colony", "After aiming for a colony...", [["settarget", PTcolony]])],99)
 lander = Prompt("lander", "Thinking to yourself, you realize you need a lander to land on the moon.", [Result("Yes, that's a good idea.", "After begining work on a lander...", [["setpart", "Clander"]]), Result("Nah, we'll just have them parashute in from orbit.", "After investing in parashutes...", [["addflav", "Astronaughts now recive skydive training."]])], 99)
 extras = Prompt("Parts", "Some scientists suggest adding utility parts onto the ship.", [Result("We could add some heat shielding for liftoff", "After adding shielding to the plans:", [["setpart", PEshield], ["addmoney", -1]]), Result("How about we add something to preform tests in space?", "After adding science tools to the ship...", [["setpart", PEscience], ["addfail", 2]]), Result("Let's put lasers on it! pew, pew...", "After implementing the Laser plan...", [["subpop", 2], ["addeng", 1], ["multprog", 0.9], ["setpart", PElasers]]), Result("Why do we need to add any more?", "After doing nothing...", [["addflav", "The day progresses as normal."]])], 6)
 sciencestation = Prompt("scistation", "An aspiring scientist approaches you, requesting we change the focus of this launch to scientific purposes.", [Result("Yes, we can learn lots from this expadition.", "After changing to a science station:", [["setpart", "Cscience"], ["addsci", 1]]), Result("No, we don't need to add any unnessisary parts.", "After continuing as is:", [["addflav", "The day continues as normal."]])], 6)
@@ -706,6 +711,8 @@ loan = Prompt("loan", "It appears the lab is in dire need of money. Will you tak
 bankrupt = Prompt("bankrupt", "The lab has gone bankrupt, you need to sell assets.", [Result("Looks like we'll have to sell the rocket", "After selling of the rocket...", [["sellRocket", 100]]), Result("I never wanted to build a rocket anyway", "After giving up on the rocket", [["addflav", "The government, dissaproving of your handling of the project,"], ["addflav", "has hired a replacement for you."], ["addflav", "You go home and get a job working in a coffee shop."], ["spec", "GiveUp"]])], 1)
 paybackLoan = Prompt("paybackLoan", "A bank employee approaches you; It's time to repay that loan.", [Result("Here is your money.", "After paying back that loan...", [["addmoney", -20.0 * (1.0 +(loan.daysSince / 100.0))], ["spec", "PaybackLoan"]]), Result("Sorry, I don't have the money", "After not paying up...", [["addcam", -1], ["addflav", "One of the campaigners disapproves of your credit score."]])], 1)
 
+#The End
+end = Prompt("end", "Our resources are depleted, we can't go on any longer. It looks like we are all going to die.", [Result("It's over", "After running out of resources", [["addflav", "You abandon hope, and prepare to die."], ["spec", "theEnd"]])], 99)
 #--------------
 
 #--------------
@@ -1188,6 +1195,8 @@ goneMoon = False
 goneOrbit = False
 goneSpace = False
 isNews = True
+badEnd = False
+paperPromptImg = getImg("backgrounds/paper")
 
 while running:
 	day += 1
@@ -1325,6 +1334,10 @@ while running:
 	else:
 		if bankrupt in possiblequestions:
 			possiblequestions.remove(bankrupt)
+			
+	if player.days >= 1000:
+		theQuestion = end
+		possiblequestions.append(end)
 	
 	thisPrompt = DispObj(wraptext(theQuestion.prompt, 300, font, True), (200, 100), False, (500, 700))
 	
@@ -1371,6 +1384,12 @@ while running:
 	
 	
 	done, mouse_down = False, False
+	paperPrompt = pygame.Surface([500, 600], pygame.SRCALPHA, 32).convert_alpha()
+	paperPrompt.blit(paperPromptImg, [0,0])
+	paperPrompt.blit(thisPrompt.img, [0,0])
+	paperPrompt_x = -300
+	paperPrompt_vel = 26
+	paperPrompt_off = False
 	while not done and running:
 
 		for event in pygame.event.get(): 
@@ -1412,8 +1431,28 @@ while running:
 
 		'''for i in range(len(theQuestion.prompt)):
 			gScreen.blit(font.render(theQuestion.prompt[i], True, BLACK), [200, 100 + i * 20])'''
+		
+		gScreen.blit(paperPrompt, [paperPrompt_x, 99])
+		if not paperPrompt_off:
+			if not paperPrompt_x >= 200:
+				paperPrompt_x += paperPrompt_vel
 			
-		gScreen.blit(thisPrompt.img, thisPrompt.coords)
+			if paperPrompt_x > 200:
+				paperPrompt_x = 200
+			
+			paperPrompt_vel += 1
+			if paperPrompt_vel < 0:
+				paperPrompt_vel = 0
+		else:
+			if paperPrompt_x <= 800:
+				paperPrompt_x += paperPrompt_vel
+			else:
+				done = True
+			
+			paperPrompt_vel += 1
+			if paperPrompt_vel < 0:
+				paperPrompt_vel = 0
+		#gScreen.blit(thisPrompt.img, thisPrompt.coords)
 
 		if sounds:
 			gScreen.blit(sound.all[0].img, sound.coords)
@@ -1452,9 +1491,11 @@ while running:
 						if not theQuestion in player.questionsAnswered: 
 							player.questionsAnswered.append(theQuestion)
 						
-						
-						done = True
+						paperPrompt_off = True
+						paperPrompt_vel = 0
 						break
+						
+						
 				y+= 1
 		
 		gScreen.blit(date, [10,10])
@@ -1513,8 +1554,11 @@ while running:
 			achive.update()
 		pygame.display.update()
 		clock.tick(60)
-
+	
 	#after choosing an answer
+	
+	paperPrompt_x = -400
+	paperPrompt_vel = 26
 	#Abegining.get()
 	if "AI" in player.specs:
 		Aai.get()
@@ -1658,7 +1702,7 @@ while running:
 		clipboard.blit(font.render(feedback[i], True, BLACK), [30, 30+(i*20)])
 	
 	while not done and running:
-		print clipboard_down
+	
 		gScreen.fill(WHITE)
 		gScreen.blit(clipboard, [190, clipboard_y])
 		if not clipboard_down:
@@ -1704,7 +1748,7 @@ while running:
 		mouse_pos = pygame.mouse.get_pos()
 
 		#launch button, and continue button.
-		if hitDetect(mouse_pos, mouse_pos, [10,640], [180, 690]) and mouse_down and not "GiveUp" in player.specs:
+		if hitDetect(mouse_pos, mouse_pos, [10,640], [180, 690]) and mouse_down and not "GiveUp" in player.specs and not "theEnd" in player.specs:
 			
 			mouse_down = False
 
@@ -1739,11 +1783,14 @@ while running:
 		
 			if "GiveUp" in player.specs:
 				ending = True
+				
+			if "theEnd" in player.specs:
+				badEnd = True
 			
 			if sounds:
 				pygame.mixer.Sound.play(new_day)
 				
-		if not "GiveUp" in player.specs:
+		if not "GiveUp" in player.specs and not "theEnd" in player.specs:
 			gScreen.blit(launchpic, [10, 640])
 			
 		gScreen.blit(continuepic, [10, 580])
@@ -1768,6 +1815,24 @@ while running:
 			
 			gScreen.blit(end_pic, [0,0])
 			gScreen.blit(font.render("~Fin~", True, BLACK), [30,30])
+			
+			pygame.display.update()
+			clock.tick(60)
+			
+		while badEnd and running:
+			gScreen.fill(WHITE)
+			for event in pygame.event.get(): 
+				if event.type == pygame.QUIT: 
+					done, running = True, False
+				elif event.type == pygame.MOUSEBUTTONDOWN:
+					mouse_down = True
+					
+				elif event.type == pygame.MOUSEBUTTONUP:
+					mouse_down = False
+			mouse_pos = pygame.mouse.get_pos()
+			
+			gScreen.blit(end_pic, [0,0])
+			gScreen.blit(font.render("Bad Ending", True, BLACK), [30,30])
 			
 			pygame.display.update()
 			clock.tick(60)
