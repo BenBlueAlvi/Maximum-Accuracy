@@ -1388,7 +1388,6 @@ while running:
 	thisPrompt = DispObj(wraptext(theQuestion.prompt, 300, font, True), (0, 0), False, (500, 700))
 	paperPrompt.all.append(thisPrompt)
 	paperPrompt.coords = [-300, 367]
-	paperPrompt_x = -300
 	paperPrompt_vel = 26
 	paperPrompt_off = False
 
@@ -1444,20 +1443,20 @@ while running:
 		'''for i in range(len(theQuestion.prompt)):
 			gScreen.blit(font.render(theQuestion.prompt[i], True, BLACK), [200, 100 + i * 20])'''
 		
-		gScreen.blit(paperPrompt.img, [paperPrompt_x, 367])
+		gScreen.blit(paperPrompt.img, [paperPrompt.coords[0], 367])
 		if not paperPrompt_off:
-			if not paperPrompt_x >= 200:
-				paperPrompt_x += paperPrompt_vel
+			if not paperPrompt.coords[0] >= 200:
+				paperPrompt.coords[0] += paperPrompt_vel
 			
-			if paperPrompt_x > 200:
-				paperPrompt_x = 200
+			if paperPrompt.coords[0] > 200:
+				paperPrompt.coords[0] = 200
 			
 			paperPrompt_vel += 1
 			if paperPrompt_vel < 0:
 				paperPrompt_vel = 0
 		else:
-			if paperPrompt_x <= 800:
-				paperPrompt_x += paperPrompt_vel
+			if paperPrompt.coords[0] <= 800:
+				paperPrompt.coords[0] += paperPrompt_vel
 			else:
 				done = True
 			
@@ -1482,16 +1481,17 @@ while running:
 		# for i in range(len(paperPrompt.all)):          #this was for testing
 		# 	pygame.draw.rect(gScreen, TEAL, [paperPrompt.all[i].coords[0]+paperPrompt.coords[0], paperPrompt.all[i].coords[1]+paperPrompt.coords[1], 50,50])
 
-		if mouse_down:
+		if mouse_down and not paperPrompt_off:
 			for i in range(len(paperPrompt.all)):
-				if i > 2:
+				if i > 1:
 					if hitDetect(mouse_pos, mouse_pos, (paperPrompt.all[i].coords[0]+paperPrompt.coords[0], paperPrompt.all[i].coords[1]+paperPrompt.coords[1]), (paperPrompt.all[i].coords[0]+paperPrompt.coords[0]+300, paperPrompt.all[i].coords[1]+paperPrompt.coords[1]+paperPrompt.all[i].size[1])):
+						x = theQuestion.results[i-2]
 						if sounds:
 							pygame.mixer.Sound.play(select)
 						mouse_down = False
-						feedback = i.decide(player)
+						feedback = x.decide(player)
 						print "Question:", theQuestion.name
-						print "Answer:", i.desc
+						print "Answer:", x.desc
 						possiblequestions.remove(theQuestion)
 						theQuestion.daysSince = 0
 						
@@ -1563,7 +1563,7 @@ while running:
 	
 	#after choosing an answer
 	
-	paperPrompt_x = -400
+	paperPrompt.coords[0] = -400
 	paperPrompt_vel = 26
 	#Abegining.get()
 	if "AI" in player.specs:
