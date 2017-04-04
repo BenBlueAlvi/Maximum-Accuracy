@@ -67,7 +67,7 @@ def getImg(name):
 		return pygame.image.load(full)
 	except pygame.error:
 		print "--File not found. Substituting"
-		return pygame.image.load("Assets/achives/wip.png")
+		return pygame.image.load("Assets/achieves/wip.png")
 
 		
 
@@ -88,7 +88,7 @@ justwhite = getImg("white")
 capstrip1 = getImg("capstrip1")
 vertstrip = getImg("vertstrip")
 capstrip2 = getImg("capstrip2")
-achiveBox = getImg("achives/achiveBox")
+achiveBox = getImg("achieves/achiveBox")
 
 #Launch stuff
 backing = getImg("backgrounds/backing")
@@ -895,7 +895,7 @@ class Achive(object):
 		self.id = Id
 		self.name = font.render(name, True, BLACK)
 		self.desc = wraptext(desc, 245, achiveFont) 
-		self.img = getImg("achives/" + img)
+		self.img = getImg("achieves/" + img)
 
 		#if you are going to get the achive
 		self.gotten = False
