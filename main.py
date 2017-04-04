@@ -1394,7 +1394,8 @@ while running:
 
 	y = 16 * len(thisPrompt.all) + 20
 	for i in theQuestion.results:
-		texthere = DispObj(wraptext(i.desc, 300, font, True), (0, y), False, (300, 20))
+		thistext = wraptext(i.desc, 300, font, True)
+		texthere = DispObj(thistext, (0, y), False, (300, (16*len(thistext))+2))
 
 		y += 16 * len(texthere.all) + 10
 		paperPrompt.all.append(texthere)
