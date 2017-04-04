@@ -1,13 +1,2 @@
->Fix "no clipboard after launch" bug, probably move to main while loop or set clipboard to function
-+add launch sites & questions (city center, missile silo, outside)
-+add background screens for decisionsand getting to moon (and not just the fail)
-+achive/note images for tack board
-+story descripton
-+Particles for launch
-+better images
-+weekends? maybe Eternoc doesn't know what weekends are...
-+options for better sound control
-+more desisions
-+document knowledge of "space race" history/relations
-+document on system requirements
->custom font
++Add Opponent launching at times
++Move question paper

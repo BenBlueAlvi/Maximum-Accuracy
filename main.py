@@ -1196,7 +1196,7 @@ goneOrbit = False
 goneSpace = False
 isNews = True
 badEnd = False
-paperPromptImg = getImg("backgrounds/paper")
+paperPrompt = DispObj([DispObj(getImg("backgrounds/paper"))], (-300, 367), False, (300, 400))
 
 while running:
 	day += 1
@@ -1339,8 +1339,7 @@ while running:
 		theQuestion = end
 		possiblequestions.append(end)
 	
-	thisPrompt = DispObj(wraptext(theQuestion.prompt, 300, font, True), (200, 100), False, (500, 700))
-	
+
 	#Refreshing displays of stats
 	size = -1 * player.money / 20
 	monDisp.all[0].img.fill(WHITE)
@@ -1382,14 +1381,27 @@ while running:
 	pygame.draw.rect(campDisp.all[0].img, TEAL, [0, 50, 49, size])
 	campDisp.refresh()
 	
+
+
 	
-	done, mouse_down = False, False
-	paperPrompt = pygame.Surface([500, 600], pygame.SRCALPHA, 32).convert_alpha()
-	paperPrompt.blit(paperPromptImg, [0,0])
-	paperPrompt.blit(thisPrompt.img, [0,0])
+	paperPrompt.all = paperPrompt.all[:1]
+	thisPrompt = DispObj(wraptext(theQuestion.prompt, 300, font, True), (0, 0), False, (500, 700))
+	paperPrompt.all.append(thisPrompt)
+	paperPrompt.coords = [-300, 367]
 	paperPrompt_x = -300
 	paperPrompt_vel = 26
 	paperPrompt_off = False
+
+
+	y = 16 * len(thisPrompt.all) + 20
+	for i in theQuestion.results:
+		texthere = DispObj(wraptext(i.desc, 300, font, True), (0, y), False, (300, 20))
+
+		y += 16 * len(texthere.all) + 10
+		paperPrompt.all.append(texthere)
+	paperPrompt.refresh()
+
+	done, mouse_down = False, False
 	while not done and running:
 
 		for event in pygame.event.get(): 
@@ -1432,7 +1444,7 @@ while running:
 		'''for i in range(len(theQuestion.prompt)):
 			gScreen.blit(font.render(theQuestion.prompt[i], True, BLACK), [200, 100 + i * 20])'''
 		
-		gScreen.blit(paperPrompt, [paperPrompt_x, 99])
+		gScreen.blit(paperPrompt.img, [paperPrompt_x, 367])
 		if not paperPrompt_off:
 			if not paperPrompt_x >= 200:
 				paperPrompt_x += paperPrompt_vel
@@ -1467,18 +1479,13 @@ while running:
 					sounds = True
 					mouse_down = False
 
-		y = 0
-		for i in theQuestion.results:
-			displayresult = True
-			
-			
-			if displayresult:
-				gScreen.blit(responseButton.image, [50, 450 + y * 50])
-		
-				gScreen.blit(font.render(i.desc,True,BLACK), [60, 455 + y * 50])
-				
-				if mouse_down:
-					if hitDetect(mouse_pos, mouse_pos, [50, 450 + y * 50], [650, 475 + y * 50]):
+		# for i in range(len(paperPrompt.all)):          #this was for testing
+		# 	pygame.draw.rect(gScreen, TEAL, [paperPrompt.all[i].coords[0]+paperPrompt.coords[0], paperPrompt.all[i].coords[1]+paperPrompt.coords[1], 50,50])
+
+		if mouse_down:
+			for i in range(len(paperPrompt.all)):
+				if i > 2:
+					if hitDetect(mouse_pos, mouse_pos, (paperPrompt.all[i].coords[0]+paperPrompt.coords[0], paperPrompt.all[i].coords[1]+paperPrompt.coords[1]), (paperPrompt.all[i].coords[0]+paperPrompt.coords[0]+300, paperPrompt.all[i].coords[1]+paperPrompt.coords[1]+paperPrompt.all[i].size[1])):
 						if sounds:
 							pygame.mixer.Sound.play(select)
 						mouse_down = False
@@ -1494,10 +1501,9 @@ while running:
 						paperPrompt_off = True
 						paperPrompt_vel = 0
 						break
-						
-						
-				y+= 1
-		
+
+
+
 		gScreen.blit(date, [10,10])
 		
 		gScreen.blit(monDisp.img, monDisp.coords)
