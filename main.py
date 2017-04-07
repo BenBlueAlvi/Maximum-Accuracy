@@ -89,6 +89,7 @@ capstrip1 = getImg("capstrip1")
 vertstrip = getImg("vertstrip")
 capstrip2 = getImg("capstrip2")
 achiveBox = getImg("achieves/achiveBox")
+check = getImg("check")
 
 #Launch stuff
 backing = getImg("backgrounds/backing")
@@ -97,6 +98,7 @@ explosion = pygame.mixer.Sound("Assets/soundfx/Explosion.wav")
 launch = pygame.mixer.Sound("Assets/soundfx/Launch.wav")
 select = pygame.mixer.Sound("Assets/soundfx/Blip_Select.wav")
 new_day = pygame.mixer.Sound("Assets/soundfx/New_Day.wav")
+
 
 class button(object):
 	def __init__(self, image, hoverimg):
@@ -298,7 +300,14 @@ def spaceshipimg(pl):
 def hitDetect(p1, p2, p3, p4):
 	if p2[0] > p3[0] and p1[0] < p4[0] and p2[1] > p3[1] and p1[1] < p4[1]:
 		return True
+
 		
+class Enemy(object):
+	def __init__(self):
+		self.progress = 0
+		self.achievements = []
+		
+theEnemy = Enemy()
 class Result(object):
 	#doings is list of operations, operations is a tuple of the operation and the number
 	def __init__(self, desc, result, doings):
@@ -309,14 +318,17 @@ class Result(object):
 	
 	def decide(self, player):
 		global prePlayer
+		global theEnemy
 		self.feedback = [self.result]
 		for i in self.doings:
 			o, n = i[0], i[1]
 			if o == "addprog":
 				if n < 0:
 					self.feedback.append("The rocket loses "+str(-n) + "% progress.")
+					theEnemy.progress -= n * 1.1
 				else:
 					self.feedback.append("The rocket progresses by "+str(n) + "%")
+					theEnemy.progress += n * 1.5
 				player.progress += n
 			elif o == "addmoney":
 				if n < 0:
@@ -325,6 +337,7 @@ class Result(object):
 						break
 					else:
 						player.money += n
+						theEnemy.progress += 5
 						self.feedback.append("You spend $"+str(-n)+"K")
 				else:
 					player.money += n
@@ -342,8 +355,10 @@ class Result(object):
 			elif o == "addfail":
 				if n < 0:
 					self.feedback.append("Estamates show that the chance of faliure has decreased by "+str(-n)+"%")
+					theEnemy.progress += n * 1.1
 				else:
 					self.feedback.append("Estamates show that the chance for faliure has increased by "+str(n)+"%")
+				
 				player.failChance += n
 			elif o == "addsci":
 				sciHired = 0
@@ -356,6 +371,7 @@ class Result(object):
 				else:
 					sciHired = n
 				player.scientists += sciHired
+				theEnemy.progress += 25
 			elif o == "addeng":
 				engHired = 0
 				if n < 0:
@@ -367,6 +383,7 @@ class Result(object):
 				else:
 					engHired = n
 				player.engineers += engHired
+				theEnemy.progress += 25
 			elif o == "addmat":
 				matHired = 0
 				if n < 0:
@@ -378,6 +395,7 @@ class Result(object):
 				else:
 					matHired = n
 				player.maths += matHired
+				theEnemy.progress += 25
 			elif o == "addcam":
 				camHired = 0
 				if n < 0:
@@ -389,6 +407,7 @@ class Result(object):
 				else:
 					camHired = n
 				player.campaigners += camHired
+				theEnemy.progress += 25
 			elif o == "addpop":
 				sciHired = 0
 				engHired = 0
@@ -411,7 +430,8 @@ class Result(object):
 				if matHired > 0:
 					player.maths += matHired
 				if camHired > 0:
-					player.campaigners += camHired		
+					player.campaigners += camHired	
+				theEnemy.progress += 50
 			elif o == "subpop":
 				sciHired = 0
 				engHired = 0
@@ -502,6 +522,7 @@ class Result(object):
 						self.feedback.append("You have downgraded your materials.")
 					else:
 						self.feedback.append("You are unable to reduce any costs.")
+				theEnemy.progress -= 25
 				player.setpart("material")
 			elif o == "addTime":
 				if n < 0:
@@ -516,6 +537,7 @@ class Result(object):
 					else:
 						self.feedback.append("Your work hours have increased.")
 						player.baseTime += n
+				theEnemy.progress += n
 				printDebug("New time: "+str(player.baseTime))
 			elif o == "sellRocket":
 				# I uh, ZAKIAH!, fix equation please!
@@ -650,7 +672,7 @@ class Result(object):
 					self.doings.remove(i)
 				if i[0] == "Clear":
 					clearing == True
-					
+		theEnemy.progress += 5
 		return self.feedback
 
 class Prompt(object):
@@ -888,6 +910,8 @@ class Player(object):
 player = Player(18, 0, 100, 1, 2, 1, 0)
 prePlayer = player.buildNew()
 player.ship.pos = [400, 120]
+
+
 
 class Achive(object):
 	def __init__(self, Id, name, desc, img):
@@ -1385,7 +1409,7 @@ while running:
 
 	
 	paperPrompt.all = paperPrompt.all[:1]
-	thisPrompt = DispObj(wraptext(theQuestion.prompt, 300, font, True), (0, 0), False, (500, 700))
+	thisPrompt = DispObj(wraptext(theQuestion.prompt, 300 - 10, font, True), (10, 15), False, (500, 700))
 	paperPrompt.all.append(thisPrompt)
 	paperPrompt.coords = [-300, 367]
 	paperPrompt_vel = 26
@@ -1394,8 +1418,8 @@ while running:
 
 	y = 16 * len(thisPrompt.all) + 20
 	for i in theQuestion.results:
-		thistext = wraptext(i.desc, 300, font, True)
-		texthere = DispObj(thistext, (0, y), False, (300, (16*len(thistext))+2))
+		thistext = wraptext(i.desc, 300 - 64, font, True)
+		texthere = DispObj(thistext, (32, y + 5), False, (300, (16*len(thistext))+2))
 
 		y += 16 * len(texthere.all) + 10
 		paperPrompt.all.append(texthere)
@@ -1426,6 +1450,9 @@ while running:
 						print "Time: ", player.time
 						print "Boost: ", player.spaceboost
 						print "Boosters: ", player.spaceboosters
+					if event.key == K_5:
+						print "Enemy Progress ", theEnemy.progress
+						
 					if event.key == K_d:
 						debug = False
 						print "Debug Off"
@@ -1482,26 +1509,28 @@ while running:
 		# for i in range(len(paperPrompt.all)):          #this was for testing
 		# 	pygame.draw.rect(gScreen, TEAL, [paperPrompt.all[i].coords[0]+paperPrompt.coords[0], paperPrompt.all[i].coords[1]+paperPrompt.coords[1], 50,50])
 
-		if mouse_down and not paperPrompt_off:
+		if not paperPrompt_off:
 			for i in range(len(paperPrompt.all)):
 				if i > 1:
 					if hitDetect(mouse_pos, mouse_pos, (paperPrompt.all[i].coords[0]+paperPrompt.coords[0], paperPrompt.all[i].coords[1]+paperPrompt.coords[1]), (paperPrompt.all[i].coords[0]+paperPrompt.coords[0]+300, paperPrompt.all[i].coords[1]+paperPrompt.coords[1]+paperPrompt.all[i].size[1])):
-						x = theQuestion.results[i-2]
-						if sounds:
-							pygame.mixer.Sound.play(select)
-						mouse_down = False
-						feedback = x.decide(player)
-						print "Question:", theQuestion.name
-						print "Answer:", x.desc
-						possiblequestions.remove(theQuestion)
-						theQuestion.daysSince = 0
-						
-						if not theQuestion in player.questionsAnswered: 
-							player.questionsAnswered.append(theQuestion)
-						
-						paperPrompt_off = True
-						paperPrompt_vel = 0
-						break
+						gScreen.blit(check, [paperPrompt.all[i].coords[0]+paperPrompt.coords[0]-32, paperPrompt.all[i].coords[1]+paperPrompt.coords[1] - 10])
+						if mouse_down:
+							x = theQuestion.results[i-2]
+							if sounds:
+								pygame.mixer.Sound.play(select)
+							mouse_down = False
+							feedback = x.decide(player)
+							print "Question:", theQuestion.name
+							print "Answer:", x.desc
+							possiblequestions.remove(theQuestion)
+							theQuestion.daysSince = 0
+							
+							if not theQuestion in player.questionsAnswered: 
+								player.questionsAnswered.append(theQuestion)
+							
+							paperPrompt_off = True
+							paperPrompt_vel = 0
+							break
 
 
 
@@ -1770,18 +1799,22 @@ while running:
 			if launchChance > successChance + (rand * 2 / 3):
 				printDebug("LAUNCH Failure 1!")
 				launchResult("fail1")
+				theEnemy.progress += 100
 			if launchChance > successChance + (rand * 1 / 3) and launchChance <= successChance + (rand * 2 / 3):
 				printDebug("LAUNCH Failure 2!")
 				launchResult("fail2")
 				player.rebuild()
+				theEnemy.progress += 100
 			if launchChance > successChance and launchChance <= successChance + (rand * 1 / 3):
 				printDebug("LAUNCH Failure 3!")
 				launchResult("fail3")
+				theEnemy.progress += 100
 				player.rebuild()
 			if successChance >= launchChance:
 				printDebug("LAUNCH SUCCESSFUL!")
 				player.money += 50
 				launchResult("success")
+				theEnemy.progress += 200
 				player.rebuild()
 			done = True
 		elif hitDetect(mouse_pos, mouse_pos, [10,580], [180, 630]) and mouse_down:
