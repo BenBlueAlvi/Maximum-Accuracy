@@ -1,2 +1,7 @@
 +Add Opponent launching at times
-+Move question paper
++add date to newspaper
+>pretty up newspaper on startup
+>show developers on paper
+>fix up matIron image
++add missing images: chassislander chassisSci chassisHotel extraSci
+>fix paying on things you have
