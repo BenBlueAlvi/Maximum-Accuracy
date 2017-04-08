@@ -7,11 +7,11 @@ Responce: Nah... It'll decrease when you try to launch... eventually. That would
 Feedback: Change of failure? what does it mean/does it actually affect gameplay? Love achievements! Love the time investments!
 Responce: ...Is this just praise? How do we deal with this...? Table the idea for a more clear meaning of the failure.
 
-Feedback:
-Responce:
+Feedback: Too many people asking for overtime.
+Responce: It is the most common question. (Maybe add different?)
 
-Feedback:
-Responce:
+Feedback: Impossible to launch.
+Responce: We find it easy, maybe because we made it? maybe make it easier, more testing required. Then again, it isn't easy to reach space.
 
 Feedback:
 Responce:
