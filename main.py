@@ -8,7 +8,7 @@ clock = pygame.time.Clock()
 pygame.mixer.pre_init(22050, -16, 3, 8)
 pygame.mixer.init()
 
-debug = True
+debug = False
 sounds = False
 
 def printDebug(stuff):
