@@ -310,6 +310,7 @@ class Enemy(object):
 	def __init__(self):
 		self.progress = 0
 		self.achievements = []
+		self.mult = 1
 		
 theEnemy = Enemy()
 class Result(object):
@@ -624,6 +625,11 @@ class Result(object):
 				
 				else:
 					printDebug("Unrecognized modular input:"+str(n)+" :on prompt: "+str(self.desc))
+					
+			elif o == "enmProg":
+				theEnemy.progress += n
+			elif o == "enmMult":
+				theEnemy.mult += n
 
 				
 			elif o == "Clear":
@@ -741,6 +747,10 @@ paybackLoan = Prompt("paybackLoan", "A bank employee approaches you; It's time t
 
 #The End
 end = Prompt("end", "Our resources are depleted, we can't go on any longer. It looks like we are all going to die.", [Result("It's over", "After running out of resources", [["addflav", "You abandon hope, and prepare to die."], ["spec", "theEnd"]])], 99)
+
+#SPIES
+
+enmSpys = Prompt("enmSpys", "Turns out our enemy has been spying on us. The traitor has been sent to jail, but what should we do now?", [Result("Counter spies!", "after hiring some spies...", [["spec", "plaSpies"], ["addmoney", -5]]), Result("Publicly denounce them.", "after denoucing your enemy...", [["enmMult", -0.1]])], 99)
 #--------------
 
 #--------------
@@ -1320,10 +1330,11 @@ while running:
 	addQuestion([[player.specs, "notSpec", "sellPen"], [player.money, "greater", 7], [10, "daysSince", pen]], sellPen)
 	addQuestion([[player.specs, "notSpec", "rats"]], rats)
 	addQuestion([[player.pop, "greater", 7]], strike)
-	addQuestion([[10, "daysSince", fsc], [player.scientists, "greater", 2], [player.engineers, "greater", 2], [player.specs, "spec", "JoinedFSC"], [ai.daysSince, "lesser", 1]], theProject)
+	addQuestion([[10, "daysSince", fsc], [player.scientists, "greater", 2], [player.engineers, "greater", 2], [player.specs, "spec", "JoinedFSC"], [ai.daysSince, "lesser", 1], [player.specs, "notSpec", "theProject"]], theProject)
 	addQuestion([[8, "daysSince", theProject], [player.otherParts, "notSpec", PEai]], ai)
 	addQuestion([[10, "daysSince", ai], [player.specs, "notSpec", "shipAi"]], shipAi)
 	addQuestion([[10, "daysSince", loan], [player.specs, "notSpec", "PaybackLoan"]], paybackLoan)
+	addQuestion([[player.days, "greater", 50]], badRap)
 	addQuestion([[player.booster, "equals", PBnone]], boosters)
 	addQuestion([[player.pop, "greater", 3]], bail)
 	addQuestion([[player.engineers, "greater", 2]], engiesBlock)
@@ -1744,12 +1755,17 @@ while running:
 	
 	if theEnemy.progress > 1500 and not "space" in theEnemy.achievements:
 		theEnemy.achievements.append("space")
+		#THE ENEMY HAS REACHED SPACE. Our national enemy seems to have started their own space program. Today at 2:46, a large rocket was seen taking off from their country. If they make it to the moon before us, the war will never end! Who will win this space race? Turn to page 708 for details.
 	if theEnemy.progress > 3000 and not "orbit" in theEnemy.achievements:
 		theEnemy.achievements.append("orbit")
+		#COULD WE BE BOMBED FROM SPACE? Our national enemy has progressed their space program to the point were they have a spacecraft in orbit around our planet. Could this spacecraft rain down nuclear weapondry upon us? Turn to page 42 for details.
 	if theEnemy.progress > 4500 and not "moon" in theEnemy.achievements:
 		theEnemy.achievements.append("moon")
+		#THE ENEMY NEARS ITS GOAL. Several cheers where heard from the war front this morning when the news that our national enemy has landed on the moon was recieved. They are getting dangerously close to taking the moon for themselves. Could this be the end for our nation? Turn to page 560 for details.
 	if theEnemy.progress > 6000 and not "colony" in theEnemy.achievements:
 		theEnemy.achievements.append("colony")
+		#THE ENEMY HAS TAKEN THE MOON. This afternoon, footage was broadcast from our national enemy depecting their newly created moon colony. It's over. Will we all perish in the comming apocolypse?
+
 	
 	
 	done, mouse_down = False, False
