@@ -337,11 +337,11 @@ class Result(object):
 					theEnemy.progress += n * 1.5
 				player.progress += n
 			elif o == "addmoney":
-				if n < 0:
+				if n < -0.00001:
 					player.money += round(n * 10) / 10
 					theEnemy.progress += 5
 					self.feedback.append("You spend $"+str(-n)+"K")
-				else:
+				elif n > 0.00001:
 					player.money += round(n * 10) / 10
 					self.feedback.append("You gain $"+str(n)+"K")
 			elif o == "multmoney":
@@ -721,7 +721,7 @@ workload = Prompt("workload", "Your project is currently gaining heavy profits. 
 strike = Prompt("strike", "Several of your employees are complaining about poor wages. They've gone on strike.", [Result("FIRE THEM ALL!!!", "After firing much of your staff.", [["subpop", 5]]), Result("Fine, increase the wages.", "After increasing wages...", [["addwages", 0.2]])], 30)
 #buyout = spend money and gain balanced sci, mat, eng, cam (you bought a smaller group)
 bail = Prompt("bail", "A group of your employees seems to have gotten involved in the board game smuggling business. They have been apprehended by the police.", [Result("Bail them out with a large sum on money.", "After bailing out your staff...", [["addmoney", -25]]), Result("Leave them in jail", "After abandoing your employees...", [["subpop", 3], ["addflav", "The employees are executed at midnight."]])], 60)
-engiesBlock = Prompt("engiesBlock", "Some of your engineers are running out of inspiration", [Result("'Inspire' them with a large sum of money", "After handing out some 'inspiration'...", [["addmoney", -10]]), Result("'Inspire' them by making them work harder", "After long hours of forced labour...", [["overtime", 0.4], ["addflav", "The employees have quit."], ["addeng", -2]])], 30)
+engiesBlock = Prompt("engiesBlock", "Some of your engineers are running out of inspiration", [Result("'Inspire' them with a large sum of money", "After handing out some 'inspiration'...", [["addmoney", -10]]), Result("'Inspire' them by making them work harder", "After long hours of forced labour...", [["overtime", 0.4], ["addflav", "The employees have quit."], ["addeng", -2]]), Result("Inspiration is unnecessary", "After doing nothing...", [["addtime", -.3]])], 30)
 #Money and materials
 sellPen = Prompt("sellPen", "Suddenly, an idea strikes you. You could sell the space pen for a profit!", [Result("Let's do it!", "After setting up a factories...", [["addmoney", -7], ["spec", "sellPen"]]), Result("Nah, we need to keep it a secret", "After hiding the space pen in a box...", [["addflav", "Your rivals are ignorant."]])], 99)
 bakesale = Prompt("bakesale", "One of your campaigners suggests: We should have a bake sale to raise money.", [Result("Sure, but only if I can have some too.", "After having a bakesale", [["addmoney", 2], ["addflav", "The bake sale promotes working in the aerospace industy"], ["addpop", 1]]), Result("No, I hate baked goods", "After not having a bake sale..", [["addflav", "Some people were really looking forward to that bake sale."],["subpop", 1]])], 3)
@@ -745,7 +745,9 @@ sodamachine = Prompt("sodamachine", "A promising scientist asks if they can inst
 spaceSoda = Prompt("spaceSoda", "A campainer approaches you: Can we put some coffee in the rocket?", [Result("Of course, the extra sugar will help us do more research!", "After adding some soda to the rocket plans...", [["addmoney", -1], ["addfail", 3], ["addprog", 1], ["rocketspec", "soda"], ["spec", "caffinate"], ["setpart", PEcoffee]]), Result("No, caffeine is unhealthy and will make the astronauts ill.", "After proritizing the health of your astronauts...", [["addfail", -1], ["addmat", 1], ["addflav", "A mathmatition joins due to reports of a healthy climate."]])], 10)
 rats = Prompt("rats", "Your janitor, Scruffy, has informed you of an infestation of rats.", [Result("Who cares about some rats?", "After letting the rats go loose:", [["addfail", 15], ["subpop", 4], ["spec", "rats"], ["setpart", PErats]]), Result("We can deal with it ourselves.", "After prying apart your ship in search for rats...", [["multprog", 0.8], ["addfail", 10]]), Result("This is a job for professionals.", "After the professionals arrive:", [["addmoney", -4], ["overtime", -0.5]])], 25)
 scamers = Prompt("scams", "Unfortunatly, it seems that one of those 'legit' campaigners you hired was a scamer. They have taken quite a large amount of money from the lab's account.", [Result("Crap! Fire them immediatly!", "after firing a 'legit' scamer..", [["multmoney", 0.5], ["addcam", -1]]), Result("No, that money went to work on the rocket, I'm sure.", "after the money goes to work on the rocket...", [["multmoney", 0.4]])], 20)
-chemicalSpill = Prompt("chemicals", "One of your more incompetent scientists has spills some particularly volitile chemicals all over the science work station. Somehow.", [Result("Welp, call in the cleanup crews!", "After a quite expensive cleanup...", [["addfail", 20], ["addmoney", -25], ["overtime", -1]]), Result("We neither have the money nor the time to spend on cleanup! Work out of your houses if you have to!", "After the scientist begin working from home...", [["addfail", 30], ["spec", "chemSpill"]])], 99)
+
+chemicalSpill = Prompt("chemicals", "One of your more incompetent scientists has spilled some particularly volitile chemicals all over the science work station. Somehow.", [Result("Welp, call in the cleanup crews!", "After a quite expensive cleanup...", [["addfail", 20], ["addmoney", -25], ["overtime", -1]]), Result("We neither have the money nor the time to spend on cleanup! Work out of your houses if you have to!", "After the scientist begin working from home...", [["addfail", 30], ["spec", "chemSpill"]])], 99)
+
 badRap = Prompt("badRap", "Apperently, the city seems to dissaprove of your business management structure. They are threatening to destroy the lab", [Result("Bribe them with a large sum of money", "After bribing the city...", [["addmoney", -23], ["addflav", "some citizens help with the rocket!"], ["addprog", 3.5]]), Result("Send some engies to make them change their mind", "After some street violence...", [["addeng", -2]]), Result("Do nothing, they can't hurt us, we're supported by the government!", "After some explosions go off...", [["addprog", -20], ["addfail", 10]])], 75)
 #orbitcrisis = Something happens to your orbiter & lose some/all spaceboosters, salvage & keep but subtract something, 
 
