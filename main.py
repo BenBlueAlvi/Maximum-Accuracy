@@ -1087,7 +1087,8 @@ def launchResult(result, skipable = False):
 	player.money -= player.site.cost
 	player.ship.pos = [250, 320]
 	objects = [player.ship]
-
+	cancontinue = largeFont.render("Click to continue", True, BLACK)
+	
 	while running:
 		time += 1
 		for event in pygame.event.get():
@@ -1099,9 +1100,6 @@ def launchResult(result, skipable = False):
 				mouse_down = False
 		
 		mouse_pos = pygame.mouse.get_pos()
-		if mouse_down and skipable:
-			running = False
-			mouse_down = False
 			
 		if player.site == Lsilo:
 			gScreen.blit(Lcity.img, [0, 0])
@@ -1236,6 +1234,12 @@ def launchResult(result, skipable = False):
 		for achive in allAchives:
 			achive.update()
 		
+		if skipable:
+			gScreen.blit(cancontinue, [450, 660])
+			if mouse_down:
+				running = False
+				mouse_down = False
+				
 		pygame.display.update()
 		clock.tick(60)
 	objects = []
