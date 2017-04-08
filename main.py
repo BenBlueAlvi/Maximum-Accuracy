@@ -1723,7 +1723,8 @@ while running:
 	feedback1 += feedback
 	feedback1.append("")
 	feedback1.append("Net progress: " + str(round(100*((player.progress/player.full)-(prePlayer.progress/prePlayer.full)), 2)) + "%")
-	feedback1.append("Net money: "+str(player.money - prePlayer.money)+"K")
+	feedback1.append("Net money: "+str(round(player.money - prePlayer.money, 2))+"K")
+	player.money = round(player.money, 2)
 	feedback1.append("Net fail chance: "+str(player.failChance - prePlayer.failChance)+"%")
 	feedback1.append("")
 	#feedback1.append("Current progress: "+str(player.progress)+"%")
