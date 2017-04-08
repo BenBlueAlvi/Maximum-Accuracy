@@ -198,7 +198,7 @@ news = DispObj([DispObj(newspaper),
 	DispObj(wraptext("Scientists predict that the world will end in one thousand days! Global warming will burn off the world's atmosphere is what the scientists claim! See page 23 to learn what global warming is.", 330, font, True, (104, 94, 84)), (10, 110), False, (600, 600)),
 	
 	DispObj(titleFont.render("Moon colony proposed by government!", True, (104, 94, 84)), (360, 90)), #Space program
-	DispObj(wraptext("The government is willing to provide funding to a team to build a space ship to bring us to the moon! Who will stand up to the major claim and get money in the process! See page 10 for details", 335, font, True, (104, 94, 84)), (360, 110), False, (600, 600)),
+	DispObj(wraptext("The government is willing to provide funding to a team to build a space ship to bring us to the moon! Who will stand up to the major claim and get money in the process! Can we do it with no previous experience in space ships? Can we make it more than just fiction? See page 10 for details", 335, font, True, (104, 94, 84)), (360, 110), False, (600, 600)),
 	
 	DispObj(titleFont.render("People claim selves as Gods", True, (104, 94, 84)), (10, 200)), #World Ending
 	DispObj(wraptext("A group of people known as \"Unexpected Error\" are claiming themselves as the creators of this world, going by the names: Coosome, Blue Circles, Siv, and Heading North. See page 7 for more.", 330, font, True, (104, 94, 84)), (10, 220), False, (600, 600)),
