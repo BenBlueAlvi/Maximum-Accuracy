@@ -1,0 +1,23 @@
+Feedback: Tough to launch.
+Responce: Intentional design decision.
+
+Feedback: Set game time limit to a random number between 900 and 1000 to make it look 'natural'
+Responce: Nah... It'll decrease when you try to launch... eventually. That would require a new paper to tell the player
+
+Feedback:
+Responce:
+
+Feedback:
+Responce:
+
+Feedback:
+Responce:
+
+Feedback:
+Responce:
+
+Feedback:
+Responce:
+
+Feedback:
+Responce:
