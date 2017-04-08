@@ -202,7 +202,7 @@ news = DispObj([DispObj(newspaper),
 	
 	DispObj(titleFont.render("People claim selves as Gods", True, (104, 94, 84)), (10, 200)), #World Ending
 	DispObj(wraptext("A group of people known as \"Unexpected Error\" are claiming themselves as the creators of this world, going by the names: Coosome, Blue Circles, Siv, and Heading North. See page 7 for more.", 330, font, True, (104, 94, 84)), (10, 220), False, (600, 600)),
-	
+	DispObj(titleFont.render("Click to continue >", True, (104, 94, 84)), (500, 650))
 	], (0, 0), False, (700, 700))
 
 sound = DispObj([DispObj(getImg("yesnoise")),DispObj(getImg("nonoise"))], (680, 0), False, (20, 20))
