@@ -329,13 +329,9 @@ class Result(object):
 				player.progress += n
 			elif o == "addmoney":
 				if n < 0:
-					if player.money + n < 0:
-						self.feedback.append("You realize you don't have enough funds.")
-						break
-					else:
-						player.money += n
-						theEnemy.progress += 5
-						self.feedback.append("You spend $"+str(-n)+"K")
+					player.money += n
+					theEnemy.progress += 5
+					self.feedback.append("You spend $"+str(-n)+"K")
 				else:
 					player.money += n
 					self.feedback.append("You gain $"+str(n)+"K")
@@ -542,8 +538,8 @@ class Result(object):
 				for x in player.costHistory:
 					rocketgains += x
 				player.money += (n/100) * (rocketgains + .2 * player.progress)
-				player.progress -= n
-				player.rocketspecs = []
+				player.rebuild()
+				player.launches -= 1
 				
 			elif o == "addflav":
 				self.feedback.append(n)
@@ -1729,6 +1725,16 @@ while running:
 	printDebug("Net Money mean: "+str(player.netMoneyMean))
 	
 	feedback, prePlayer = feedback1, player.buildNew()
+	
+	if theEnemy.progress > 1500 and not "space" in theEnemy.achievements:
+		theEnemy.achievements.append("space")
+	if theEnemy.progress > 3000 and not "orbit" in theEnemy.achievements:
+		theEnemy.achievements.append("orbit")
+	if theEnemy.progress > 4500 and not "moon" in theEnemy.achievements:
+		theEnemy.achievements.append("moon")
+	if theEnemy.progress > 6000 and not "colony" in theEnemy.achievements:
+		theEnemy.achievements.append("colony")
+	
 	
 	done, mouse_down = False, False
 	clipboard_y = -600
