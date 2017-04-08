@@ -10,7 +10,7 @@ pygame.mixer.init()
 
 debug = False
 sounds = False
-testMode = False
+testMode = True
 
 def testing(testQuestion):
 	print "testing() ran with " + str(testQuestion.name)
@@ -603,6 +603,7 @@ class Result(object):
 						printDebug("there")
 						self.feedback[0] = "After changing nothing:"
 						self.doings += [["subpop", 1]]
+						
 					elif not player.site == Lcity:
 						printDebug("purchase")
 						self.feedback[0] = "After moving to to the city center:"
@@ -612,6 +613,7 @@ class Result(object):
 						printDebug("there")
 						self.feedback[0] = "After changing nothing:"
 						feedback.append("the day progresses as normal.")
+						
 					elif not player.site == Lsilo:
 						printDebug("purchase")
 						self.feedback[0] = "After accepting the deal with the Silo:"
@@ -621,6 +623,7 @@ class Result(object):
 						printDebug("purchase")
 						self.feedback[0] = "After changing nothing:"
 						feedback.append("the day progresses as normal.")
+						
 					elif not player.site == Lout:
 						printDebug("there")
 						self.feedback[0] = "After buying the plot of land:"
@@ -636,10 +639,11 @@ class Result(object):
 
 				
 			elif o == "Clear":
-				pass #prevent the unrecognized result. Is dealt with later
+				pass
 			else:
 				printDebug("Unrecognized result: "+str(o)+" :on prompt: "+str(self.desc))
-
+				
+	
 		if player.campaigners < 0:
 			player.campaigners = 0
 		if player.maths < 0:
@@ -675,16 +679,42 @@ class Result(object):
 				self.feedback.append("You have lost "+str(-camHired)+" campaigners.")
 		if player.scientists <= 0 and player.engineers <= 0 and player.maths <= 0 and player.campaigners <= 0 and (prePlayer.scientists + prePlayer.engineers + prePlayer.maths + prePlayer.campaigners) > 0:
 			self.feedback.append("You have no employees remaining.")
-					
+		printDebug("doings:")
+		printDebug(self.doings)
 		if ["Clear", 0] in self.doings: #the second number doesn't matter.
 			printDebug("Clearing results.")
 			self.result = ""
+			clearList = []
 			clearing = False
 			for i in self.doings:
-				if clearing:
-					self.doings.remove(i)
+				'''if clearing:
+					clearList.append(i)
+					
+					
+					print "hi"
 				if i[0] == "Clear":
-					clearing == True
+					
+					clearing = True'''
+				print self.doings.index(["Clear", 0])
+				print self.doings.index(i) + 1
+				if self.doings.index(i) + 1 > self.doings.index(["Clear", 0]) and not i == ["Clear", 0]  :
+					self.doings.remove(i)
+			for i in self.doings:
+				'''if clearing:
+					clearList.append(i)
+					
+					
+					print "hi"
+				if i[0] == "Clear":
+					
+					clearing = True'''
+				print self.doings.index(["Clear", 0])
+				print self.doings.index(i) + 1
+				if self.doings.index(i) + 1 > self.doings.index(["Clear", 0]) and not i == ["Clear", 0]  :
+					self.doings.remove(i)
+			
+		printDebug("doings:")
+		printDebug(self.doings)
 		theEnemy.progress += 5
 		return self.feedback
 
