@@ -4,8 +4,8 @@ Responce: Intentional design decision.
 Feedback: Set game time limit to a random number between 900 and 1000 to make it look 'natural'
 Responce: Nah... It'll decrease when you try to launch... eventually. That would require a new paper to tell the player
 
-Feedback:
-Responce:
+Feedback: Change of failure? what does it mean/does it actually affect gameplay? Love achievements! Love the time investments!
+Responce: ...Is this just praise? How do we deal with this...? Table the idea for a more clear meaning of the failure.
 
 Feedback:
 Responce:
