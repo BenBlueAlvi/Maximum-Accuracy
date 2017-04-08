@@ -10,7 +10,7 @@ pygame.mixer.init()
 
 debug = False
 sounds = False
-testMode = True
+testMode = False
 
 def testing(testQuestion):
 	print "testing() ran with " + str(testQuestion.name)
@@ -1509,12 +1509,18 @@ while running:
 						print "Time: ", player.time
 						print "Boost: ", player.spaceboost
 						print "Boosters: ", player.spaceboosters
-					if event.key == K_5:
 						print "Enemy Progress ", theEnemy.progress
 						
 					if event.key == K_d:
 						debug = False
 						print "Debug Off"
+					if event.key == K_t:
+						if testMode:
+							testMode = False
+							print "Test mode disabled."
+						else:
+							testMode = True
+							print "Test mode enabled."
 				else:
 					if event.key == K_d:
 						debug = True
