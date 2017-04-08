@@ -31,6 +31,7 @@ pygame.init()
 font = pygame.font.SysFont('Calibri', 15, True)
 achiveFont = pygame.font.SysFont('Calibri', 10, True)
 largeFont = pygame.font.SysFont('Calibri', 30, True)
+titleFont = pygame.font.SysFont('Calibri', 18, True)
 
 size = (700, 700)
 pygame.display.init()
@@ -110,14 +111,6 @@ class button(object):
 		
 responseButton = button("button", "button_hover").buildNew()
 
-def bubble_sort(items):
-	""" Implementation of bubble sort """
-	for i in range(len(items)):
-		for j in range(len(items)-1-i):
-			if items[j] > items[j+1]:
-				items[j], items[j+1] = items[j+1], items[j] 
-	return items
-
 class DispObj(object):
 	def refresh(self):
 		if not self.simple:
@@ -193,10 +186,15 @@ def wraptext(text, fullline, Font, render = False, color = (0,0,0)):  #need way 
 	return outtext
 
 news = DispObj([DispObj(newspaper),
-	DispObj(largeFont.render("Scientists discover world will end in 1000 days! ", True, (104, 94, 84)), (10, 120)), #title
-	DispObj(largeFont.render("Moon colony plan proposed by government!", True, (104, 94, 84)), (10, 150)), #title
-
-	DispObj(wraptext("This last ditch plan is groundbreaking as humans haven't even gone into space yet! Will we all live or all die? See papge 64 for details", 500, font, True, (104, 94, 84)), (10, 180), False, (600, 600)) 
+	DispObj(titleFont.render("World ending in 1000 days!", True, (104, 94, 84)), (10, 90)), #World Ending
+	DispObj(wraptext("Scientists predict that the world will end in one thousand days! Global warming will burn off the world's atmosphere is what the scientists claim! See page 23 to learn what global warming is.", 330, font, True, (104, 94, 84)), (10, 110), False, (600, 600)),
+	
+	DispObj(titleFont.render("Moon colony proposed by government!", True, (104, 94, 84)), (360, 90)), #Space program
+	DispObj(wraptext("The government is willing to provide funding to a team to build a space ship to bring us to the moon! Who will stand up to the major claim and get money in the process! See page 10 for details", 335, font, True, (104, 94, 84)), (360, 110), False, (600, 600)),
+	
+	DispObj(titleFont.render("People claim selves as Gods", True, (104, 94, 84)), (10, 200)), #World Ending
+	DispObj(wraptext("A group of people known as \"Unexpected Error\" are claiming themselves as the creators of this world, going by the names: Coosome, Blue Circles, Siv, and Heading North. See page 7 for more.", 330, font, True, (104, 94, 84)), (10, 220), False, (600, 600)),
+	
 	], (0, 0), False, (700, 700))
 
 sound = DispObj([DispObj(getImg("yesnoise")),DispObj(getImg("nonoise"))], (680, 0), False, (20, 20))
@@ -228,7 +226,6 @@ class shipPart(object):
 		self.fail = fail
 		self.img = image
 		self.dispOut = dispOut
-
 
 
 #part variables start with P, part types are B (booster), M (main), C (chassis), E (extras), materials have M with a T (tape), I (iron), N (nano)
@@ -266,7 +263,7 @@ PErats = shipPart("rats", 0, 0, 0.4, getImg("parts/rats"))
 PTspace = shipPart("space", 20, 0, 0, getImg("parts/Tspace"))
 PTorbit = shipPart("orbit", 60, 100, 2, getImg("parts/Torbit"))
 PTmoon = shipPart("moon", 200, 200, 6, getImg("parts/Tmoon"))
-PTcolony = shipPart("colony", 300, 600, 9, getImg("parts/Tcolony"))
+PTcolony = shipPart("colony", 800, 600, 9, getImg("parts/Tcolony"))
 #launch sites, cost is per launch attempt, percent is time added, fail is added when launching
 Lout = shipPart("Outside", 0, -.2, -5, getImg("backgrounds/LOut"))
 Lcity = shipPart("City", 1, 0, 5, getImg("backgrounds/LCity"))
@@ -1259,6 +1256,8 @@ while running:
 
 	#Newspaper!
 	if isNews:
+		news.all.insert(1, DispObj(font.render(str(month) + "/" + str(day) + "/" + str(year), True, (104, 94, 84)), (18, 17)))
+		news.refresh()
 		done, mouse_down, isNews = False, False, False
 		while not done:
 			for event in pygame.event.get(): 
