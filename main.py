@@ -98,6 +98,7 @@ vertstrip = getImg("vertstrip")
 capstrip2 = getImg("capstrip2")
 achiveBox = getImg("achieves/achiveBox")
 check = getImg("check")
+deskBacking = getImg("backgrounds/deskBacking")
 
 #Launch stuff
 backing = getImg("backgrounds/backing")
@@ -687,34 +688,18 @@ class Result(object):
 			clearList = []
 			clearing = False
 			for i in self.doings:
-				'''if clearing:
-					clearList.append(i)
-					
-					
-					print "hi"
-				if i[0] == "Clear":
-					
-					clearing = True'''
-				print self.doings.index(["Clear", 0])
-				print self.doings.index(i) + 1
-				if self.doings.index(i) + 1 > self.doings.index(["Clear", 0]) and not i == ["Clear", 0]  :
-					self.doings.remove(i)
-			for i in self.doings:
-				'''if clearing:
-					clearList.append(i)
-					
-					
-					print "hi"
-				if i[0] == "Clear":
-					
-					clearing = True'''
-				print self.doings.index(["Clear", 0])
-				print self.doings.index(i) + 1
-				if self.doings.index(i) + 1 > self.doings.index(["Clear", 0]) and not i == ["Clear", 0]  :
-					self.doings.remove(i)
 			
-		printDebug("doings:")
-		printDebug(self.doings)
+				
+				if self.doings.index(i) + 1 > self.doings.index(["Clear", 0]) and not i == ["Clear", 0]  :
+					self.doings.remove(i)
+					
+			for i in self.doings:
+				
+				
+				if self.doings.index(i) + 1 > self.doings.index(["Clear", 0]) and not i == ["Clear", 0]  :
+					self.doings.remove(i)
+		
+		
 		theEnemy.progress += 5
 		return self.feedback
 
@@ -1511,6 +1496,10 @@ while running:
 						print "Boosters: ", player.spaceboosters
 						print "Enemy Progress ", theEnemy.progress
 						
+					if event.key == K_s:
+						print "Adding progress!"
+						theEnemy.progress += 1500
+						
 					if event.key == K_d:
 						debug = False
 						print "Debug Off"
@@ -1794,16 +1783,39 @@ while running:
 	
 	if theEnemy.progress > 1500 and not "space" in theEnemy.achievements:
 		theEnemy.achievements.append("space")
-		#THE ENEMY HAS REACHED SPACE. Our national enemy seems to have started their own space program. Today at 2:46, a large rocket was seen taking off from their country. If they make it to the moon before us, the war will never end! Who will win this space race? Turn to page 708 for details.
-	if theEnemy.progress > 3000 and not "orbit" in theEnemy.achievements:
+		news.all = news.all[:1]
+		news.all += [
+		DispObj(titleFont.render("Enemy has reached Space!", True, (104, 94, 84)), (10, 90)), #World Ending
+		DispObj(wraptext("Our national enemy seems to have started their own space program. Today at 2:46, a large rocket was seen taking off from their country. If they make it to the moon before us, the war will never end! Who will win this space race? Turn to page 708 for details.", 330, font, True, (104, 94, 84)), (10, 110), False, (600, 600)),
+		]
+		isNews = True
+	elif theEnemy.progress > 3000 and not "orbit" in theEnemy.achievements:
 		theEnemy.achievements.append("orbit")
-		#COULD WE BE BOMBED FROM SPACE? Our national enemy has progressed their space program to the point were they have a spacecraft in orbit around our planet. Could this spacecraft rain down nuclear weapondry upon us? Turn to page 42 for details.
-	if theEnemy.progress > 4500 and not "moon" in theEnemy.achievements:
+		news.all = news.all[:1]
+		news.all += [
+		DispObj(titleFont.render("Could we be bombed from space?", True, (104, 94, 84)), (10, 90)), #World Ending
+		DispObj(wraptext("Our national enemy has progressed their space program to the point were they have a spacecraft in orbit around our planet. Could this spacecraft rain down nuclear weapondry upon us? Turn to page 42 for details.", 330, font, True, (104, 94, 84)), (10, 110), False, (600, 600)),
+		]
+		isNews = True
+		#COULD WE BE BOMBED FROM SPACE? 
+	elif theEnemy.progress > 4500 and not "moon" in theEnemy.achievements:
 		theEnemy.achievements.append("moon")
-		#THE ENEMY NEARS ITS GOAL. Several cheers where heard from the war front this morning when the news that our national enemy has landed on the moon was recieved. They are getting dangerously close to taking the moon for themselves. Could this be the end for our nation? Turn to page 560 for details.
-	if theEnemy.progress > 6000 and not "colony" in theEnemy.achievements:
+		news.all = news.all[:1]
+		news.all += [
+		DispObj(titleFont.render("The enemy nears it's goal!", True, (104, 94, 84)), (10, 90)), #World Ending
+		DispObj(wraptext("Several cheers where heard from the war front this morning when the news that our national enemy has landed on the moon was recieved. They are getting dangerously close to taking the moon for themselves. Could this be the end for our nation? Turn to page 560 for details.", 330, font, True, (104, 94, 84)), (10, 110), False, (600, 600)),
+		]
+		isNews = True
+		#THE ENEMY NEARS ITS GOAL. 
+	elif theEnemy.progress > 6000 and not "colony" in theEnemy.achievements:
 		theEnemy.achievements.append("colony")
-		#THE ENEMY HAS TAKEN THE MOON. This afternoon, footage was broadcast from our national enemy depecting their newly created moon colony. It's over. Will we all perish in the comming apocolypse?
+		news.all = news.all[:1]
+		news.all += [
+		DispObj(titleFont.render("Enemy has taken the Moon!", True, (104, 94, 84)), (10, 90)), #World Ending
+		DispObj(wraptext("This afternoon, footage was broadcast from our national enemy depecting their newly created moon colony. It's over. Will we all perish in the comming apocolypse?", 330, font, True, (104, 94, 84)), (10, 110), False, (600, 600)),
+		]
+		isNews = True
+		#THE ENEMY HAS TAKEN THE MOON. 
 
 	
 	
@@ -1820,6 +1832,7 @@ while running:
 	while not done and running:
 	
 		gScreen.fill(WHITE)
+		gScreen.blit(deskBacking, [0,0])
 		gScreen.blit(clipboard, [190, clipboard_y])
 		if not clipboard_down:
 			if not clipboard_y >= 90:
