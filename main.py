@@ -338,11 +338,11 @@ class Result(object):
 				player.progress += n
 			elif o == "addmoney":
 				if n < 0:
-					player.money += n
+					player.money += round(n * 10) / 10
 					theEnemy.progress += 5
 					self.feedback.append("You spend $"+str(-n)+"K")
 				else:
-					player.money += n
+					player.money += round(n * 10) / 10
 					self.feedback.append("You gain $"+str(n)+"K")
 			elif o == "multmoney":
 				if n < 1:
