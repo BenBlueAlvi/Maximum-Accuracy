@@ -13,11 +13,32 @@ Responce: It is the most common question. (Maybe add different?)
 Feedback: Impossible to launch.
 Responce: We find it easy, maybe because we made it? maybe make it easier, more testing required. Then again, it isn't easy to reach space.
 
-Feedback:
-Responce:
+Feedback: Eat rats maybe!
+Responce: huh... yeah.
 
-Feedback:
-Responce:
+/\ /\ /\ /\ /\
+These came from judges.
+\/ \/ \/ \/ \/
 
-Feedback:
-Responce:
+Feedback: more options for things.
+Responce: Too many options.
+
+Feedback: 
+Responce: 
+
+Feedback: 
+Responce: 
+
+
+stuff that may boost judge's ratings:
+	-team photo on TIMS
+	-social media outreach
+	-record time working
+	-post something on reddit
+	-special systems in game (maybe figure out how to implement regex)
+	-track ideas
+	-track decicion making
+	-paper records of early stages
+	-SPELL CHECK, dammit Colton and Ben.
+	
+	
