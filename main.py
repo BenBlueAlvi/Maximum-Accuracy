@@ -1185,7 +1185,7 @@ def launchResult(result, skipable = False):
 			if player.progress/player.full > 0.45 and player.progress/player.full < 0.55:
 				Ahalfbaked.get()
 
-		if time == 460:
+		if time == 460 and result == "success":
 			objects[0].pos = [700, 0]
 			#get rewarded
 			global goneSpace
