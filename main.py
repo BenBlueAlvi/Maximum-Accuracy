@@ -600,26 +600,29 @@ class Result(object):
 				print player.site.name
 				if n == "city":
 					if player.site == Lcity: #already there
+						printDebug("there")
 						self.feedback[0] = "After changing nothing:"
 						self.doings += [["subpop", 1]]
 					elif not player.site == Lcity:
-						print "nope"
+						printDebug("purchase")
 						self.feedback[0] = "After moving to to the city center:"
 						self.doings += [["subpop", 3], ["multprog", .8]]
 				elif n == "silo":
 					if player.site == Lsilo: #already there
+						printDebug("there")
 						self.feedback[0] = "After changing nothing:"
 						feedback.append("the day progresses as normal.")
 					elif not player.site == Lsilo:
-						print "nope"
+						printDebug("purchase")
 						self.feedback[0] = "After accepting the deal with the Silo:"
 						self.doings += [["addmoney", -8], ["multprog", .9]]
 				elif n == "out":
 					if player.site == Lout: #already there
+						printDebug("purchase")
 						self.feedback[0] = "After changing nothing:"
 						feedback.append("the day progresses as normal.")
 					elif not player.site == Lout:
-						print "nope"
+						printDebug("there")
 						self.feedback[0] = "After buying the plot of land:"
 						self.doings += [["addmoney", -40], ["multprog", .95], ["addpop", 2]]
 				
