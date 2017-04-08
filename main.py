@@ -10,6 +10,13 @@ pygame.mixer.init()
 
 debug = False
 sounds = False
+testMode = False
+
+def testing(testQuestion):
+	print "testing() ran with " + str(testQuestion.name)
+	global theQuestion, possiblequestions
+	theQuestion = testQuestion
+	possiblequestions = [testQuestion]
 
 def printDebug(stuff):
 	global debug
@@ -589,25 +596,29 @@ class Result(object):
 				player.setpart("material")
 			
 			elif o == "Mod": #modular stuff
+				print player.site.name
 				if n == "city":
 					if player.site == Lcity: #already there
 						self.feedback[0] = "After changing nothing:"
 						self.doings += [["subpop", 1]]
-					else:
+					elif not player.site == Lcity:
+						print "nope"
 						self.feedback[0] = "After moving to to the city center:"
 						self.doings += [["subpop", 3], ["multprog", .8]]
 				elif n == "silo":
 					if player.site == Lsilo: #already there
 						self.feedback[0] = "After changing nothing:"
 						feedback.append("the day progresses as normal.")
-					else:
+					elif not player.site == Lsilo:
+						print "nope"
 						self.feedback[0] = "After accepting the deal with the Silo:"
 						self.doings += [["addmoney", -8], ["multprog", .9]]
 				elif n == "out":
 					if player.site == Lout: #already there
 						self.feedback[0] = "After changing nothing:"
 						feedback.append("the day progresses as normal.")
-					else:
+					elif not player.site == Lout:
+						print "nope"
 						self.feedback[0] = "After buying the plot of land:"
 						self.doings += [["addmoney", -40], ["multprog", .95], ["addpop", 2]]
 				
@@ -1337,6 +1348,9 @@ while running:
 	if day == 25 and month == 3:
 		theQuestion = birthday
 		possiblequestions.append(birthday)
+	if day == 30 and month == 1:
+		theQuestion = birthday
+		possiblequestions.append(birthday)
 		
 	if player.daysSinceLaunch == 1:
 		theQuestion = target
@@ -1361,6 +1375,8 @@ while running:
 	if player.days >= 1000:
 		theQuestion = end
 		possiblequestions.append(end)
+	if testMode:
+		testing(wherelaunch)
 	
 
 	#Refreshing displays of stats
