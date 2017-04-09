@@ -1,33 +1,33 @@
 Feedback: Tough to launch.
-Responce: Intentional design decision.
+Response: Intentional design decision.
 
 Feedback: Set game time limit to a random number between 900 and 1000 to make it look 'natural'
-Responce: Nah... It'll decrease when you try to launch... eventually. That would require a new paper to tell the player
+Response: Nah... It'll decrease when you try to launch... eventually. That would require a new paper to tell the player
 
 Feedback: Change of failure? what does it mean/does it actually affect gameplay? Love achievements! Love the time investments!
-Responce: ...Is this just praise? How do we deal with this...? Table the idea for a more clear meaning of the failure.
+Response: ...Is this just praise? How do we deal with this...? Table the idea for a more clear meaning of the failure.
 
 Feedback: Too many people asking for overtime.
-Responce: It is the most common question. (Maybe add different?)
+Response: It is the most common question. (Maybe add different?)
 
 Feedback: Impossible to launch.
-Responce: We find it easy, maybe because we made it? maybe make it easier, more testing required. Then again, it isn't easy to reach space.
+Response: We find it easy, maybe because we made it? maybe make it easier, more testing required. Then again, it isn't easy to reach space.
 
 Feedback: Eat rats maybe!
-Responce: huh... yeah.
+Response: huh... yeah.
 
 /\ /\ /\ /\ /\
 These came from judges.
 \/ \/ \/ \/ \/
 
 Feedback: more options for things.
-Responce: Too many options.
+Response: Too many options.
 
 Feedback: 
-Responce: 
+Response: 
 
 Feedback: 
-Responce: 
+Response: 
 
 
 stuff that may boost judge's ratings:
